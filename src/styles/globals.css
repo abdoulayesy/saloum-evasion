@@ -1,0 +1,91 @@
+@import 'tailwindcss';
+@import './a11y.css';
+
+/*
+  Jetons de design Saloum Évasion (maquette validée).
+  Contrastes vérifiés (WCAG 2.2) :
+    mangrove sur sable 13,2:1 · ocre sur sable 5,5:1 · blanc sur ocre 6,3:1
+    ink-muted sur sable 6,3:1 · line sur sable 4,3:1 (composants, seuil 3:1)
+    texte sable sur scrim (voile mangrove 72 %) ≥ 5,3:1 quel que soit le fond photo
+  Ne pas éclaircir l'ocre pour du texte.
+*/
+@theme {
+  --color-mangrove: #0f2a24;
+  --color-mangrove-soft: #1b3d35;
+  --color-ocre: #9e4521;
+  --color-ocre-deep: #7d3519;
+  --color-sable: #f4eee3;
+  --color-sable-deep: #e8dfcf;
+  --color-ink: #0f2a24;
+  --color-ink-muted: #4a5a55;
+  --color-line: #7a6f5f;
+  --color-scrim: rgb(15 42 36 / 0.72);
+  --color-focus: #9e4521;
+  --color-focus-on-dark: #f4eee3;
+
+  --radius-card: 1rem;
+  --radius-control: 0.75rem;
+
+  /* Hauteur minimale des cibles tactiles (constitution I). */
+  --spacing-touch: 2.75rem;
+  /* Hauteur réservée à la barre d'action collante. */
+  --spacing-action-bar: 4.5rem;
+}
+
+@theme inline {
+  --font-serif: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+  --font-sans: var(--font-manrope), 'Manrope', system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: var(--color-sable);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  h1 {
+    font-size: 2.25rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  @media (min-width: 48rem) {
+    h1 {
+      font-size: 3rem;
+    }
+
+    h2 {
+      font-size: 2.25rem;
+    }
+  }
+}

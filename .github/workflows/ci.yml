@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Qualité, tests, budgets
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: saloum
+          POSTGRES_PASSWORD: saloum
+          POSTGRES_DB: saloum_evasion
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U saloum -d saloum_evasion"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URI: postgres://saloum:saloum@localhost:5432/saloum_evasion
+      PAYLOAD_SECRET: ci-secret-not-for-production-0123456789
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      REVALIDATE_SECRET: ci-revalidate
+      RATE_LIMIT_SALT: ci-salt
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck (strict, sans any)
+        run: pnpm typecheck
+
+      - name: Lint (ESLint + Stylelint mobile-first)
+        run: pnpm lint
+
+      - name: Tests unitaires
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Budgets JavaScript par route
+        run: pnpm bundles
+
+      - name: Navigateurs Playwright
+        run: pnpm exec playwright install --with-deps chromium webkit
+
+      - name: Tests de bout en bout mobiles + axe
+        run: pnpm e2e
+
+      - name: Tests SEO sans JavaScript
+        run: pnpm e2e:nojs
+
+      - name: Lighthouse CI (mobile, budgets de la constitution)
+        run: pnpm lhci
+
+      - name: Contrôle SEO (liens, hreflang, unicité)
+        run: |
+          pnpm start &
+          for i in $(seq 1 60); do curl -sf http://localhost:3000/fr > /dev/null && break; sleep 1; done
+          pnpm seo:check
+
+      - name: Rapports en cas d'échec
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapports
+          path: |
+            playwright-report/
+            .lighthouseci/
+          retention-days: 7

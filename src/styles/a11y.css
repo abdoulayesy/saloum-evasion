@@ -1,0 +1,51 @@
+/*
+  Base d'accessibilité (constitution IV, WCAG 2.2 AA).
+  - Focus visible : anneau de 3 px, contraste ≥ 3:1 (ocre sur fond clair, sable sur fond sombre).
+  - Focus jamais masqué par la barre collante (2.4.11) : scroll-padding réservé.
+  - Mouvement réduit : transitions et animations désactivées.
+*/
+
+:root {
+  scroll-padding-bottom: calc(var(--spacing-action-bar) + 1rem);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+.on-dark :focus-visible,
+.on-dark:focus-visible {
+  outline-color: var(--color-focus-on-dark);
+}
+
+.skip-link {
+  position: absolute;
+  inset-inline-start: 1rem;
+  inset-block-start: -100%;
+  z-index: 100;
+  min-height: var(--spacing-touch);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-control);
+  background-color: var(--color-mangrove);
+  color: var(--color-sable);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.skip-link:focus-visible {
+  inset-block-start: 1rem;
+  outline-color: var(--color-focus-on-dark);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
