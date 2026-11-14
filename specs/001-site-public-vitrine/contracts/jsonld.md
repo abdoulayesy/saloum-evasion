@@ -12,9 +12,12 @@ voir principe V et research R10).
 
 ### Organization + TravelAgency (toutes les pages indexables)
 
+`TravelAgency` est un sous-type d'`Organization` (via `LocalBusiness`) : un seul `@type` suffit.
+Tout champ non renseigné dans `siteSettings` est omis (aucune valeur inventée).
+
 ```json
 {
-  "@type": ["Organization", "TravelAgency"],
+  "@type": "TravelAgency",
   "@id": "https://{domaine}/#org",
   "name": "{siteSettings.brandName}",
   "legalName": "{siteSettings.legalName}",

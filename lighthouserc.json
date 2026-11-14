@@ -4,7 +4,7 @@
       "startServerCommand": "node ./node_modules/next/dist/bin/next start -p 3000",
       "startServerReadyPattern": "Ready",
       "numberOfRuns": 5,
-      "url": ["http://localhost:3000/fr"],
+      "url": ["http://localhost:3000/fr", "http://localhost:3000/en"],
       "settings": {
         "formFactor": "mobile",
         "throttlingMethod": "simulate",

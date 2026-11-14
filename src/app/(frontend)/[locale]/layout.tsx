@@ -1,29 +1,31 @@
-// Layout minimal du socle (T023) ; remplacé par le layout complet en T028 (phase 2A).
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { notFound } from 'next/navigation';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { Footer } from '@/components/layout/Footer';
+import { Header } from '@/components/layout/Header';
+import { htmlLang, isLocale, routing } from '@/i18n/routing';
+import { siteUrl } from '@/lib/site';
 import { fontVariables } from '@/styles/fonts';
 import '@/styles/globals.css';
 
-const LOCALES = ['fr', 'en'] as const;
-type Locale = (typeof LOCALES)[number];
-
-const isLocale = (value: string): value is Locale => LOCALES.some((locale) => locale === value);
+// Layout public : aucune métadonnée de page ici (canonical, hreflang et JSON-LD sont posés
+// par chaque page, pour que la 404 n'en hérite pas).
 
 export const dynamicParams = false;
 
-export const generateStaticParams = () => LOCALES.map((locale) => ({ locale }));
+export const generateStaticParams = () => routing.locales.map((locale) => ({ locale }));
 
 export const metadata: Metadata = {
-  title: 'Saloum Évasion — séjours immersifs dans le Sine-Saloum',
-  description:
-    'Séjours tout compris à Ndangane et dans les îles du Sine-Saloum : hébergement, expériences, table locale et transfert en une seule demande.',
+  metadataBase: new URL(siteUrl()),
+  applicationName: 'Saloum Évasion',
 };
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   themeColor: '#0f2a24',
+  // Le clavier virtuel réduit la fenêtre : la barre collante reste au-dessus, sans JS.
   interactiveWidget: 'resizes-content',
 };
 
@@ -32,13 +34,20 @@ type LayoutProps = { children: ReactNode; params: Promise<{ locale: string }> };
 const LocaleLayout = async ({ children, params }: LayoutProps) => {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: 'common' });
+
   return (
-    <html lang={locale === 'fr' ? 'fr-SN' : 'en'} className={fontVariables}>
-      <body>
+    <html lang={htmlLang[locale]} className={fontVariables}>
+      <body className="flex min-h-dvh flex-col">
         <a className="skip-link" href="#contenu">
-          {locale === 'fr' ? 'Aller au contenu' : 'Skip to content'}
+          {t('skipToContent')}
         </a>
-        <main id="contenu">{children}</main>
+        <Header locale={locale} />
+        <main id="contenu" tabIndex={-1} className="flex-1">
+          {children}
+        </main>
+        <Footer locale={locale} />
       </body>
     </html>
   );

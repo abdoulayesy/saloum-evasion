@@ -1,0 +1,51 @@
+{
+  "common": {
+    "brand": "Saloum Évasion",
+    "skipToContent": "Aller au contenu",
+    "home": "Accueil",
+    "breadcrumbLabel": "Fil d’Ariane"
+  },
+  "header": {
+    "homeLink": "Saloum Évasion, accueil",
+    "menu": "Menu",
+    "switchLanguage": "EN",
+    "switchLanguageLabel": "EN, English version"
+  },
+  "menu": {
+    "title": "Menu",
+    "close": "Fermer le menu",
+    "navLabel": "Navigation principale"
+  },
+  "footer": {
+    "navLabel": "Navigation du pied de page",
+    "tagline": "Séjours immersifs à Ndangane et dans les îles du Sine-Saloum, organisés par des gens d’ici.",
+    "contactTitle": "Nous trouver",
+    "paymentTitle": "Moyens de paiement acceptés",
+    "paymentNote": "Paiement en francs CFA (XOF).",
+    "rights": "Tous droits réservés."
+  },
+  "routes": {
+    "staysList": "Séjours",
+    "experiencesHub": "Expériences",
+    "accommodationsList": "Hébergements",
+    "destinationsList": "Destinations",
+    "film": "Film d’immersion",
+    "commitment": "Notre engagement",
+    "about": "À propos",
+    "faq": "Questions fréquentes",
+    "contact": "Contact",
+    "legal": "Mentions légales",
+    "privacy": "Confidentialité",
+    "request": "Demande de séjour",
+    "requestThanks": "Merci"
+  },
+  "errors": {
+    "notFoundTitle": "Page introuvable",
+    "notFoundBody": "Cette page n’existe pas ou plus. Le Saloum, lui, vous attend toujours.",
+    "serverErrorTitle": "Une erreur est survenue",
+    "serverErrorBody": "Nous n’avons pas pu afficher cette page. Réessayez dans un instant.",
+    "retry": "Réessayer",
+    "backHome": "Retour à l’accueil",
+    "explore": "Continuer la découverte"
+  }
+}

@@ -84,48 +84,84 @@ virer au rouge avant la première vraie page.
 
 ### 2A. Fondations SEO
 
-- [ ] T025 Configurer next-intl : `src/i18n/routing.ts` (locales `fr`, `en`, défaut `fr`, `localePrefix: 'always'`, `localeDetection: false`), `src/i18n/request.ts`, `src/i18n/messages/fr.json` et `en.json`, `src/middleware.ts` (redirection 301 fixe de `/` vers `/fr`, minuscules, suppression de la barre oblique finale)
-- [ ] T026 Créer `src/i18n/pathnames.ts` : segments traduits (`sejours`/`stays`, `experiences`, `hebergements`/`accommodation`, `destinations`, `film-immersion`/`immersion-film`, `notre-engagement`/`our-commitment`, `a-propos`/`about`, `faq`, `contact`, `mentions-legales`/`legal-notice`, `confidentialite`/`privacy`, `demande`/`request`, `merci`/`thank-you`) ; fonctions `buildPath(locale, route)` et `resolvePath(locale, segments)` → `{ type, params }` typé en union discriminée
-- [ ] T027 [P] Écrire `tests/unit/pathnames.test.ts` : aller-retour `buildPath`/`resolvePath` pour chaque type de route et chaque langue, segments inconnus → `null`
-- [ ] T028 Créer le layout `src/app/(frontend)/[locale]/layout.tsx` : `<html lang="fr-SN|en">`, polices, lien d'évitement « Aller au contenu », `<main id="contenu">`, en-tête, pied de page, `setRequestLocale`, `generateStaticParams` des locales, export `viewport` avec `interactiveWidget: 'resizes-content'` (le clavier virtuel réduit la fenêtre, la barre collante reste au-dessus sans JS)
-- [ ] T029 [P] Créer `src/components/layout/Header.tsx` (logo, bouton menu de 44 px, emplacement du sélecteur de langue et du compteur de demande) et `src/components/layout/Footer.tsx` (navigation, NAP lu dans `siteSettings`, moyens de paiement Wave, Orange Money et carte au même rang)
-- [ ] T030 [P] Créer `src/components/layout/MobileMenu.tsx` (composant **serveur** : balisage `<dialog>` plein écran, liens, boutons de fermeture en haut **et** en bas) et `src/components/client/DialogOpener.tsx` (moins de 1 Ko : `showModal()`, ce qui donne au navigateur le focus enfermé, la fermeture par Échap et par le bouton retour d'Android, puis le retour du focus) ; défilement bloqué par CSS (`body:has(dialog[open])`) ; sans JavaScript, le bouton est un lien vers la navigation du pied de page (analyse K1)
-- [ ] T031 Créer `src/lib/seo/metadata.ts` : `buildMetadata({ locale, path, alternates, title, description, image, noindex, type })` → `Metadata` Next (canonical absolu sans paramètres, `alternates.languages` fr/en/`x-default`=FR avec EN omis s'il n'est pas publié, Open Graph `fr_SN`/`en_US` 1200×630, Twitter `summary_large_image`, robots)
-- [ ] T032 [P] Écrire `tests/unit/metadata.test.ts` : canonical, hreflang avec et sans EN, noindex, longueurs
-- [ ] T033 Créer `src/components/seo/JsonLd.tsx` : composant serveur qui rend un `@graph` typé `schema-dts` dans un seul `<script type="application/ld+json">`, en échappant `</`
-- [ ] T034 [P] Créer `src/lib/seo/jsonld/organization.ts` (Organization + TravelAgency depuis `siteSettings`), `website.ts`, `breadcrumb.ts`, `itemList.ts`, et `tests/unit/jsonld-common.test.ts` (`@id` stables, aucune clé `aggregateRating`/`review`, NAP issu de `siteSettings`)
-- [ ] T035 [P] Créer `src/lib/seo/breadcrumbs.ts` (fil d'Ariane calculé depuis le type de route, source unique pour l'affichage et le JSON-LD) et `src/components/ui/Breadcrumbs.tsx` (`nav aria-label`, `ol`, `aria-current="page"`)
-- [ ] T036 Créer `src/app/(frontend)/sitemap.ts` et `src/lib/seo/sitemapEntries.ts` : pages fixes × locales avec `alternates.languages`, points d'extension pour les documents, les images et les vidéos ; exclusion des pages noindex
-- [ ] T037 [P] Créer `src/app/(frontend)/robots.ts` conforme à [routes.md](./contracts/routes.md#robotstxt) (`Disallow: /admin`, `/api` ; pages de demande non bloquées)
-- [ ] T038 [P] Créer `src/lib/seo/og.tsx` : génération `next/og` 1200×630 (vraie photo du document, voile, titre en Cormorant, logo ; polices lues depuis des fichiers locaux) et `public/og-default.jpg`
-- [ ] T039 Créer `src/app/(frontend)/[locale]/not-found.tsx`, `error.tsx` et `src/app/(frontend)/global-error.tsx` (noindex, H1, liens vers 3 séjours populaires, les destinations et la recherche) et `tests/e2e/errors.mobile.spec.ts` (statut 404, noindex, ni canonical ni hreflang, axe, 360 px)
-- [ ] T040 Écrire `tests/e2e/seo-foundations.seo.spec.ts` (projet `nojs`) : `/` → 301 `/fr`, `robots.txt`, `sitemap.xml` en XML valide, `lang` du document, présence du lien d'évitement
+- [X] T025 Configurer next-intl : `src/i18n/routing.ts` (locales `fr`, `en`, défaut `fr`, `localePrefix: 'always'`, `localeDetection: false`), `src/i18n/request.ts`, `src/i18n/messages/fr.json` et `en.json`, `src/middleware.ts` (redirection 301 fixe de `/` vers `/fr`, minuscules, suppression de la barre oblique finale)
+- [X] T026 Créer `src/i18n/pathnames.ts` : segments traduits (`sejours`/`stays`, `experiences`, `hebergements`/`accommodation`, `destinations`, `film-immersion`/`immersion-film`, `notre-engagement`/`our-commitment`, `a-propos`/`about`, `faq`, `contact`, `mentions-legales`/`legal-notice`, `confidentialite`/`privacy`, `demande`/`request`, `merci`/`thank-you`) ; fonctions `buildPath(locale, route)` et `resolvePath(locale, segments)` → `{ type, params }` typé en union discriminée
+- [X] T027 [P] Écrire `tests/unit/pathnames.test.ts` : aller-retour `buildPath`/`resolvePath` pour chaque type de route et chaque langue, segments inconnus → `null`
+- [X] T028 Créer le layout `src/app/(frontend)/[locale]/layout.tsx` : `<html lang="fr-SN|en">`, polices, lien d'évitement « Aller au contenu », `<main id="contenu">`, en-tête, pied de page, `setRequestLocale`, `generateStaticParams` des locales, export `viewport` avec `interactiveWidget: 'resizes-content'` (le clavier virtuel réduit la fenêtre, la barre collante reste au-dessus sans JS)
+- [X] T029 [P] Créer `src/components/layout/Header.tsx` (logo, bouton menu de 44 px, emplacement du sélecteur de langue et du compteur de demande) et `src/components/layout/Footer.tsx` (navigation, NAP lu dans `siteSettings`, moyens de paiement Wave, Orange Money et carte au même rang)
+- [X] T030 [P] Créer `src/components/layout/MobileMenu.tsx` (composant **serveur** : balisage `<dialog>` plein écran, liens, boutons de fermeture en haut **et** en bas) et `src/components/client/DialogOpener.tsx` (moins de 1 Ko : `showModal()`, ce qui donne au navigateur le focus enfermé, la fermeture par Échap et par le bouton retour d'Android, puis le retour du focus) ; défilement bloqué par CSS (`body:has(dialog[open])`) ; sans JavaScript, le bouton est un lien vers la navigation du pied de page (analyse K1)
+- [X] T031 Créer `src/lib/seo/metadata.ts` : `buildMetadata({ locale, path, alternates, title, description, image, noindex, type })` → `Metadata` Next (canonical absolu sans paramètres, `alternates.languages` fr/en/`x-default`=FR avec EN omis s'il n'est pas publié, Open Graph `fr_SN`/`en_US` 1200×630, Twitter `summary_large_image`, robots)
+- [X] T032 [P] Écrire `tests/unit/metadata.test.ts` : canonical, hreflang avec et sans EN, noindex, longueurs
+- [X] T033 Créer `src/components/seo/JsonLd.tsx` : composant serveur qui rend un `@graph` typé `schema-dts` dans un seul `<script type="application/ld+json">`, en échappant `</`
+- [X] T034 [P] Créer `src/lib/seo/jsonld/organization.ts` (Organization + TravelAgency depuis `siteSettings`), `website.ts`, `breadcrumb.ts`, `itemList.ts`, et `tests/unit/jsonld-common.test.ts` (`@id` stables, aucune clé `aggregateRating`/`review`, NAP issu de `siteSettings`)
+- [X] T035 [P] Créer `src/lib/seo/breadcrumbs.ts` (fil d'Ariane calculé depuis le type de route, source unique pour l'affichage et le JSON-LD) et `src/components/ui/Breadcrumbs.tsx` (`nav aria-label`, `ol`, `aria-current="page"`)
+- [X] T036 Créer `src/app/(frontend)/sitemap.ts` et `src/lib/seo/sitemapEntries.ts` : pages fixes × locales avec `alternates.languages`, points d'extension pour les documents, les images et les vidéos ; exclusion des pages noindex
+- [X] T037 [P] Créer `src/app/(frontend)/robots.ts` conforme à [routes.md](./contracts/routes.md#robotstxt) (`Disallow: /admin`, `/api` ; pages de demande non bloquées)
+- [X] T038 [P] Créer `src/lib/seo/og.tsx` : génération `next/og` 1200×630 (vraie photo du document, voile, titre en Cormorant, logo ; polices lues depuis des fichiers locaux) et `public/og-default.jpg`
+- [X] T039 Créer `src/app/(frontend)/[locale]/not-found.tsx`, `error.tsx` et `src/app/(frontend)/global-error.tsx` (noindex, H1, liens vers 3 séjours populaires, les destinations et la recherche) et `tests/e2e/errors.mobile.spec.ts` (statut 404, noindex, ni canonical ni hreflang, axe, 360 px)
+- [X] T040 Écrire `tests/e2e/seo-foundations.seo.spec.ts` (projet `nojs`) : `/` → 301 `/fr`, `robots.txt`, `sitemap.xml` en XML valide, `lang` du document, présence du lien d'évitement
+
+> **Écarts d'implémentation 2A (2026-11-14)** :
+> - T029 : coordonnées lues dans `src/lib/site.ts` (`getSiteSettings`) jusqu'au global
+>   `siteSettings` de la phase 2B ; aucune coordonnée inventée (champ absent = non affiché).
+> - T034 : nœud `TravelAgency` seul (sous-type d'Organization dans schema.org), `@id` `/#org`.
+> - T036 / T037 : `sitemap.ts` et `robots.ts` à la racine de `src/app/` (exigence Next pour
+>   robots) ; liens et sitemap limités aux routes livrées (`src/lib/navigation.ts`).
+> - T038 : image par défaut `/og-default.png` et logo `/logo-512.png` générés au build
+>   (`next/og`), polices statiques dans `src/assets/fonts/`.
+> - T039 : `global-error.tsx` à la racine de `src/app/` (emplacement imposé) ; les URL sans
+>   préfixe de langue sont réécrites vers la 404 localisée.
+> - T025 : redirections (racine, barre oblique finale, majuscules) en 301 par le middleware
+>   (`skipTrailingSlashRedirect`), pas le middleware next-intl.
+> - Playwright : projet `iphone-se` limité à 2 workers (plantages de WebKit sous forte
+>   concurrence) ; LHCI mesure `/fr` et `/en`.
 
 ### 2B. CMS et modèle de données localisé FR/EN
 
-- [ ] T041 Installer Payload 3 (`@payloadcms/db-postgres`, `@payloadcms/richtext-lexical`) ; créer `src/payload.config.ts` (localisation `fr`/`en`, `defaultLocale: 'fr'`, `fallback: false`), les routes `src/app/(payload)/admin/[[...segments]]/page.tsx` et API, `withPayload` dans `next.config.ts`, en-tête `X-Robots-Tag: noindex` sur `/admin`
-- [ ] T042 [P] Créer `src/collections/Users.ts` : rôles `admin`/`editor`, mot de passe d'au moins 12 caractères, collage et gestionnaires de mots de passe autorisés (WCAG 3.3.8)
-- [ ] T043 [P] Créer les groupes de champs `src/fields/seo.ts`, `src/fields/localeStatus.ts`, `src/fields/body.ts` (au moins 300 mots par langue publiée), `src/fields/provenance.ts` et les validateurs purs `src/fields/validators.ts` (regex de slug, longueurs, comptage de mots)
-- [ ] T044 [P] Écrire `tests/unit/validators.test.ts` : slugs valides et invalides, title 60/61 caractères, comptage de mots (hors titres)
-- [ ] T045 Créer `src/collections/Media.ts` : `alt` FR et EN obligatoires, provenance obligatoire, génération de `blurDataURL` à l'envoi (sharp), dimensions, adaptateur de stockage S3 activé si `S3_*` est défini
-- [ ] T046 [P] Créer `src/collections/Destinations.ts` selon [data-model.md](./data-model.md#destinations), avec `kind` = `village` \| `ile` \| `reserve` et `replacementTarget`
-- [ ] T047 [P] Créer `src/collections/Universes.ts` (`kind: experience | stay`, slug localisé seulement pour `experience`)
-- [ ] T048 [P] Créer `src/collections/CancellationPolicies.ts`
-- [ ] T049 [P] Créer `src/collections/FaqItems.ts`
-- [ ] T050 Créer `src/collections/Stays.ts` : tous les champs du modèle, hooks calculant `durationCategory` et `budgetBand`, `cancellationPolicy` obligatoire, `replacementTarget`
-- [ ] T051 [P] Créer `src/collections/Experiences.ts` (univers obligatoire, `seasonMonths`, `pricePerPerson` XOF entier, `replacementTarget`)
-- [ ] T052 [P] Créer `src/collections/Accommodations.ts` (`type`, `capacity`, `amenities`, `geo`, `identifier` facultatif, galerie ≥ 5, `replacementTarget`)
-- [ ] T053 [P] Créer `src/collections/Videos.ts` : `muxPlaybackId`, durées plafonnées par format, affiche obligatoire, sous-titres FR et EN obligatoires pour `film`/`vertical15`, chapitres strictement croissants commençant à 0, `descriptiveTranscript` localisé
-- [ ] T054 [P] Créer `src/collections/Pages.ts` et les schémas de blocs `src/blocks/{Hero,RichText,Team,Figures,Gallery,Steps,Guarantees,Cta}.ts` ; clés uniques `home`, `commitment`, `about`, `faq`, `contact`, `legal`, `privacy`, `film`, `stays_list`, `experiences_hub`, `accommodations_list`, `destinations_list`, `not_found` (title, description et image de partage des pages sans document : seo CHK002 et CHK026)
-- [ ] T055 [P] Créer `src/collections/TeamMembers.ts`
-- [ ] T056 [P] Créer `src/collections/Requests.ts` (création via l'API refusée, lecture réservée à l'équipe, référence `SE-AAAAMMJJ-XXXX`, statuts) et `src/collections/RateLimits.ts` (masquée dans l'admin)
-- [ ] T057 [P] Créer `src/collections/Redirects.ts` (`from` unique, `to`, `type: 301`, `reason`)
-- [ ] T058 Créer les globals `src/globals/SiteSettings.ts` (NAP, WhatsApp, `responseTimeText`, `highSeasons`, `guarantees`, `paymentMethods`, `notificationEmail`, `fallbackNotificationEmail`, `sameAs`) et `src/globals/Navigation.ts`
-- [ ] T059 [P] Créer `src/lib/pricing.ts` (`priceFrom`, `durationCategory`, `budgetBand`, `toEurIndicative` = arrondi supérieur de XOF / 655,957, `formatXof` « 250 000 FCFA », `formatEur` « ≈ 382 € ») et `tests/unit/pricing.test.ts`
-- [ ] T060 Créer `src/lib/cms/queries.ts` : lectures publiées seulement (`getStayBySlug`, `listStays`, `getExperienceBySlug`, `listExperiences`, `getDestinationBySlug`, `listDestinations`, `getAccommodationBySlug`, `listAccommodations`, `getPage`, `getSiteSettings`, `getAlternates`), mises en cache avec les tags `doc:{collection}:{id}`, `{collection}`, `sitemap`, `nav`, en respectant `enPublished`
-- [ ] T061 Créer `src/hooks/revalidate.ts` (`afterChange`/`afterDelete` → `revalidateTag` du document, de sa collection, des destinations liées, du sitemap et de la navigation) et l'attacher à toutes les collections publiques et aux globals
-- [ ] T062 Générer la migration initiale (`pnpm payload migrate:create`) et écrire `src/seed/index.ts` : 6 destinations, 4 univers, réglages du site, 1 politique d'annulation, 3 séjours (dont un week-end à Ndangane), 4 expériences (pirogue, quad, balade à cheval à Palmarin, table du Saloum), 3 hébergements (dont une villa avec piscine à Ndangane), FAQ, pages ; FR et EN ; médias de test dans `tests/fixtures/media/`, réservés aux environnements de test
-- [ ] T063 Écrire `tests/e2e/cms.smoke.spec.ts` (projet `desktop`) : connexion à l'admin, `/admin` en noindex et bloqué dans `robots.txt`, création d'une demande via l'API publique refusée
+- [X] T041 Installer Payload 3 (`@payloadcms/db-postgres`, `@payloadcms/richtext-lexical`) ; créer `src/payload.config.ts` (localisation `fr`/`en`, `defaultLocale: 'fr'`, `fallback: false`), les routes `src/app/(payload)/admin/[[...segments]]/page.tsx` et API, `withPayload` dans `next.config.ts`, en-tête `X-Robots-Tag: noindex` sur `/admin`
+- [X] T042 [P] Créer `src/collections/Users.ts` : rôles `admin`/`editor`, mot de passe d'au moins 12 caractères, collage et gestionnaires de mots de passe autorisés (WCAG 3.3.8)
+- [X] T043 [P] Créer les groupes de champs `src/fields/seo.ts`, `src/fields/localeStatus.ts`, `src/fields/body.ts` (au moins 300 mots par langue publiée), `src/fields/provenance.ts` et les validateurs purs `src/fields/validators.ts` (regex de slug, longueurs, comptage de mots)
+- [X] T044 [P] Écrire `tests/unit/validators.test.ts` : slugs valides et invalides, title 60/61 caractères, comptage de mots (hors titres)
+- [X] T045 Créer `src/collections/Media.ts` : `alt` FR et EN obligatoires, provenance obligatoire, génération de `blurDataURL` à l'envoi (sharp), dimensions, adaptateur de stockage S3 activé si `S3_*` est défini
+- [X] T046 [P] Créer `src/collections/Destinations.ts` selon [data-model.md](./data-model.md#destinations), avec `kind` = `village` \| `ile` \| `reserve` et `replacementTarget`
+- [X] T047 [P] Créer `src/collections/Universes.ts` (`kind: experience | stay`, slug localisé seulement pour `experience`)
+- [X] T048 [P] Créer `src/collections/CancellationPolicies.ts`
+- [X] T049 [P] Créer `src/collections/FaqItems.ts`
+- [X] T050 Créer `src/collections/Stays.ts` : tous les champs du modèle, hooks calculant `durationCategory` et `budgetBand`, `cancellationPolicy` obligatoire, `replacementTarget`
+- [X] T051 [P] Créer `src/collections/Experiences.ts` (univers obligatoire, `seasonMonths`, `pricePerPerson` XOF entier, `replacementTarget`)
+- [X] T052 [P] Créer `src/collections/Accommodations.ts` (`type`, `capacity`, `amenities`, `geo`, `identifier` facultatif, galerie ≥ 5, `replacementTarget`)
+- [X] T053 [P] Créer `src/collections/Videos.ts` : `muxPlaybackId`, durées plafonnées par format, affiche obligatoire, sous-titres FR et EN obligatoires pour `film`/`vertical15`, chapitres strictement croissants commençant à 0, `descriptiveTranscript` localisé
+- [X] T054 [P] Créer `src/collections/Pages.ts` et les schémas de blocs `src/blocks/{Hero,RichText,Team,Figures,Gallery,Steps,Guarantees,Cta}.ts` ; clés uniques `home`, `commitment`, `about`, `faq`, `contact`, `legal`, `privacy`, `film`, `stays_list`, `experiences_hub`, `accommodations_list`, `destinations_list`, `not_found` (title, description et image de partage des pages sans document : seo CHK002 et CHK026)
+- [X] T055 [P] Créer `src/collections/TeamMembers.ts`
+- [X] T056 [P] Créer `src/collections/Requests.ts` (création via l'API refusée, lecture réservée à l'équipe, référence `SE-AAAAMMJJ-XXXX`, statuts) et `src/collections/RateLimits.ts` (masquée dans l'admin)
+- [X] T057 [P] Créer `src/collections/Redirects.ts` (`from` unique, `to`, `type: 301`, `reason`)
+- [X] T058 Créer les globals `src/globals/SiteSettings.ts` (NAP, WhatsApp, `responseTimeText`, `highSeasons`, `guarantees`, `paymentMethods`, `notificationEmail`, `fallbackNotificationEmail`, `sameAs`) et `src/globals/Navigation.ts`
+- [X] T059 [P] Créer `src/lib/pricing.ts` (`priceFrom`, `durationCategory`, `budgetBand`, `toEurIndicative` = arrondi supérieur de XOF / 655,957, `formatXof` « 250 000 FCFA », `formatEur` « ≈ 382 € ») et `tests/unit/pricing.test.ts`
+- [X] T060 Créer `src/lib/cms/queries.ts` : lectures publiées seulement (`getStayBySlug`, `listStays`, `getExperienceBySlug`, `listExperiences`, `getDestinationBySlug`, `listDestinations`, `getAccommodationBySlug`, `listAccommodations`, `getPage`, `getSiteSettings`, `getAlternates`), mises en cache avec les tags `doc:{collection}:{id}`, `{collection}`, `sitemap`, `nav`, en respectant `enPublished`
+- [X] T061 Créer `src/hooks/revalidate.ts` (`afterChange`/`afterDelete` → `revalidateTag` du document, de sa collection, des destinations liées, du sitemap et de la navigation) et l'attacher à toutes les collections publiques et aux globals
+- [X] T062 Générer la migration initiale (`pnpm payload migrate:create`) et écrire `src/seed/index.ts` : 6 destinations, 4 univers, réglages du site, 1 politique d'annulation, 3 séjours (dont un week-end à Ndangane), 4 expériences (pirogue, quad, balade à cheval à Palmarin, table du Saloum), 3 hébergements (dont une villa avec piscine à Ndangane), FAQ, pages ; FR et EN ; médias de test dans `tests/fixtures/media/`, réservés aux environnements de test
+- [X] T063 Écrire `tests/e2e/cms.smoke.spec.ts` (projet `desktop`) : connexion à l'admin, `/admin` en noindex et bloqué dans `robots.txt`, création d'une demande via l'API publique refusée
+
+> **Écarts d'implémentation 2B (2026-11-15)** :
+> - T041 : Next fixé à **15.4.11** (Payload 3.93 exclut explicitement Next 15.5) ; API GraphQL
+>   coupée ; admin en français via `@payloadcms/translations` (paquet de Payload) ; schéma
+>   uniquement par migrations (`push: false`).
+> - T043 : un champ localisé « obligatoire » l'est en français ; en anglais il peut rester vide,
+>   et `localeStatus.enPublished` est recalculé à l'enregistrement de la version anglaise.
+> - T045 : textes alternatifs en groupe non localisé `alt.fr` / `alt.en`, tous deux
+>   obligatoires ; largeur minimale 1600 px contrôlée à l'envoi.
+> - T046 / T052 : coordonnées GPS en deux nombres (latitude, longitude) : pas de PostGIS.
+> - T053 : sous-titres référencés par URL de fichier .vtt (la collection `media` n'accepte que
+>   des images).
+> - T060 : réglages du site lus via `src/lib/cms/siteSettings.ts` ; `src/lib/site.ts` reste pur.
+> - T061 : pas de route `/api/revalidate` : les hooks appellent `revalidateTag` directement
+>   (même application), sans effet hors requête Next (seed, migrations).
+> - T062 : seed de démonstration (images générées marquées « démonstration », provenance
+>   « Démonstration », aucune coordonnée inventée) ; refusé en production.
+> - `scripts/check-bundles.ts` écarte aussi les morceaux propres à l'admin (D-T6a).
+> - **Constat ouvert** : la 404 est rendue côté client (enveloppe HTML d'erreur de Next sans
+>   JavaScript, statut 404 correct). Sans impact SEO (page noindex), à corriger avant le
+>   lancement (voir Phase 10).
 
 **Checkpoint** : base migrée et peuplée, métadonnées, JSON-LD commun, sitemap et robots opérationnels ; les parcours peuvent démarrer.
 

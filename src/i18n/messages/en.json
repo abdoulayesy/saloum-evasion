@@ -1,0 +1,51 @@
+{
+  "common": {
+    "brand": "Saloum Évasion",
+    "skipToContent": "Skip to content",
+    "home": "Home",
+    "breadcrumbLabel": "Breadcrumb"
+  },
+  "header": {
+    "homeLink": "Saloum Évasion, home",
+    "menu": "Menu",
+    "switchLanguage": "FR",
+    "switchLanguageLabel": "FR, version française"
+  },
+  "menu": {
+    "title": "Menu",
+    "close": "Close menu",
+    "navLabel": "Main navigation"
+  },
+  "footer": {
+    "navLabel": "Footer navigation",
+    "tagline": "Immersive stays in Ndangane and the Sine-Saloum islands, organised by local people.",
+    "contactTitle": "Find us",
+    "paymentTitle": "Accepted payment methods",
+    "paymentNote": "Payment in CFA francs (XOF).",
+    "rights": "All rights reserved."
+  },
+  "routes": {
+    "staysList": "Stays",
+    "experiencesHub": "Experiences",
+    "accommodationsList": "Accommodation",
+    "destinationsList": "Destinations",
+    "film": "Immersion film",
+    "commitment": "Our commitment",
+    "about": "About us",
+    "faq": "Frequently asked questions",
+    "contact": "Contact",
+    "legal": "Legal notice",
+    "privacy": "Privacy",
+    "request": "Stay request",
+    "requestThanks": "Thank you"
+  },
+  "errors": {
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "This page does not exist or has moved. The Saloum is still waiting for you.",
+    "serverErrorTitle": "Something went wrong",
+    "serverErrorBody": "We could not display this page. Please try again in a moment.",
+    "retry": "Try again",
+    "backHome": "Back to home",
+    "explore": "Keep exploring"
+  }
+}

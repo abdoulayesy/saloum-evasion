@@ -2,6 +2,8 @@ import { defineConfig, devices } from '@playwright/test';
 
 const PORT = 3000;
 const SEO_SPECS = /.*\.(seo|nojs)\.spec\.ts/;
+// Admin Payload : testé sur ordinateur seulement (dérogation D-T6b).
+const ADMIN_SPECS = /cms\.smoke\.spec\.ts/;
 const baseURL = process.env.BASE_URL ?? `http://localhost:${PORT}`;
 
 // Appareil de référence de la constitution : Android milieu de gamme, 360 px de large.
@@ -31,19 +33,22 @@ export default defineConfig({
     {
       name: 'android-360',
       use: { ...devices['Desktop Chrome'], ...android360 },
-      testIgnore: SEO_SPECS,
+      testIgnore: [SEO_SPECS, ADMIN_SPECS],
     },
     {
       name: 'android-360-landscape',
       use: { ...devices['Desktop Chrome'], ...android360, viewport: { width: 800, height: 360 } },
-      testIgnore: SEO_SPECS,
+      testIgnore: [SEO_SPECS, ADMIN_SPECS],
     },
-    { name: 'pixel-7', use: { ...devices['Pixel 7'] }, testIgnore: SEO_SPECS },
+    { name: 'pixel-7', use: { ...devices['Pixel 7'] }, testIgnore: [SEO_SPECS, ADMIN_SPECS] },
     {
       name: 'iphone-se',
       use: { ...devices['iPhone SE'] },
       grepInvert: /@chromium-only/,
-      testIgnore: SEO_SPECS,
+      testIgnore: [SEO_SPECS, ADMIN_SPECS],
+      // WebKit plante sous forte concurrence (constaté sous Windows avec 8 workers) :
+      // parallélisme limité pour ce seul projet, sans désactiver aucun test.
+      workers: 2,
     },
     {
       name: 'nojs',

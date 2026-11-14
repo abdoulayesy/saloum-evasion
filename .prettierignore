@@ -11,3 +11,9 @@ pnpm-lock.yaml
 .specify/
 .claude/
 specs/
+
+# Fichiers générés par Payload
+src/payload-types.ts
+src/app/(payload)/admin/importMap.js
+src/migrations/
+media/

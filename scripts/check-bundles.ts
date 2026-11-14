@@ -90,11 +90,20 @@ const main = (): void => {
     if (total > INITIAL_BUDGET) failures.push(`${route} : ${kb(total)} > ${kb(INITIAL_BUDGET)}`);
   }
 
+  // Fichiers chargés par l'admin Payload (ses pages et son layout) : hors budget (D-T6a),
+  // sauf s'ils servent aussi une route publique (alors déjà comptés ci-dessus).
+  const adminFiles = new Set(
+    entries.filter(([route]) => EXCLUDED_ROUTE.test(route)).flatMap(([, files]) => files),
+  );
+
   const chunksDir = join(NEXT_DIR, 'static', 'chunks');
   const lazyFiles = readdirSync(chunksDir, { recursive: true, encoding: 'utf8' })
     .filter((file) => file.endsWith('.js'))
     .map((file) => `static/chunks/${file.replaceAll('\\', '/')}`)
-    .filter((file) => !initialFiles.has(file) && !file.includes('/app/(payload)/'));
+    .filter(
+      (file) =>
+        !initialFiles.has(file) && !adminFiles.has(file) && !file.includes('/app/(payload)/'),
+    );
 
   console.log(`Morceaux chargés à la demande : ${lazyFiles.length}`);
   for (const file of lazyFiles) {
