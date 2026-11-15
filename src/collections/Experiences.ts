@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { previewFor } from '@/lib/cms/preview';
 import { bodyField } from '@/fields/body';
 import {
   galleryField,
@@ -34,6 +35,7 @@ export const Experiences: CollectionConfig = {
   slug: 'experiences',
   labels: { singular: 'Expérience', plural: 'Expériences' },
   admin: {
+    preview: previewFor('experiences'),
     useAsTitle: 'title',
     group: 'Catalogue',
     defaultColumns: ['title', 'universe', 'destination', '_status', 'updatedAt'],

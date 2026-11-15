@@ -175,15 +175,31 @@ méta), et toute adresse modifiée ou retirée est redirigée automatiquement.
 **Independent Test** : dans l'admin, publier un contenu sans `alt` EN est refusé ; changer un
 slug crée une redirection 301 ; une publication déclenche la revalidation.
 
-- [ ] T064 [US3] Créer `src/hooks/publishGuards.ts` : refuse la publication si un média utilisé n'a pas son `alt` FR/EN ou sa provenance, si `body` fait moins de 300 mots, si un séjour n'a pas de politique d'annulation, ou si les méta dépassent leurs limites ; EN incomplet → `enPublished = false` et avertissement, sans bloquer la publication FR
-- [ ] T065 [P] [US3] Créer `src/hooks/uniqueMeta.ts` : `metaTitle` et `metaDescription` uniques par langue sur toutes les collections publiques et `pages`
-- [ ] T066 [US3] Créer `src/hooks/autoRedirect.ts` : slug modifié → 301 ancien → nouveau par langue ; dépublication **ou suppression** → 301 vers `replacementTarget`, sinon vers la liste parente ; slug d'univers modifié → 301 pour chaque expérience imbriquée ; aplatissement des chaînes (seo CHK034, CHK035)
-- [ ] T067 [P] [US3] Écrire `tests/unit/autoRedirect.test.ts` : changement de slug, dépublication avec et sans remplacement, cascade d'univers, aplatissement
-- [ ] T068 [US3] Créer `src/app/api/redirects/route.ts` (table compilée, mise en cache avec le tag `redirects`) et l'appliquer dans `src/middleware.ts` ; ajouter dans `next.config.ts` les redirections des segments fixes renommés (seo CHK036)
-- [ ] T069 [US3] Configurer la liste des demandes dans `src/collections/Requests.ts` (colonnes référence, date, prénom, arrivée, voyageurs, statut, alerte si `notifiedAt` est vide ; filtres par statut ; accès `editor`)
-- [ ] T070 [P] [US3] Ajouter dans `src/payload.config.ts` l'aperçu de la page publique (`admin.preview`) et des descriptions de champs en français pour les éditeurs
-- [ ] T071 [P] [US3] Créer `src/jobs/purgeRequests.ts` (suppression des demandes de plus de 24 mois hors `won`, purge de `rateLimits` après 24 h) et créer `vercel.json` avec sa tâche planifiée (complété par T173)
-- [ ] T072 [US3] Écrire `tests/e2e/us3-editor.spec.ts` (projet `desktop`, D5) : publication refusée sans `alt` EN, refusée sous 300 mots, redirection créée après changement de slug, appel de revalidation déclenché
+- [X] T064 [US3] Créer `src/hooks/publishGuards.ts` : refuse la publication si un média utilisé n'a pas son `alt` FR/EN ou sa provenance, si `body` fait moins de 300 mots, si un séjour n'a pas de politique d'annulation, ou si les méta dépassent leurs limites ; EN incomplet → `enPublished = false` et avertissement, sans bloquer la publication FR
+- [X] T065 [P] [US3] Créer `src/hooks/uniqueMeta.ts` : `metaTitle` et `metaDescription` uniques par langue sur toutes les collections publiques et `pages`
+- [X] T066 [US3] Créer `src/hooks/autoRedirect.ts` : slug modifié → 301 ancien → nouveau par langue ; dépublication **ou suppression** → 301 vers `replacementTarget`, sinon vers la liste parente ; slug d'univers modifié → 301 pour chaque expérience imbriquée ; aplatissement des chaînes (seo CHK034, CHK035)
+- [X] T067 [P] [US3] Écrire `tests/unit/autoRedirect.test.ts` : changement de slug, dépublication avec et sans remplacement, cascade d'univers, aplatissement
+- [X] T068 [US3] Créer `src/app/api/redirects/route.ts` (table compilée, mise en cache avec le tag `redirects`) et l'appliquer dans `src/middleware.ts` ; ajouter dans `next.config.ts` les redirections des segments fixes renommés (seo CHK036)
+- [X] T069 [US3] Configurer la liste des demandes dans `src/collections/Requests.ts` (colonnes référence, date, prénom, arrivée, voyageurs, statut, alerte si `notifiedAt` est vide ; filtres par statut ; accès `editor`)
+- [X] T070 [P] [US3] Ajouter dans `src/payload.config.ts` l'aperçu de la page publique (`admin.preview`) et des descriptions de champs en français pour les éditeurs
+- [X] T071 [P] [US3] Créer `src/jobs/purgeRequests.ts` (suppression des demandes de plus de 24 mois hors `won`, purge de `rateLimits` après 24 h) et créer `vercel.json` avec sa tâche planifiée (complété par T173)
+- [X] T072 [US3] Écrire `tests/e2e/us3-editor.spec.ts` (projet `desktop`, D5) : publication refusée sans `alt` EN, refusée sous 300 mots, redirection créée après changement de slug, appel de revalidation déclenché
+
+> **Écarts d'implémentation phase 3 (2026-11-15)** :
+> - T064 : les règles portées par les champs (300 mots, SEO, conditions d'annulation) restent
+>   dans leur validation ; `publishGuards.ts` ajoute le contrôle des photos référencées (alt FR
+>   et EN, provenance). L'avertissement « version anglaise incomplète » est la case en lecture
+>   seule `localeStatus.enPublished` de l'admin.
+> - T065 : l'unicité (déjà active en 2B) est extraite dans `src/hooks/uniqueMeta.ts`.
+> - T066 : redirections calculées en comparant l'état public du document principal avant et
+>   après l'opération ; un brouillon n'en crée jamais (logique pure dans `src/lib/redirects/`).
+> - T068 : table servie par `/api/redirect-table` (`/api/redirects` est l'API REST de Payload) ;
+>   le middleware la garde 30 s en mémoire (`REDIRECTS_TTL_MS`) et applique la redirection sur
+>   la forme canonique (un seul saut) ; segments renommés listés dans
+>   `src/i18n/renamedSegments.ts` (vide).
+> - T071 : purge par la route protégée `/api/cron/purge` (`CRON_SECRET`) déclenchée par
+>   `vercel.json`, plutôt que par la file de tâches de Payload (inutile pour une seule tâche).
+> - Playwright démarre toujours un serveur neuf (`reuseExistingServer: false`).
 
 **Checkpoint** : l'équipe publie de façon sûre ; la vérification côté public se fait en T111.
 

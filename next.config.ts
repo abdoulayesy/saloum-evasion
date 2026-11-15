@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { withPayload } from '@payloadcms/next/withPayload';
 import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
+import { renamedSegments } from './src/i18n/renamedSegments';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
@@ -14,6 +15,12 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: fileURLToPath(new URL('.', import.meta.url)),
   // Polices des images de partage, lues sur disque au rendu (next/og).
   outputFileTracingIncludes: { '/**': ['./src/assets/fonts/**'] },
+  // Segments fixes renommés : 301 de l'ancien préfixe vers le nouveau (src/i18n/renamedSegments.ts).
+  redirects: async () =>
+    renamedSegments.flatMap(({ from, to }) => [
+      { source: from, destination: to, statusCode: 301 },
+      { source: `${from}/:rest*`, destination: `${to}/:rest*`, statusCode: 301 },
+    ]),
   headers: async () => [
     // Admin et API jamais indexés (contrat routes.md), en plus du Disallow de robots.txt.
     { source: '/admin/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },

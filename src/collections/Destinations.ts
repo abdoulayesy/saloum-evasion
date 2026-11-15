@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { previewFor } from '@/lib/cms/preview';
 import { bodyField } from '@/fields/body';
 import { galleryField, geoField, heroImageField, replacementTargetField } from '@/fields/common';
 import { bodyComplete, hasText, localeStatusField, seoComplete } from '@/fields/localeStatus';
@@ -13,6 +14,7 @@ export const Destinations: CollectionConfig = {
   slug: 'destinations',
   labels: { singular: 'Destination', plural: 'Destinations' },
   admin: {
+    preview: previewFor('destinations'),
     useAsTitle: 'name',
     group: 'Catalogue',
     defaultColumns: ['name', 'kind', '_status', 'updatedAt'],

@@ -802,11 +802,15 @@ export interface TeamMember {
   createdAt: string;
 }
 /**
+ * Demandes reçues par le formulaire. « Non notifiée » : l’e-mail à l’équipe n’est pas parti, traitez la demande directement.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "requests".
  */
 export interface Request {
   id: number;
+  travellers?: number | null;
+  notificationAlert?: string | null;
   reference?: string | null;
   submissionId: string;
   status: 'new' | 'in_progress' | 'quoted' | 'won' | 'lost' | 'spam';
@@ -1478,6 +1482,8 @@ export interface TeamMembersSelect<T extends boolean = true> {
  * via the `definition` "requests_select".
  */
 export interface RequestsSelect<T extends boolean = true> {
+  travellers?: T;
+  notificationAlert?: T;
   reference?: T;
   submissionId?: T;
   status?: T;

@@ -3,6 +3,7 @@ import { isTeam, publishedOrTeam } from '@/access';
 import { requiredInFrench } from '@/fields/localized';
 import { provenanceField } from '@/fields/provenance';
 import { validateChapters } from '@/fields/validators';
+import { publishGuard } from '@/hooks/publishGuards';
 import { revalidateHooks } from '@/hooks/revalidate';
 
 type Data = Partial<Record<string, unknown>>;
@@ -33,7 +34,7 @@ export const Videos: CollectionConfig = {
   admin: { useAsTitle: 'title', group: 'Médias', defaultColumns: ['title', 'format', '_status'] },
   access: { read: publishedOrTeam, create: isTeam, update: isTeam, delete: isTeam },
   versions: { drafts: true, maxPerDoc: 25 },
-  hooks: revalidateHooks,
+  hooks: { ...revalidateHooks, beforeChange: [publishGuard] },
   fields: [
     {
       name: 'title',

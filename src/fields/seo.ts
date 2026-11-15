@@ -1,4 +1,10 @@
-import type { CollectionSlug, GroupField, PayloadRequest, Where } from 'payload';
+import type { GroupField, PayloadRequest } from 'payload';
+import {
+  findDuplicateMeta,
+  isSeoCollection,
+  type UniqueArgs,
+  type UniqueScope,
+} from '@/hooks/uniqueMeta';
 import { requiredInFrench } from './localized';
 import {
   DESCRIPTION_MAX,
@@ -10,62 +16,9 @@ import {
 } from './validators';
 
 // Groupe `seo` (data-model) : slug par langue, title et description uniques sur le site,
-// image de partage, mot-clé cible, noindex.
+// image de partage, mot-clé cible, noindex. Unicité : hooks/uniqueMeta.ts.
 
-export const SEO_COLLECTIONS = [
-  'stays',
-  'experiences',
-  'accommodations',
-  'destinations',
-  'universes',
-  'pages',
-] as const satisfies readonly CollectionSlug[];
-
-type UniqueScope = 'collection' | 'site';
-
-type UniqueArgs = {
-  value: string;
-  field: 'slug' | 'metaTitle' | 'metaDescription';
-  scope: UniqueScope;
-  req: PayloadRequest;
-  id?: number | string;
-  collectionSlug?: string;
-};
-
-const isSeoCollection = (slug: string | undefined): slug is (typeof SEO_COLLECTIONS)[number] =>
-  SEO_COLLECTIONS.some((candidate) => candidate === slug);
-
-/** Premier document (autre que celui en cours) qui porte déjà cette valeur, ou `null`. */
-const findDuplicate = async ({
-  value,
-  field,
-  scope,
-  req,
-  id,
-  collectionSlug,
-}: UniqueArgs): Promise<string | null> => {
-  const targets =
-    scope === 'collection'
-      ? SEO_COLLECTIONS.filter((slug) => slug === collectionSlug)
-      : SEO_COLLECTIONS;
-  for (const collection of targets) {
-    const conditions: Where[] = [{ [`seo.${field}`]: { equals: value } }];
-    if (collection === collectionSlug && id !== undefined)
-      conditions.push({ id: { not_equals: id } });
-    const result = await req.payload.find({
-      collection,
-      where: { and: conditions },
-      locale: req.locale ?? 'fr',
-      depth: 0,
-      limit: 1,
-      draft: true,
-      overrideAccess: true,
-      req,
-    });
-    if (result.docs.length > 0) return collection;
-  }
-  return null;
-};
+export { SEO_COLLECTIONS } from '@/hooks/uniqueMeta';
 
 type SeoValidateOptions = {
   req: PayloadRequest;
@@ -92,7 +45,7 @@ const uniqueValidator =
     const base = requiredInFrench(check, label)(value, validateOptions);
     if (base !== true || typeof value !== 'string' || value === '') return base;
     if (!isSeoCollection(validateOptions.collectionSlug)) return true;
-    const duplicate = await findDuplicate({
+    const duplicate = await findDuplicateMeta({
       value,
       field,
       scope,

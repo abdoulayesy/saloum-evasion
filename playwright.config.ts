@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 const PORT = 3000;
 const SEO_SPECS = /.*\.(seo|nojs)\.spec\.ts/;
 // Admin Payload : testé sur ordinateur seulement (dérogation D-T6b).
-const ADMIN_SPECS = /cms\.smoke\.spec\.ts/;
+const ADMIN_SPECS = /(cms\.smoke|us3-editor)\.spec\.ts/;
 const baseURL = process.env.BASE_URL ?? `http://localhost:${PORT}`;
 
 // Appareil de référence de la constitution : Android milieu de gamme, 360 px de large.
@@ -64,7 +64,10 @@ export default defineConfig({
   webServer: {
     command: `node ./node_modules/next/dist/bin/next start -p ${PORT}`,
     url: `${baseURL}/fr`,
-    reuseExistingServer: !process.env.CI,
+    // Toujours un serveur neuf sur le build courant (un serveur oublié testerait un ancien build).
+    reuseExistingServer: false,
     timeout: 120_000,
+    // Table des redirections relue à chaque requête pendant les tests (us3-editor).
+    env: { REDIRECTS_TTL_MS: '0' },
   },
 });

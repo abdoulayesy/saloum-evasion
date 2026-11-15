@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { previewFor } from '@/lib/cms/preview';
 import { hasText, localeStatusField, seoComplete } from '@/fields/localeStatus';
 import { requiredInFrench } from '@/fields/localized';
 import { seoField } from '@/fields/seo';
@@ -11,7 +12,12 @@ const isStayUniverse = (data: Partial<Record<string, unknown>>): boolean => data
 export const Universes: CollectionConfig = {
   slug: 'universes',
   labels: { singular: 'Univers', plural: 'Univers' },
-  admin: { useAsTitle: 'name', group: 'Catalogue', defaultColumns: ['name', 'kind', 'order'] },
+  admin: {
+    preview: previewFor('universes'),
+    useAsTitle: 'name',
+    group: 'Catalogue',
+    defaultColumns: ['name', 'kind', 'order'],
+  },
   ...contentDefaults({
     englishCheck: (data) =>
       hasText(data.name) && hasText(data.intro) && (isStayUniverse(data) || seoComplete(data)),

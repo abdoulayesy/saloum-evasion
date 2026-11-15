@@ -1,4 +1,5 @@
 import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload';
+import { previewFor } from '@/lib/cms/preview';
 import { bodyField } from '@/fields/body';
 import {
   galleryField,
@@ -43,6 +44,7 @@ export const Stays: CollectionConfig = {
   slug: 'stays',
   labels: { singular: 'Séjour signature', plural: 'Séjours signature' },
   admin: {
+    preview: previewFor('stays'),
     useAsTitle: 'title',
     group: 'Catalogue',
     defaultColumns: ['title', 'durationNights', 'featured', '_status', 'updatedAt'],

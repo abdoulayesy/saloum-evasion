@@ -29,11 +29,46 @@ export const Requests: CollectionConfig = {
   admin: {
     useAsTitle: 'reference',
     group: 'Demandes',
-    defaultColumns: ['reference', 'firstName', 'arrivalDate', 'status', 'notifiedAt', 'createdAt'],
+    defaultColumns: [
+      'reference',
+      'createdAt',
+      'firstName',
+      'arrivalDate',
+      'travellers',
+      'status',
+      'notificationAlert',
+    ],
+    listSearchableFields: ['reference', 'firstName', 'whatsapp', 'email'],
+    description:
+      'Demandes reçues par le formulaire. « Non notifiée » : l’e-mail à l’équipe n’est pas parti, traitez la demande directement.',
   },
   access: { create: nobody, read: isTeam, update: isTeam, delete: isAdmin },
   hooks: { beforeChange: [assignReference] },
   fields: [
+    {
+      name: 'travellers',
+      type: 'number',
+      virtual: true,
+      label: 'Voyageurs',
+      admin: { readOnly: true, position: 'sidebar' },
+      hooks: {
+        afterRead: [
+          ({ siblingData }) =>
+            (typeof siblingData.adults === 'number' ? siblingData.adults : 0) +
+            (typeof siblingData.children === 'number' ? siblingData.children : 0),
+        ],
+      },
+    },
+    {
+      name: 'notificationAlert',
+      type: 'text',
+      virtual: true,
+      label: 'Notification équipe',
+      admin: { readOnly: true, position: 'sidebar' },
+      hooks: {
+        afterRead: [({ siblingData }) => (siblingData.notifiedAt ? 'Envoyée' : '⚠ Non notifiée')],
+      },
+    },
     {
       name: 'reference',
       type: 'text',
