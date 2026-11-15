@@ -84,48 +84,84 @@ virer au rouge avant la première vraie page.
 
 ### 2A. Fondations SEO
 
-- [ ] T025 Configurer next-intl : `src/i18n/routing.ts` (locales `fr`, `en`, défaut `fr`, `localePrefix: 'always'`, `localeDetection: false`), `src/i18n/request.ts`, `src/i18n/messages/fr.json` et `en.json`, `src/middleware.ts` (redirection 301 fixe de `/` vers `/fr`, minuscules, suppression de la barre oblique finale)
-- [ ] T026 Créer `src/i18n/pathnames.ts` : segments traduits (`sejours`/`stays`, `experiences`, `hebergements`/`accommodation`, `destinations`, `film-immersion`/`immersion-film`, `notre-engagement`/`our-commitment`, `a-propos`/`about`, `faq`, `contact`, `mentions-legales`/`legal-notice`, `confidentialite`/`privacy`, `demande`/`request`, `merci`/`thank-you`) ; fonctions `buildPath(locale, route)` et `resolvePath(locale, segments)` → `{ type, params }` typé en union discriminée
-- [ ] T027 [P] Écrire `tests/unit/pathnames.test.ts` : aller-retour `buildPath`/`resolvePath` pour chaque type de route et chaque langue, segments inconnus → `null`
-- [ ] T028 Créer le layout `src/app/(frontend)/[locale]/layout.tsx` : `<html lang="fr-SN|en">`, polices, lien d'évitement « Aller au contenu », `<main id="contenu">`, en-tête, pied de page, `setRequestLocale`, `generateStaticParams` des locales, export `viewport` avec `interactiveWidget: 'resizes-content'` (le clavier virtuel réduit la fenêtre, la barre collante reste au-dessus sans JS)
-- [ ] T029 [P] Créer `src/components/layout/Header.tsx` (logo, bouton menu de 44 px, emplacement du sélecteur de langue et du compteur de demande) et `src/components/layout/Footer.tsx` (navigation, NAP lu dans `siteSettings`, moyens de paiement Wave, Orange Money et carte au même rang)
-- [ ] T030 [P] Créer `src/components/layout/MobileMenu.tsx` (composant **serveur** : balisage `<dialog>` plein écran, liens, boutons de fermeture en haut **et** en bas) et `src/components/client/DialogOpener.tsx` (moins de 1 Ko : `showModal()`, ce qui donne au navigateur le focus enfermé, la fermeture par Échap et par le bouton retour d'Android, puis le retour du focus) ; défilement bloqué par CSS (`body:has(dialog[open])`) ; sans JavaScript, le bouton est un lien vers la navigation du pied de page (analyse K1)
-- [ ] T031 Créer `src/lib/seo/metadata.ts` : `buildMetadata({ locale, path, alternates, title, description, image, noindex, type })` → `Metadata` Next (canonical absolu sans paramètres, `alternates.languages` fr/en/`x-default`=FR avec EN omis s'il n'est pas publié, Open Graph `fr_SN`/`en_US` 1200×630, Twitter `summary_large_image`, robots)
-- [ ] T032 [P] Écrire `tests/unit/metadata.test.ts` : canonical, hreflang avec et sans EN, noindex, longueurs
-- [ ] T033 Créer `src/components/seo/JsonLd.tsx` : composant serveur qui rend un `@graph` typé `schema-dts` dans un seul `<script type="application/ld+json">`, en échappant `</`
-- [ ] T034 [P] Créer `src/lib/seo/jsonld/organization.ts` (Organization + TravelAgency depuis `siteSettings`), `website.ts`, `breadcrumb.ts`, `itemList.ts`, et `tests/unit/jsonld-common.test.ts` (`@id` stables, aucune clé `aggregateRating`/`review`, NAP issu de `siteSettings`)
-- [ ] T035 [P] Créer `src/lib/seo/breadcrumbs.ts` (fil d'Ariane calculé depuis le type de route, source unique pour l'affichage et le JSON-LD) et `src/components/ui/Breadcrumbs.tsx` (`nav aria-label`, `ol`, `aria-current="page"`)
-- [ ] T036 Créer `src/app/(frontend)/sitemap.ts` et `src/lib/seo/sitemapEntries.ts` : pages fixes × locales avec `alternates.languages`, points d'extension pour les documents, les images et les vidéos ; exclusion des pages noindex
-- [ ] T037 [P] Créer `src/app/(frontend)/robots.ts` conforme à [routes.md](./contracts/routes.md#robotstxt) (`Disallow: /admin`, `/api` ; pages de demande non bloquées)
-- [ ] T038 [P] Créer `src/lib/seo/og.tsx` : génération `next/og` 1200×630 (vraie photo du document, voile, titre en Cormorant, logo ; polices lues depuis des fichiers locaux) et `public/og-default.jpg`
-- [ ] T039 Créer `src/app/(frontend)/[locale]/not-found.tsx`, `error.tsx` et `src/app/(frontend)/global-error.tsx` (noindex, H1, liens vers 3 séjours populaires, les destinations et la recherche) et `tests/e2e/errors.mobile.spec.ts` (statut 404, noindex, ni canonical ni hreflang, axe, 360 px)
-- [ ] T040 Écrire `tests/e2e/seo-foundations.seo.spec.ts` (projet `nojs`) : `/` → 301 `/fr`, `robots.txt`, `sitemap.xml` en XML valide, `lang` du document, présence du lien d'évitement
+- [X] T025 Configurer next-intl : `src/i18n/routing.ts` (locales `fr`, `en`, défaut `fr`, `localePrefix: 'always'`, `localeDetection: false`), `src/i18n/request.ts`, `src/i18n/messages/fr.json` et `en.json`, `src/middleware.ts` (redirection 301 fixe de `/` vers `/fr`, minuscules, suppression de la barre oblique finale)
+- [X] T026 Créer `src/i18n/pathnames.ts` : segments traduits (`sejours`/`stays`, `experiences`, `hebergements`/`accommodation`, `destinations`, `film-immersion`/`immersion-film`, `notre-engagement`/`our-commitment`, `a-propos`/`about`, `faq`, `contact`, `mentions-legales`/`legal-notice`, `confidentialite`/`privacy`, `demande`/`request`, `merci`/`thank-you`) ; fonctions `buildPath(locale, route)` et `resolvePath(locale, segments)` → `{ type, params }` typé en union discriminée
+- [X] T027 [P] Écrire `tests/unit/pathnames.test.ts` : aller-retour `buildPath`/`resolvePath` pour chaque type de route et chaque langue, segments inconnus → `null`
+- [X] T028 Créer le layout `src/app/(frontend)/[locale]/layout.tsx` : `<html lang="fr-SN|en">`, polices, lien d'évitement « Aller au contenu », `<main id="contenu">`, en-tête, pied de page, `setRequestLocale`, `generateStaticParams` des locales, export `viewport` avec `interactiveWidget: 'resizes-content'` (le clavier virtuel réduit la fenêtre, la barre collante reste au-dessus sans JS)
+- [X] T029 [P] Créer `src/components/layout/Header.tsx` (logo, bouton menu de 44 px, emplacement du sélecteur de langue et du compteur de demande) et `src/components/layout/Footer.tsx` (navigation, NAP lu dans `siteSettings`, moyens de paiement Wave, Orange Money et carte au même rang)
+- [X] T030 [P] Créer `src/components/layout/MobileMenu.tsx` (composant **serveur** : balisage `<dialog>` plein écran, liens, boutons de fermeture en haut **et** en bas) et `src/components/client/DialogOpener.tsx` (moins de 1 Ko : `showModal()`, ce qui donne au navigateur le focus enfermé, la fermeture par Échap et par le bouton retour d'Android, puis le retour du focus) ; défilement bloqué par CSS (`body:has(dialog[open])`) ; sans JavaScript, le bouton est un lien vers la navigation du pied de page (analyse K1)
+- [X] T031 Créer `src/lib/seo/metadata.ts` : `buildMetadata({ locale, path, alternates, title, description, image, noindex, type })` → `Metadata` Next (canonical absolu sans paramètres, `alternates.languages` fr/en/`x-default`=FR avec EN omis s'il n'est pas publié, Open Graph `fr_SN`/`en_US` 1200×630, Twitter `summary_large_image`, robots)
+- [X] T032 [P] Écrire `tests/unit/metadata.test.ts` : canonical, hreflang avec et sans EN, noindex, longueurs
+- [X] T033 Créer `src/components/seo/JsonLd.tsx` : composant serveur qui rend un `@graph` typé `schema-dts` dans un seul `<script type="application/ld+json">`, en échappant `</`
+- [X] T034 [P] Créer `src/lib/seo/jsonld/organization.ts` (Organization + TravelAgency depuis `siteSettings`), `website.ts`, `breadcrumb.ts`, `itemList.ts`, et `tests/unit/jsonld-common.test.ts` (`@id` stables, aucune clé `aggregateRating`/`review`, NAP issu de `siteSettings`)
+- [X] T035 [P] Créer `src/lib/seo/breadcrumbs.ts` (fil d'Ariane calculé depuis le type de route, source unique pour l'affichage et le JSON-LD) et `src/components/ui/Breadcrumbs.tsx` (`nav aria-label`, `ol`, `aria-current="page"`)
+- [X] T036 Créer `src/app/(frontend)/sitemap.ts` et `src/lib/seo/sitemapEntries.ts` : pages fixes × locales avec `alternates.languages`, points d'extension pour les documents, les images et les vidéos ; exclusion des pages noindex
+- [X] T037 [P] Créer `src/app/(frontend)/robots.ts` conforme à [routes.md](./contracts/routes.md#robotstxt) (`Disallow: /admin`, `/api` ; pages de demande non bloquées)
+- [X] T038 [P] Créer `src/lib/seo/og.tsx` : génération `next/og` 1200×630 (vraie photo du document, voile, titre en Cormorant, logo ; polices lues depuis des fichiers locaux) et `public/og-default.jpg`
+- [X] T039 Créer `src/app/(frontend)/[locale]/not-found.tsx`, `error.tsx` et `src/app/(frontend)/global-error.tsx` (noindex, H1, liens vers 3 séjours populaires, les destinations et la recherche) et `tests/e2e/errors.mobile.spec.ts` (statut 404, noindex, ni canonical ni hreflang, axe, 360 px)
+- [X] T040 Écrire `tests/e2e/seo-foundations.seo.spec.ts` (projet `nojs`) : `/` → 301 `/fr`, `robots.txt`, `sitemap.xml` en XML valide, `lang` du document, présence du lien d'évitement
+
+> **Écarts d'implémentation 2A (2026-11-14)** :
+> - T029 : coordonnées lues dans `src/lib/site.ts` (`getSiteSettings`) jusqu'au global
+>   `siteSettings` de la phase 2B ; aucune coordonnée inventée (champ absent = non affiché).
+> - T034 : nœud `TravelAgency` seul (sous-type d'Organization dans schema.org), `@id` `/#org`.
+> - T036 / T037 : `sitemap.ts` et `robots.ts` à la racine de `src/app/` (exigence Next pour
+>   robots) ; liens et sitemap limités aux routes livrées (`src/lib/navigation.ts`).
+> - T038 : image par défaut `/og-default.png` et logo `/logo-512.png` générés au build
+>   (`next/og`), polices statiques dans `src/assets/fonts/`.
+> - T039 : `global-error.tsx` à la racine de `src/app/` (emplacement imposé) ; les URL sans
+>   préfixe de langue sont réécrites vers la 404 localisée.
+> - T025 : redirections (racine, barre oblique finale, majuscules) en 301 par le middleware
+>   (`skipTrailingSlashRedirect`), pas le middleware next-intl.
+> - Playwright : projet `iphone-se` limité à 2 workers (plantages de WebKit sous forte
+>   concurrence) ; LHCI mesure `/fr` et `/en`.
 
 ### 2B. CMS et modèle de données localisé FR/EN
 
-- [ ] T041 Installer Payload 3 (`@payloadcms/db-postgres`, `@payloadcms/richtext-lexical`) ; créer `src/payload.config.ts` (localisation `fr`/`en`, `defaultLocale: 'fr'`, `fallback: false`), les routes `src/app/(payload)/admin/[[...segments]]/page.tsx` et API, `withPayload` dans `next.config.ts`, en-tête `X-Robots-Tag: noindex` sur `/admin`
-- [ ] T042 [P] Créer `src/collections/Users.ts` : rôles `admin`/`editor`, mot de passe d'au moins 12 caractères, collage et gestionnaires de mots de passe autorisés (WCAG 3.3.8)
-- [ ] T043 [P] Créer les groupes de champs `src/fields/seo.ts`, `src/fields/localeStatus.ts`, `src/fields/body.ts` (au moins 300 mots par langue publiée), `src/fields/provenance.ts` et les validateurs purs `src/fields/validators.ts` (regex de slug, longueurs, comptage de mots)
-- [ ] T044 [P] Écrire `tests/unit/validators.test.ts` : slugs valides et invalides, title 60/61 caractères, comptage de mots (hors titres)
-- [ ] T045 Créer `src/collections/Media.ts` : `alt` FR et EN obligatoires, provenance obligatoire, génération de `blurDataURL` à l'envoi (sharp), dimensions, adaptateur de stockage S3 activé si `S3_*` est défini
-- [ ] T046 [P] Créer `src/collections/Destinations.ts` selon [data-model.md](./data-model.md#destinations), avec `kind` = `village` \| `ile` \| `reserve` et `replacementTarget`
-- [ ] T047 [P] Créer `src/collections/Universes.ts` (`kind: experience | stay`, slug localisé seulement pour `experience`)
-- [ ] T048 [P] Créer `src/collections/CancellationPolicies.ts`
-- [ ] T049 [P] Créer `src/collections/FaqItems.ts`
-- [ ] T050 Créer `src/collections/Stays.ts` : tous les champs du modèle, hooks calculant `durationCategory` et `budgetBand`, `cancellationPolicy` obligatoire, `replacementTarget`
-- [ ] T051 [P] Créer `src/collections/Experiences.ts` (univers obligatoire, `seasonMonths`, `pricePerPerson` XOF entier, `replacementTarget`)
-- [ ] T052 [P] Créer `src/collections/Accommodations.ts` (`type`, `capacity`, `amenities`, `geo`, `identifier` facultatif, galerie ≥ 5, `replacementTarget`)
-- [ ] T053 [P] Créer `src/collections/Videos.ts` : `muxPlaybackId`, durées plafonnées par format, affiche obligatoire, sous-titres FR et EN obligatoires pour `film`/`vertical15`, chapitres strictement croissants commençant à 0, `descriptiveTranscript` localisé
-- [ ] T054 [P] Créer `src/collections/Pages.ts` et les schémas de blocs `src/blocks/{Hero,RichText,Team,Figures,Gallery,Steps,Guarantees,Cta}.ts` ; clés uniques `home`, `commitment`, `about`, `faq`, `contact`, `legal`, `privacy`, `film`, `stays_list`, `experiences_hub`, `accommodations_list`, `destinations_list`, `not_found` (title, description et image de partage des pages sans document : seo CHK002 et CHK026)
-- [ ] T055 [P] Créer `src/collections/TeamMembers.ts`
-- [ ] T056 [P] Créer `src/collections/Requests.ts` (création via l'API refusée, lecture réservée à l'équipe, référence `SE-AAAAMMJJ-XXXX`, statuts) et `src/collections/RateLimits.ts` (masquée dans l'admin)
-- [ ] T057 [P] Créer `src/collections/Redirects.ts` (`from` unique, `to`, `type: 301`, `reason`)
-- [ ] T058 Créer les globals `src/globals/SiteSettings.ts` (NAP, WhatsApp, `responseTimeText`, `highSeasons`, `guarantees`, `paymentMethods`, `notificationEmail`, `fallbackNotificationEmail`, `sameAs`) et `src/globals/Navigation.ts`
-- [ ] T059 [P] Créer `src/lib/pricing.ts` (`priceFrom`, `durationCategory`, `budgetBand`, `toEurIndicative` = arrondi supérieur de XOF / 655,957, `formatXof` « 250 000 FCFA », `formatEur` « ≈ 382 € ») et `tests/unit/pricing.test.ts`
-- [ ] T060 Créer `src/lib/cms/queries.ts` : lectures publiées seulement (`getStayBySlug`, `listStays`, `getExperienceBySlug`, `listExperiences`, `getDestinationBySlug`, `listDestinations`, `getAccommodationBySlug`, `listAccommodations`, `getPage`, `getSiteSettings`, `getAlternates`), mises en cache avec les tags `doc:{collection}:{id}`, `{collection}`, `sitemap`, `nav`, en respectant `enPublished`
-- [ ] T061 Créer `src/hooks/revalidate.ts` (`afterChange`/`afterDelete` → `revalidateTag` du document, de sa collection, des destinations liées, du sitemap et de la navigation) et l'attacher à toutes les collections publiques et aux globals
-- [ ] T062 Générer la migration initiale (`pnpm payload migrate:create`) et écrire `src/seed/index.ts` : 6 destinations, 4 univers, réglages du site, 1 politique d'annulation, 3 séjours (dont un week-end à Ndangane), 4 expériences (pirogue, quad, balade à cheval à Palmarin, table du Saloum), 3 hébergements (dont une villa avec piscine à Ndangane), FAQ, pages ; FR et EN ; médias de test dans `tests/fixtures/media/`, réservés aux environnements de test
-- [ ] T063 Écrire `tests/e2e/cms.smoke.spec.ts` (projet `desktop`) : connexion à l'admin, `/admin` en noindex et bloqué dans `robots.txt`, création d'une demande via l'API publique refusée
+- [X] T041 Installer Payload 3 (`@payloadcms/db-postgres`, `@payloadcms/richtext-lexical`) ; créer `src/payload.config.ts` (localisation `fr`/`en`, `defaultLocale: 'fr'`, `fallback: false`), les routes `src/app/(payload)/admin/[[...segments]]/page.tsx` et API, `withPayload` dans `next.config.ts`, en-tête `X-Robots-Tag: noindex` sur `/admin`
+- [X] T042 [P] Créer `src/collections/Users.ts` : rôles `admin`/`editor`, mot de passe d'au moins 12 caractères, collage et gestionnaires de mots de passe autorisés (WCAG 3.3.8)
+- [X] T043 [P] Créer les groupes de champs `src/fields/seo.ts`, `src/fields/localeStatus.ts`, `src/fields/body.ts` (au moins 300 mots par langue publiée), `src/fields/provenance.ts` et les validateurs purs `src/fields/validators.ts` (regex de slug, longueurs, comptage de mots)
+- [X] T044 [P] Écrire `tests/unit/validators.test.ts` : slugs valides et invalides, title 60/61 caractères, comptage de mots (hors titres)
+- [X] T045 Créer `src/collections/Media.ts` : `alt` FR et EN obligatoires, provenance obligatoire, génération de `blurDataURL` à l'envoi (sharp), dimensions, adaptateur de stockage S3 activé si `S3_*` est défini
+- [X] T046 [P] Créer `src/collections/Destinations.ts` selon [data-model.md](./data-model.md#destinations), avec `kind` = `village` \| `ile` \| `reserve` et `replacementTarget`
+- [X] T047 [P] Créer `src/collections/Universes.ts` (`kind: experience | stay`, slug localisé seulement pour `experience`)
+- [X] T048 [P] Créer `src/collections/CancellationPolicies.ts`
+- [X] T049 [P] Créer `src/collections/FaqItems.ts`
+- [X] T050 Créer `src/collections/Stays.ts` : tous les champs du modèle, hooks calculant `durationCategory` et `budgetBand`, `cancellationPolicy` obligatoire, `replacementTarget`
+- [X] T051 [P] Créer `src/collections/Experiences.ts` (univers obligatoire, `seasonMonths`, `pricePerPerson` XOF entier, `replacementTarget`)
+- [X] T052 [P] Créer `src/collections/Accommodations.ts` (`type`, `capacity`, `amenities`, `geo`, `identifier` facultatif, galerie ≥ 5, `replacementTarget`)
+- [X] T053 [P] Créer `src/collections/Videos.ts` : `muxPlaybackId`, durées plafonnées par format, affiche obligatoire, sous-titres FR et EN obligatoires pour `film`/`vertical15`, chapitres strictement croissants commençant à 0, `descriptiveTranscript` localisé
+- [X] T054 [P] Créer `src/collections/Pages.ts` et les schémas de blocs `src/blocks/{Hero,RichText,Team,Figures,Gallery,Steps,Guarantees,Cta}.ts` ; clés uniques `home`, `commitment`, `about`, `faq`, `contact`, `legal`, `privacy`, `film`, `stays_list`, `experiences_hub`, `accommodations_list`, `destinations_list`, `not_found` (title, description et image de partage des pages sans document : seo CHK002 et CHK026)
+- [X] T055 [P] Créer `src/collections/TeamMembers.ts`
+- [X] T056 [P] Créer `src/collections/Requests.ts` (création via l'API refusée, lecture réservée à l'équipe, référence `SE-AAAAMMJJ-XXXX`, statuts) et `src/collections/RateLimits.ts` (masquée dans l'admin)
+- [X] T057 [P] Créer `src/collections/Redirects.ts` (`from` unique, `to`, `type: 301`, `reason`)
+- [X] T058 Créer les globals `src/globals/SiteSettings.ts` (NAP, WhatsApp, `responseTimeText`, `highSeasons`, `guarantees`, `paymentMethods`, `notificationEmail`, `fallbackNotificationEmail`, `sameAs`) et `src/globals/Navigation.ts`
+- [X] T059 [P] Créer `src/lib/pricing.ts` (`priceFrom`, `durationCategory`, `budgetBand`, `toEurIndicative` = arrondi supérieur de XOF / 655,957, `formatXof` « 250 000 FCFA », `formatEur` « ≈ 382 € ») et `tests/unit/pricing.test.ts`
+- [X] T060 Créer `src/lib/cms/queries.ts` : lectures publiées seulement (`getStayBySlug`, `listStays`, `getExperienceBySlug`, `listExperiences`, `getDestinationBySlug`, `listDestinations`, `getAccommodationBySlug`, `listAccommodations`, `getPage`, `getSiteSettings`, `getAlternates`), mises en cache avec les tags `doc:{collection}:{id}`, `{collection}`, `sitemap`, `nav`, en respectant `enPublished`
+- [X] T061 Créer `src/hooks/revalidate.ts` (`afterChange`/`afterDelete` → `revalidateTag` du document, de sa collection, des destinations liées, du sitemap et de la navigation) et l'attacher à toutes les collections publiques et aux globals
+- [X] T062 Générer la migration initiale (`pnpm payload migrate:create`) et écrire `src/seed/index.ts` : 6 destinations, 4 univers, réglages du site, 1 politique d'annulation, 3 séjours (dont un week-end à Ndangane), 4 expériences (pirogue, quad, balade à cheval à Palmarin, table du Saloum), 3 hébergements (dont une villa avec piscine à Ndangane), FAQ, pages ; FR et EN ; médias de test dans `tests/fixtures/media/`, réservés aux environnements de test
+- [X] T063 Écrire `tests/e2e/cms.smoke.spec.ts` (projet `desktop`) : connexion à l'admin, `/admin` en noindex et bloqué dans `robots.txt`, création d'une demande via l'API publique refusée
+
+> **Écarts d'implémentation 2B (2026-11-15)** :
+> - T041 : Next fixé à **15.4.11** (Payload 3.93 exclut explicitement Next 15.5) ; API GraphQL
+>   coupée ; admin en français via `@payloadcms/translations` (paquet de Payload) ; schéma
+>   uniquement par migrations (`push: false`).
+> - T043 : un champ localisé « obligatoire » l'est en français ; en anglais il peut rester vide,
+>   et `localeStatus.enPublished` est recalculé à l'enregistrement de la version anglaise.
+> - T045 : textes alternatifs en groupe non localisé `alt.fr` / `alt.en`, tous deux
+>   obligatoires ; largeur minimale 1600 px contrôlée à l'envoi.
+> - T046 / T052 : coordonnées GPS en deux nombres (latitude, longitude) : pas de PostGIS.
+> - T053 : sous-titres référencés par URL de fichier .vtt (la collection `media` n'accepte que
+>   des images).
+> - T060 : réglages du site lus via `src/lib/cms/siteSettings.ts` ; `src/lib/site.ts` reste pur.
+> - T061 : pas de route `/api/revalidate` : les hooks appellent `revalidateTag` directement
+>   (même application), sans effet hors requête Next (seed, migrations).
+> - T062 : seed de démonstration (images générées marquées « démonstration », provenance
+>   « Démonstration », aucune coordonnée inventée) ; refusé en production.
+> - `scripts/check-bundles.ts` écarte aussi les morceaux propres à l'admin (D-T6a).
+> - **Constat ouvert** : la 404 est rendue côté client (enveloppe HTML d'erreur de Next sans
+>   JavaScript, statut 404 correct). Sans impact SEO (page noindex), à corriger avant le
+>   lancement (voir Phase 10).
 
 **Checkpoint** : base migrée et peuplée, métadonnées, JSON-LD commun, sitemap et robots opérationnels ; les parcours peuvent démarrer.
 
@@ -139,15 +175,31 @@ méta), et toute adresse modifiée ou retirée est redirigée automatiquement.
 **Independent Test** : dans l'admin, publier un contenu sans `alt` EN est refusé ; changer un
 slug crée une redirection 301 ; une publication déclenche la revalidation.
 
-- [ ] T064 [US3] Créer `src/hooks/publishGuards.ts` : refuse la publication si un média utilisé n'a pas son `alt` FR/EN ou sa provenance, si `body` fait moins de 300 mots, si un séjour n'a pas de politique d'annulation, ou si les méta dépassent leurs limites ; EN incomplet → `enPublished = false` et avertissement, sans bloquer la publication FR
-- [ ] T065 [P] [US3] Créer `src/hooks/uniqueMeta.ts` : `metaTitle` et `metaDescription` uniques par langue sur toutes les collections publiques et `pages`
-- [ ] T066 [US3] Créer `src/hooks/autoRedirect.ts` : slug modifié → 301 ancien → nouveau par langue ; dépublication **ou suppression** → 301 vers `replacementTarget`, sinon vers la liste parente ; slug d'univers modifié → 301 pour chaque expérience imbriquée ; aplatissement des chaînes (seo CHK034, CHK035)
-- [ ] T067 [P] [US3] Écrire `tests/unit/autoRedirect.test.ts` : changement de slug, dépublication avec et sans remplacement, cascade d'univers, aplatissement
-- [ ] T068 [US3] Créer `src/app/api/redirects/route.ts` (table compilée, mise en cache avec le tag `redirects`) et l'appliquer dans `src/middleware.ts` ; ajouter dans `next.config.ts` les redirections des segments fixes renommés (seo CHK036)
-- [ ] T069 [US3] Configurer la liste des demandes dans `src/collections/Requests.ts` (colonnes référence, date, prénom, arrivée, voyageurs, statut, alerte si `notifiedAt` est vide ; filtres par statut ; accès `editor`)
-- [ ] T070 [P] [US3] Ajouter dans `src/payload.config.ts` l'aperçu de la page publique (`admin.preview`) et des descriptions de champs en français pour les éditeurs
-- [ ] T071 [P] [US3] Créer `src/jobs/purgeRequests.ts` (suppression des demandes de plus de 24 mois hors `won`, purge de `rateLimits` après 24 h) et créer `vercel.json` avec sa tâche planifiée (complété par T173)
-- [ ] T072 [US3] Écrire `tests/e2e/us3-editor.spec.ts` (projet `desktop`, D5) : publication refusée sans `alt` EN, refusée sous 300 mots, redirection créée après changement de slug, appel de revalidation déclenché
+- [X] T064 [US3] Créer `src/hooks/publishGuards.ts` : refuse la publication si un média utilisé n'a pas son `alt` FR/EN ou sa provenance, si `body` fait moins de 300 mots, si un séjour n'a pas de politique d'annulation, ou si les méta dépassent leurs limites ; EN incomplet → `enPublished = false` et avertissement, sans bloquer la publication FR
+- [X] T065 [P] [US3] Créer `src/hooks/uniqueMeta.ts` : `metaTitle` et `metaDescription` uniques par langue sur toutes les collections publiques et `pages`
+- [X] T066 [US3] Créer `src/hooks/autoRedirect.ts` : slug modifié → 301 ancien → nouveau par langue ; dépublication **ou suppression** → 301 vers `replacementTarget`, sinon vers la liste parente ; slug d'univers modifié → 301 pour chaque expérience imbriquée ; aplatissement des chaînes (seo CHK034, CHK035)
+- [X] T067 [P] [US3] Écrire `tests/unit/autoRedirect.test.ts` : changement de slug, dépublication avec et sans remplacement, cascade d'univers, aplatissement
+- [X] T068 [US3] Créer `src/app/api/redirects/route.ts` (table compilée, mise en cache avec le tag `redirects`) et l'appliquer dans `src/middleware.ts` ; ajouter dans `next.config.ts` les redirections des segments fixes renommés (seo CHK036)
+- [X] T069 [US3] Configurer la liste des demandes dans `src/collections/Requests.ts` (colonnes référence, date, prénom, arrivée, voyageurs, statut, alerte si `notifiedAt` est vide ; filtres par statut ; accès `editor`)
+- [X] T070 [P] [US3] Ajouter dans `src/payload.config.ts` l'aperçu de la page publique (`admin.preview`) et des descriptions de champs en français pour les éditeurs
+- [X] T071 [P] [US3] Créer `src/jobs/purgeRequests.ts` (suppression des demandes de plus de 24 mois hors `won`, purge de `rateLimits` après 24 h) et créer `vercel.json` avec sa tâche planifiée (complété par T173)
+- [X] T072 [US3] Écrire `tests/e2e/us3-editor.spec.ts` (projet `desktop`, D5) : publication refusée sans `alt` EN, refusée sous 300 mots, redirection créée après changement de slug, appel de revalidation déclenché
+
+> **Écarts d'implémentation phase 3 (2026-11-15)** :
+> - T064 : les règles portées par les champs (300 mots, SEO, conditions d'annulation) restent
+>   dans leur validation ; `publishGuards.ts` ajoute le contrôle des photos référencées (alt FR
+>   et EN, provenance). L'avertissement « version anglaise incomplète » est la case en lecture
+>   seule `localeStatus.enPublished` de l'admin.
+> - T065 : l'unicité (déjà active en 2B) est extraite dans `src/hooks/uniqueMeta.ts`.
+> - T066 : redirections calculées en comparant l'état public du document principal avant et
+>   après l'opération ; un brouillon n'en crée jamais (logique pure dans `src/lib/redirects/`).
+> - T068 : table servie par `/api/redirect-table` (`/api/redirects` est l'API REST de Payload) ;
+>   le middleware la garde 30 s en mémoire (`REDIRECTS_TTL_MS`) et applique la redirection sur
+>   la forme canonique (un seul saut) ; segments renommés listés dans
+>   `src/i18n/renamedSegments.ts` (vide).
+> - T071 : purge par la route protégée `/api/cron/purge` (`CRON_SECRET`) déclenchée par
+>   `vercel.json`, plutôt que par la file de tâches de Payload (inutile pour une seule tâche).
+> - Playwright démarre toujours un serveur neuf (`reuseExistingServer: false`).
 
 **Checkpoint** : l'équipe publie de façon sûre ; la vérification côté public se fait en T111.
 
@@ -163,42 +215,66 @@ liste et lit une fiche complète (la demande arrive en phase 8).
 
 ### Composants partagés
 
-- [ ] T073 [P] [US1] Créer les composants `src/components/ui/{Button,Chip,Section,Container,Price}.tsx` (cibles ≥ 44 px, variantes écrites à la main (objets de classes typés ; tailwind-variants refusé par le propriétaire), `Price` en chiffres tabulaires avec XOF TTC et « ≈ … € (indicatif) », passage à la ligne autorisé à 200 %)
-- [ ] T074 [P] [US1] Créer `src/components/ui/CmsImage.tsx` (`next/image`, `sizes` mobile d'abord, placeholder flou, `priority` réservé à l'image principale, `alt` de la langue, largeur et hauteur explicites) et régler `images` dans `next.config.ts` (`formats: ['image/avif','image/webp']`, `deviceSizes: [360,414,640,768,1024,1280,1600]`, qualité 60) ; pour l'image principale, `sizes` plafonnant la largeur demandée à 1 080 px sur mobile et qualité 50, afin de rester sous 120 Ko à densité 3 (analyse P3)
-- [ ] T075 [P] [US1] Créer `src/components/ui/StickyActionBar.tsx` (fixe en bas sous `md`, marge `env(safe-area-inset-bottom)`, libellé selon le type de page : séjour « Demander ce séjour », expérience ou hébergement « Ajouter à ma demande », destination « Voir les séjours à {lieu} » ; lien WhatsApp) ; composant serveur sans JS : le clavier virtuel est géré par `interactiveWidget` (T028), pas de hook client (analyse K2)
-- [ ] T076 [P] [US1] Créer `src/lib/whatsapp.ts` (lien `wa.me` avec message FR/EN contenant le titre et l'URL de la page) et `tests/unit/whatsapp.test.ts`
-- [ ] T077 [P] [US1] Créer `src/components/client/Gallery.tsx` : défilement natif `scroll-snap` (fonctionne sans JS), boutons précédent / suivant de 44 px (WCAG 2.5.1), position « 3 / 12 » annoncée poliment, flèches du clavier, images différées sauf la première, marges latérales de 16 px pour éviter le conflit avec le geste retour ; pas de plein écran dans ce MVP
-- [ ] T078 [P] [US1] Créer `src/components/ui/MapIllustration.tsx` et `public/maps/*.svg` (SVG en ligne avec `title` et `desc`, destination mise en évidence)
+- [X] T073 [P] [US1] Créer les composants `src/components/ui/{Button,Chip,Section,Container,Price}.tsx` (cibles ≥ 44 px, variantes écrites à la main (objets de classes typés ; tailwind-variants refusé par le propriétaire), `Price` en chiffres tabulaires avec XOF TTC et « ≈ … € (indicatif) », passage à la ligne autorisé à 200 %)
+- [X] T074 [P] [US1] Créer `src/components/ui/CmsImage.tsx` (`next/image`, `sizes` mobile d'abord, placeholder flou, `priority` réservé à l'image principale, `alt` de la langue, largeur et hauteur explicites) et régler `images` dans `next.config.ts` (`formats: ['image/avif','image/webp']`, `deviceSizes: [360,414,640,768,1024,1280,1600]`, qualité 60) ; pour l'image principale, `sizes` plafonnant la largeur demandée à 1 080 px sur mobile et qualité 50, afin de rester sous 120 Ko à densité 3 (analyse P3)
+- [X] T075 [P] [US1] Créer `src/components/ui/StickyActionBar.tsx` (fixe en bas sous `md`, marge `env(safe-area-inset-bottom)`, libellé selon le type de page : séjour « Demander ce séjour », expérience ou hébergement « Ajouter à ma demande », destination « Voir les séjours à {lieu} » ; lien WhatsApp) ; composant serveur sans JS : le clavier virtuel est géré par `interactiveWidget` (T028), pas de hook client (analyse K2)
+- [X] T076 [P] [US1] Créer `src/lib/whatsapp.ts` (lien `wa.me` avec message FR/EN contenant le titre et l'URL de la page) et `tests/unit/whatsapp.test.ts`
+- [X] T077 [P] [US1] Créer `src/components/client/Gallery.tsx` : défilement natif `scroll-snap` (fonctionne sans JS), boutons précédent / suivant de 44 px (WCAG 2.5.1), position « 3 / 12 » annoncée poliment, flèches du clavier, images différées sauf la première, marges latérales de 16 px pour éviter le conflit avec le geste retour ; pas de plein écran dans ce MVP
+- [X] T078 [P] [US1] Créer `src/components/ui/MapIllustration.tsx` et `public/maps/*.svg` (SVG en ligne avec `title` et `desc`, destination mise en évidence)
 
 ### Fiche séjour
 
-- [ ] T079 [US1] Créer `src/lib/seo/jsonld/touristTrip.ts` et `src/lib/seo/jsonld/faq.ts` selon [jsonld.md](./contracts/jsonld.md), avec `tests/unit/jsonld-stay.test.ts`
-- [ ] T080 [US1] Créer `src/components/views/StayView.tsx` : H1, image principale prioritaire, faits clés, prix « à partir de » + base, conditions d'annulation près du prix, programme jour par jour (`ol`), inclus / non inclus, galerie, carte, FAQ (`details`), liens vers destinations, hébergements et expériences, séjours similaires (même destination d'abord, puis le plus d'envies communes, puis `featured`, 3 au maximum : seo CHK039), fil d'Ariane, barre collante
-- [ ] T081 [US1] Créer le résolveur `src/app/(frontend)/[locale]/[...segments]/page.tsx` (route `stay` : `generateStaticParams` FR + EN publiés, `generateMetadata` via `buildMetadata` avec alternates issus des slugs, `notFound()` sinon) et `opengraph-image.tsx` dans le même dossier
-- [ ] T082 [US1] Ajouter les séjours (images, alternates, `lastModified` réel) dans `src/lib/seo/sitemapEntries.ts`
-- [ ] T083 [P] [US1] Écrire `tests/e2e/stay.mobile.spec.ts` : H1 et prix visibles, barre collante présente au défilement et ne masquant jamais le focus, cibles ≥ 44 px, galerie au doigt et aux boutons, pas de défilement horizontal à 360 px, paysage, zoom à 200 % (barre ≤ 25 % de la hauteur), axe page et FAQ ouverte, parcours au clavier jusqu'à la barre
-- [ ] T084 [P] [US1] Écrire `tests/e2e/stay.seo.spec.ts` (projet `nojs`) : title et description uniques et dans les limites, H1 unique, canonical, hreflang réciproques, image OG 1200×630 accessible, JSON-LD TouristTrip + BreadcrumbList (+ FAQPage), fil d'Ariane identique au visible, au moins 300 mots, présence dans le sitemap, index
-- [ ] T085 [US1] Ajouter 1 fiche séjour FR et EN dans `lighthouserc.json`
+- [X] T079 [US1] Créer `src/lib/seo/jsonld/touristTrip.ts` et `src/lib/seo/jsonld/faq.ts` selon [jsonld.md](./contracts/jsonld.md), avec `tests/unit/jsonld-stay.test.ts`
+- [X] T080 [US1] Créer `src/components/views/StayView.tsx` : H1, image principale prioritaire, faits clés, prix « à partir de » + base, conditions d'annulation près du prix, programme jour par jour (`ol`), inclus / non inclus, galerie, carte, FAQ (`details`), liens vers destinations, hébergements et expériences, séjours similaires (même destination d'abord, puis le plus d'envies communes, puis `featured`, 3 au maximum : seo CHK039), fil d'Ariane, barre collante
+- [X] T081 [US1] Créer le résolveur `src/app/(frontend)/[locale]/[...segments]/page.tsx` (route `stay` : `generateStaticParams` FR + EN publiés, `generateMetadata` via `buildMetadata` avec alternates issus des slugs, `notFound()` sinon) et `opengraph-image.tsx` dans le même dossier
+- [X] T082 [US1] Ajouter les séjours (images, alternates, `lastModified` réel) dans `src/lib/seo/sitemapEntries.ts`
+- [X] T083 [P] [US1] Écrire `tests/e2e/stay.mobile.spec.ts` : H1 et prix visibles, barre collante présente au défilement et ne masquant jamais le focus, cibles ≥ 44 px, galerie au doigt et aux boutons, pas de défilement horizontal à 360 px, paysage, zoom à 200 % (barre ≤ 25 % de la hauteur), axe page et FAQ ouverte, parcours au clavier jusqu'à la barre
+- [X] T084 [P] [US1] Écrire `tests/e2e/stay.seo.spec.ts` (projet `nojs`) : title et description uniques et dans les limites, H1 unique, canonical, hreflang réciproques, image OG 1200×630 accessible, JSON-LD TouristTrip + BreadcrumbList (+ FAQPage), fil d'Ariane identique au visible, au moins 300 mots, présence dans le sitemap, index
+- [X] T085 [US1] Ajouter 1 fiche séjour FR et EN dans `lighthouserc.json`
 
 ### Liste des séjours
 
-- [ ] T086 [US1] Créer `src/lib/filters.ts` (lecture et écriture des paramètres `duree`, `envie`, `budget`, application aux séjours)
-- [ ] T087 [P] [US1] Écrire `tests/unit/filters.test.ts`
-- [ ] T088 [P] [US1] Créer `src/components/cards/StayCard.tsx` (un seul lien par carte, image différée, durée, prix « à partir de »)
-- [ ] T089 [US1] Créer `src/components/client/FilterSheet.tsx` : panneau qui monte du bas (hauteur max 85 dvh, défilement interne), puces ≥ 44 px, bouton d'application « Voir N séjours » et « Réinitialiser » (mobile CHK026), fermeture par bouton, glissement vers le bas, fond, Échap et bouton retour d'Android, focus enfermé puis rendu, synchronisation de l'URL ; bouton d'ouverture rendu seulement avec JS (sans JS : tous les séjours affichés)
-- [ ] T090 [US1] Créer `src/components/views/StaysListView.tsx` (H1 et méta depuis `pages.stays_list`, nombre de résultats en `aria-live`, grille 1 → 2 → 3 colonnes, filtrage côté client sur la liste complète rendue au build, état vide avec lien WhatsApp) et la route `stays_list` dans le résolveur (métadonnées, ItemList, canonical sans paramètres)
-- [ ] T091 [P] [US1] Écrire `tests/e2e/stays-list.mobile.spec.ts` : panneau ouvert depuis le bas, application qui met à jour le nombre, bouton retour qui ferme le panneau, état vide, axe panneau ouvert, hauteur du panneau en paysage, zoom à 200 %, clavier
-- [ ] T092 [P] [US1] Écrire `tests/e2e/stays-list.seo.spec.ts` (projet `nojs`) : métadonnées, canonical sans paramètres de filtre, ItemList, fil d'Ariane, sitemap
-- [ ] T093 [US1] Ajouter la liste des séjours FR et EN dans `lighthouserc.json`
+- [X] T086 [US1] Créer `src/lib/filters.ts` (lecture et écriture des paramètres `duree`, `envie`, `budget`, application aux séjours)
+- [X] T087 [P] [US1] Écrire `tests/unit/filters.test.ts`
+- [X] T088 [P] [US1] Créer `src/components/cards/StayCard.tsx` (un seul lien par carte, image différée, durée, prix « à partir de »)
+- [X] T089 [US1] Créer `src/components/client/FilterSheet.tsx` : panneau qui monte du bas (hauteur max 85 dvh, défilement interne), puces ≥ 44 px, bouton d'application « Voir N séjours » et « Réinitialiser » (mobile CHK026), fermeture par bouton, glissement vers le bas, fond, Échap et bouton retour d'Android, focus enfermé puis rendu, synchronisation de l'URL ; bouton d'ouverture rendu seulement avec JS (sans JS : tous les séjours affichés)
+- [X] T090 [US1] Créer `src/components/views/StaysListView.tsx` (H1 et méta depuis `pages.stays_list`, nombre de résultats en `aria-live`, grille 1 → 2 → 3 colonnes, filtrage côté client sur la liste complète rendue au build, état vide avec lien WhatsApp) et la route `stays_list` dans le résolveur (métadonnées, ItemList, canonical sans paramètres)
+- [X] T091 [P] [US1] Écrire `tests/e2e/stays-list.mobile.spec.ts` : panneau ouvert depuis le bas, application qui met à jour le nombre, bouton retour qui ferme le panneau, état vide, axe panneau ouvert, hauteur du panneau en paysage, zoom à 200 %, clavier
+- [X] T092 [P] [US1] Écrire `tests/e2e/stays-list.seo.spec.ts` (projet `nojs`) : métadonnées, canonical sans paramètres de filtre, ItemList, fil d'Ariane, sitemap
+- [X] T093 [US1] Ajouter la liste des séjours FR et EN dans `lighthouserc.json`
 
 ### Accueil
 
-- [ ] T094 [US1] Créer `src/components/views/HomeSearch.tsx` (composant **serveur** : `<form method="get">` dans un `<dialog>` qui monte du bas, ouvert par `DialogOpener` de T030) : sur mobile, bouton « Trouver mon séjour » en bas du héro (zone du pouce : mobile CHK009) ; champs dates (`type="date"`), voyageurs (`type="number"`, `inputmode="numeric"`, boutons de 44 px) et envies (cases à cocher en puces) (mobile CHK021) ; envoie vers `/fr/sejours?duree=&envie=&arrivee=&depart=&adultes=` ; sans JS, le formulaire est affiché en ligne sous le héro (analyse K3)
-- [ ] T095 [US1] Créer `src/components/views/HomeView.tsx` selon FR-001 : héro image prioritaire (élément LCP) et H1 « Le Saloum, vécu de l'intérieur », recherche, garanties, séjours vedettes, 4 univers, aperçu du film (affiche + lien), destinations, étapes de demande, engagement, appel WhatsApp
-- [ ] T096 [US1] Remplacer la page témoin `src/app/(frontend)/[locale]/page.tsx` : contenu de `pages.home`, métadonnées, JSON-LD Organization + WebSite
-- [ ] T097 [P] [US1] Écrire `tests/e2e/home.mobile.spec.ts` : élément LCP = image principale ≤ 120 Ko en AVIF ou WebP, bouton de recherche dans la zone du pouce, page utile si la vidéo est bloquée (requêtes Mux interrompues), axe, 360 px, paysage, zoom à 200 %
-- [ ] T098 [P] [US1] Écrire `tests/e2e/home.seo.spec.ts` (projet `nojs`) : métadonnées, hreflang, Organization + WebSite, H1 unique
-- [ ] T099 [US1] Écrire `tests/e2e/us1-catalogue.mobile.spec.ts` (Android 360, profil `3g`) : accueil → recherche → liste « week-end » → fiche ; durée mesurée et enregistrée (la limite de 120 s porte sur le parcours complet en T152)
+- [X] T094 [US1] Créer `src/components/views/HomeSearch.tsx` (composant **serveur** : `<form method="get">` dans un `<dialog>` qui monte du bas, ouvert par `DialogOpener` de T030) : sur mobile, bouton « Trouver mon séjour » en bas du héro (zone du pouce : mobile CHK009) ; champs dates (`type="date"`), voyageurs (`type="number"`, `inputmode="numeric"`, boutons de 44 px) et envies (cases à cocher en puces) (mobile CHK021) ; envoie vers `/fr/sejours?duree=&envie=&arrivee=&depart=&adultes=` ; sans JS, le formulaire est affiché en ligne sous le héro (analyse K3)
+- [X] T095 [US1] Créer `src/components/views/HomeView.tsx` selon FR-001 : héro image prioritaire (élément LCP) et H1 « Le Saloum, vécu de l'intérieur », recherche, garanties, séjours vedettes, 4 univers, aperçu du film (affiche + lien), destinations, étapes de demande, engagement, appel WhatsApp
+- [X] T096 [US1] Remplacer la page témoin `src/app/(frontend)/[locale]/page.tsx` : contenu de `pages.home`, métadonnées, JSON-LD Organization + WebSite
+- [X] T097 [P] [US1] Écrire `tests/e2e/home.mobile.spec.ts` : élément LCP = image principale ≤ 120 Ko en AVIF ou WebP, bouton de recherche dans la zone du pouce, page utile si la vidéo est bloquée (requêtes Mux interrompues), axe, 360 px, paysage, zoom à 200 %
+- [X] T098 [P] [US1] Écrire `tests/e2e/home.seo.spec.ts` (projet `nojs`) : métadonnées, hreflang, Organization + WebSite, H1 unique
+- [X] T099 [US1] Écrire `tests/e2e/us1-catalogue.mobile.spec.ts` (Android 360, profil `3g`) : accueil → recherche → liste « week-end » → fiche ; durée mesurée et enregistrée (la limite de 120 s porte sur le parcours complet en T152)
+
+> **Écarts d'implémentation phase 4 (2026-11-15)** :
+> - **Dérogation D-LCP-photo** (plan.md) : LCP de laboratoire ≤ 2,7 s pour les pages dont
+>   l'élément LCP est une photo (fiches et listes de séjours), 2,0 s ailleurs ; réévaluation
+>   obligatoire avec les vraies photos et les données terrain avant le lancement.
+> - T074 : images rendues côté serveur par `getImageProps` (pas de composant client
+>   `<Image>` à hydrater), image principale préchargée par `preload()` de React, placeholder
+>   flou réservé aux images différées ; un seul `sharp` (0.34.5) pour Next et Payload (deux
+>   libvips chargés empêchaient l'optimisation).
+> - Polices : `@font-face` latines dans `globals.css` (fichiers `public/fonts`, cache
+>   immuable) au lieu de `next/font/google` (18 sous-ensembles téléchargés), métriques de repli
+>   reprises de next/font ; une seule feuille CSS bloquante.
+> - T075 : barre collante fixée seulement sur téléphone en portrait (hauteur ≥ 500 px), dans
+>   le flux en paysage bas ou à 200 % de zoom ; action principale active dès la livraison de
+>   la page de demande (phase 8), WhatsApp entre-temps.
+> - T078 : carte générée depuis les coordonnées GPS du CMS (pas de fichiers `public/maps`).
+> - T081 : images de partage par la route `/og/[collection]/[id]` (vraie photo recadrée).
+> - T094 : recherche en formulaire intégré sous le héro (bouton du héro = ancre dans la zone
+>   du pouce) plutôt qu'en `<dialog>` : identique avec ou sans JavaScript.
+> - T095 : sections univers et destinations sans lien tant que leurs pages ne sont pas
+>   livrées ; aperçu du film ajouté avec sa page (phase 7).
+> - Seed : numéro WhatsApp FICTIF de démonstration (`+221700000000`, jamais en production) ;
+>   `pnpm seed` et `pnpm migrate` vident le cache de données de Next.
+> - Mesure (T099) : parcours accueil → recherche → liste → fiche en 3G : 6,6 s.
 
 **Checkpoint** : catalogue des séjours consultable et indexable sur mobile.
 
@@ -211,18 +287,30 @@ liste et lit une fiche complète (la demande arrive en phase 8).
 **Independent Test** : URL directe d'une fiche expérience sans JS : durée, niveau, saison,
 départ et prix XOF/€ dans le premier écran 360×800 ; JSON-LD TouristAttraction valide.
 
-- [ ] T100 [P] [US2] Créer `src/components/cards/ExperienceCard.tsx`
-- [ ] T101 [US2] Créer `src/lib/seo/jsonld/touristAttraction.ts` (+ Offer XOF par personne) et `tests/unit/jsonld-experience.test.ts`
-- [ ] T102 [US2] Créer `src/components/views/ExperienceView.tsx` : bloc de faits clés dans le premier écran (durée, niveau, mois de saison, point de départ, prix par personne : mobile CHK003), texte, galerie, destination, séjours qui l'incluent, 3 expériences de la même destination, FAQ, fil d'Ariane Accueil › Expériences › Univers › Fiche (seo CHK024), barre collante « Ajouter à ma demande » (lien `/demande?experience=` jusqu'à la phase 8)
-- [ ] T103 [P] [US2] Créer `src/components/views/UniverseView.tsx` et `src/components/views/ExperiencesHubView.tsx` (H1 « Que faire au Sine-Saloum » / « Things to do in Sine-Saloum », ItemList)
-- [ ] T104 [US2] Ajouter au résolveur les routes `experience` (univers + slug), `universe` et `experiences_hub` (params statiques, métadonnées, image OG)
-- [ ] T105 [US2] Ajouter expériences, univers et hub dans `src/lib/seo/sitemapEntries.ts`
-- [ ] T106 [P] [US2] Écrire `tests/e2e/experience.mobile.spec.ts` : faits clés et prix dans le premier écran 360×800, cibles, axe, zoom à 200 %, paysage
-- [ ] T107 [P] [US2] Écrire `tests/e2e/experience.seo.spec.ts` (projet `nojs`) : métadonnées, TouristAttraction + Offer XOF, fil d'Ariane à 4 niveaux, au moins 300 mots, aperçu OG
-- [ ] T108 [P] [US2] Écrire `tests/e2e/experiences-hub.mobile.spec.ts` (hub et une page d'univers)
-- [ ] T109 [P] [US2] Écrire `tests/e2e/experiences-hub.seo.spec.ts` (hub et univers : ItemList, fil d'Ariane, sitemap)
-- [ ] T110 [US2] Ajouter fiche expérience, hub et univers FR et EN dans `lighthouserc.json`
-- [ ] T111 [US3] Écrire `tests/e2e/us3-publication.spec.ts` : création d'une expérience bilingue dans l'admin → après revalidation, fiche FR et EN en ligne, présente dans son univers, sur sa destination et dans le sitemap ; EN incomplet → page EN absente et sans hreflang
+- [X] T100 [P] [US2] Créer `src/components/cards/ExperienceCard.tsx`
+- [X] T101 [US2] Créer `src/lib/seo/jsonld/touristAttraction.ts` (+ Offer XOF par personne) et `tests/unit/jsonld-experience.test.ts`
+- [X] T102 [US2] Créer `src/components/views/ExperienceView.tsx` : bloc de faits clés dans le premier écran (durée, niveau, mois de saison, point de départ, prix par personne : mobile CHK003), texte, galerie, destination, séjours qui l'incluent, 3 expériences de la même destination, FAQ, fil d'Ariane Accueil › Expériences › Univers › Fiche (seo CHK024), barre collante « Ajouter à ma demande » (lien `/demande?experience=` jusqu'à la phase 8)
+- [X] T103 [P] [US2] Créer `src/components/views/UniverseView.tsx` et `src/components/views/ExperiencesHubView.tsx` (H1 « Que faire au Sine-Saloum » / « Things to do in Sine-Saloum », ItemList)
+- [X] T104 [US2] Ajouter au résolveur les routes `experience` (univers + slug), `universe` et `experiences_hub` (params statiques, métadonnées, image OG)
+- [X] T105 [US2] Ajouter expériences, univers et hub dans `src/lib/seo/sitemapEntries.ts`
+- [X] T106 [P] [US2] Écrire `tests/e2e/experience.mobile.spec.ts` : faits clés et prix dans le premier écran 360×800, cibles, axe, zoom à 200 %, paysage
+- [X] T107 [P] [US2] Écrire `tests/e2e/experience.seo.spec.ts` (projet `nojs`) : métadonnées, TouristAttraction + Offer XOF, fil d'Ariane à 4 niveaux, au moins 300 mots, aperçu OG
+- [X] T108 [P] [US2] Écrire `tests/e2e/experiences-hub.mobile.spec.ts` (hub et une page d'univers)
+- [X] T109 [P] [US2] Écrire `tests/e2e/experiences-hub.seo.spec.ts` (hub et univers : ItemList, fil d'Ariane, sitemap)
+- [X] T110 [US2] Ajouter fiche expérience, hub et univers FR et EN dans `lighthouserc.json`
+- [X] T111 [US3] Écrire `tests/e2e/us3-publication.spec.ts` : création d'une expérience bilingue dans l'admin → après revalidation, fiche FR et EN en ligne, présente dans son univers, sur sa destination et dans le sitemap ; EN incomplet → page EN absente et sans hreflang
+
+> **Écarts d'implémentation phase 5 (2026-11-15)** :
+> - T101 : `TouristAttraction` est un `Place` et ne peut pas porter d'offre (schema.org) :
+>   l'expérience est décrite par un `TouristAttraction` (lieu) et un `TouristTrip` qui porte
+>   l'offre XOF par personne (contrat jsonld.md aligné).
+> - T103 : une seule vue `ExperiencesListView` pour le hub et les pages d'univers.
+> - T102 : destination affichée sans lien et décrite en ligne dans le JSON-LD jusqu'à la
+>   livraison de sa page (phase 6) ; « Ajouter à ma demande » active en phase 8.
+> - Sitemap rendu à la demande (`force-dynamic`) : toujours à jour après publication, lectures
+>   servies par le cache de données.
+> - Dérogation D-LCP-photo étendue aux URL `/fr/experiences…` et `/en/experiences…`
+>   (pages dont le LCP est une photo, comme prévu à leur livraison).
 
 **Checkpoint** : les fiches expérience servent d'entrées SEO autonomes.
 
@@ -236,19 +324,27 @@ catalogue.
 **Independent Test** : la page Ndangane liste ses séjours, expériences et hébergements, sans
 section vide ; la fiche villa est complète et balisée.
 
-- [ ] T112 [P] [US2] Créer `src/components/cards/DestinationCard.tsx` et `src/components/cards/AccommodationCard.tsx`
-- [ ] T113 [US2] Créer `src/lib/seo/jsonld/touristDestination.ts` (`village` ou `ile` → TouristDestination ; `reserve` → TouristAttraction : seo CHK017) et `tests/unit/jsonld-destination.test.ts`
-- [ ] T114 [US2] Créer `src/components/views/DestinationView.tsx` : H1, intro, texte, galerie, carte, sections séjours, expériences et hébergements masquées si vides, barre collante « Voir les séjours à {lieu} » + WhatsApp, fil d'Ariane
-- [ ] T115 [US2] Créer `src/components/views/DestinationsListView.tsx`, ajouter les routes `destination` et `destinations_list` au résolveur (métadonnées, OG, JSON-LD ItemList + BreadcrumbList pour la liste) et au sitemap (analyse M1)
-- [ ] T116 [P] [US2] Écrire `tests/e2e/destination.mobile.spec.ts` (destination et liste : 360 px, paysage, zoom, axe, barre collante)
-- [ ] T117 [P] [US2] Écrire `tests/e2e/destination.seo.spec.ts` (projet `nojs` ; destination et liste : métadonnées, JSON-LD par `kind`, maillage vers les contenus du lieu, sitemap)
-- [ ] T118 [US2] Créer `src/lib/seo/jsonld/lodging.ts` (VacationRental seulement pour une villa avec `identifier`, `bedrooms` et au moins 8 photos ; sinon LodgingBusiness : seo CHK018) et `tests/unit/jsonld-lodging.test.ts`
-- [ ] T119 [US2] Créer `src/components/views/AccommodationView.tsx` (capacité, équipements, photos, emplacement, séjours qui l'incluent, hébergements de la même destination) et `src/components/views/AccommodationsListView.tsx` (puces de type), avec les routes, les métadonnées, le JSON-LD (ItemList + BreadcrumbList pour la liste) et le sitemap (analyse M1)
-- [ ] T120 [P] [US2] Écrire `tests/e2e/accommodation.mobile.spec.ts` (fiche et liste)
-- [ ] T121 [P] [US2] Écrire `tests/e2e/accommodation.seo.spec.ts` (projet `nojs` ; fiche et liste)
-- [ ] T122 [US2] Ajouter destination, liste des destinations, fiche hébergement et liste des hébergements FR et EN dans `lighthouserc.json`
+- [X] T112 [P] [US2] Créer `src/components/cards/DestinationCard.tsx` et `src/components/cards/AccommodationCard.tsx`
+- [X] T113 [US2] Créer `src/lib/seo/jsonld/touristDestination.ts` (`village` ou `ile` → TouristDestination ; `reserve` → TouristAttraction : seo CHK017) et `tests/unit/jsonld-destination.test.ts`
+- [X] T114 [US2] Créer `src/components/views/DestinationView.tsx` : H1, intro, texte, galerie, carte, sections séjours, expériences et hébergements masquées si vides, barre collante « Voir les séjours à {lieu} » + WhatsApp, fil d'Ariane
+- [X] T115 [US2] Créer `src/components/views/DestinationsListView.tsx`, ajouter les routes `destination` et `destinations_list` au résolveur (métadonnées, OG, JSON-LD ItemList + BreadcrumbList pour la liste) et au sitemap (analyse M1)
+- [X] T116 [P] [US2] Écrire `tests/e2e/destination.mobile.spec.ts` (destination et liste : 360 px, paysage, zoom, axe, barre collante)
+- [X] T117 [P] [US2] Écrire `tests/e2e/destination.seo.spec.ts` (projet `nojs` ; destination et liste : métadonnées, JSON-LD par `kind`, maillage vers les contenus du lieu, sitemap)
+- [X] T118 [US2] Créer `src/lib/seo/jsonld/lodging.ts` (VacationRental seulement pour une villa avec `identifier`, `bedrooms` et au moins 8 photos ; sinon LodgingBusiness : seo CHK018) et `tests/unit/jsonld-lodging.test.ts`
+- [X] T119 [US2] Créer `src/components/views/AccommodationView.tsx` (capacité, équipements, photos, emplacement, séjours qui l'incluent, hébergements de la même destination) et `src/components/views/AccommodationsListView.tsx` (puces de type), avec les routes, les métadonnées, le JSON-LD (ItemList + BreadcrumbList pour la liste) et le sitemap (analyse M1)
+- [X] T120 [P] [US2] Écrire `tests/e2e/accommodation.mobile.spec.ts` (fiche et liste)
+- [X] T121 [P] [US2] Écrire `tests/e2e/accommodation.seo.spec.ts` (projet `nojs` ; fiche et liste)
+- [X] T122 [US2] Ajouter destination, liste des destinations, fiche hébergement et liste des hébergements FR et EN dans `lighthouserc.json`
 
 **Checkpoint** : tous les contenus du catalogue sont indexables et reliés.
+
+> **Écarts constatés à l'implémentation (phase 6)** :
+> - T115/T119 : listes destinations et hébergements réunies dans `src/components/views/CatalogListViews.tsx`.
+> - T118 : tests hébergement dans `tests/unit/jsonld-destination.test.ts` (bloc « JSON-LD hébergement »), pas de fichier séparé.
+> - Maillage : `src/components/ui/MaybeLink.tsx` rend cliquables destinations, hébergements et expériences cités dans les fiches séjour et expérience ; le JSON-LD expérience référence désormais `destination#place`.
+> - Tests : projet Playwright `desktop-admin` (1 worker) pour isoler les tests d'administration ; `test.slow()` sur les deux tests lourds hébergement (délai dépassé au démarrage à froid).
+> - Titres : `overflow-wrap: break-word` + `hyphens: auto` sur h1–h3 (« L’hébergement » débordait à 320 px, zoom 200 %).
+> - Dérogation D-LCP-photo (2,7 s) étendue aux fiches et listes destinations et hébergements (plan.md).
 
 ---
 

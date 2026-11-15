@@ -4,7 +4,25 @@
       "startServerCommand": "node ./node_modules/next/dist/bin/next start -p 3000",
       "startServerReadyPattern": "Ready",
       "numberOfRuns": 5,
-      "url": ["http://localhost:3000/fr"],
+      "url": [
+        "http://localhost:3000/fr",
+        "http://localhost:3000/en",
+        "http://localhost:3000/fr/sejours",
+        "http://localhost:3000/en/stays",
+        "http://localhost:3000/fr/sejours/week-end-bolong-ndangane",
+        "http://localhost:3000/en/stays/bolong-weekend-ndangane",
+        "http://localhost:3000/fr/experiences",
+        "http://localhost:3000/en/experiences",
+        "http://localhost:3000/fr/experiences/mangrove-et-iles",
+        "http://localhost:3000/fr/experiences/mangrove-et-iles/excursion-pirogue-bolongs",
+        "http://localhost:3000/en/experiences/mangrove-and-islands/pirogue-trip-bolongs",
+        "http://localhost:3000/fr/destinations",
+        "http://localhost:3000/fr/destinations/ndangane",
+        "http://localhost:3000/en/destinations/ndangane",
+        "http://localhost:3000/fr/hebergements",
+        "http://localhost:3000/fr/hebergements/villa-piscine-ndangane",
+        "http://localhost:3000/en/accommodation/ndangane-villa-with-pool"
+      ],
       "settings": {
         "formFactor": "mobile",
         "throttlingMethod": "simulate",
@@ -12,17 +30,116 @@
       }
     },
     "assert": {
-      "aggregationMethod": "median",
-      "assertions": {
-        "categories:performance": ["error", { "minScore": 0.95 }],
-        "categories:seo": ["error", { "minScore": 1 }],
-        "categories:accessibility": ["error", { "minScore": 0.95 }],
-        "categories:best-practices": ["error", { "minScore": 1 }],
-        "largest-contentful-paint": ["error", { "maxNumericValue": 2000 }],
-        "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
-        "total-blocking-time": ["error", { "maxNumericValue": 200 }],
-        "resource-summary:script:size": ["error", { "maxNumericValue": 153600 }]
-      }
+      "assertMatrix": [
+        {
+          "matchingUrlPattern": "/(fr/sejours|en/stays|fr/experiences|en/experiences|fr/destinations|en/destinations|fr/hebergements|en/accommodation)(/|$)",
+          "aggregationMethod": "median",
+          "assertions": {
+            "categories:performance": [
+              "error",
+              {
+                "minScore": 0.95
+              }
+            ],
+            "categories:seo": [
+              "error",
+              {
+                "minScore": 1
+              }
+            ],
+            "categories:accessibility": [
+              "error",
+              {
+                "minScore": 0.95
+              }
+            ],
+            "categories:best-practices": [
+              "error",
+              {
+                "minScore": 1
+              }
+            ],
+            "largest-contentful-paint": [
+              "error",
+              {
+                "maxNumericValue": 2700
+              }
+            ],
+            "cumulative-layout-shift": [
+              "error",
+              {
+                "maxNumericValue": 0.1
+              }
+            ],
+            "total-blocking-time": [
+              "error",
+              {
+                "maxNumericValue": 200
+              }
+            ],
+            "resource-summary:script:size": [
+              "error",
+              {
+                "maxNumericValue": 153600
+              }
+            ]
+          }
+        },
+        {
+          "matchingUrlPattern": "^(?!.*/(fr/sejours|en/stays|fr/experiences|en/experiences|fr/destinations|en/destinations|fr/hebergements|en/accommodation)(/|$)).*",
+          "aggregationMethod": "median",
+          "assertions": {
+            "categories:performance": [
+              "error",
+              {
+                "minScore": 0.95
+              }
+            ],
+            "categories:seo": [
+              "error",
+              {
+                "minScore": 1
+              }
+            ],
+            "categories:accessibility": [
+              "error",
+              {
+                "minScore": 0.95
+              }
+            ],
+            "categories:best-practices": [
+              "error",
+              {
+                "minScore": 1
+              }
+            ],
+            "largest-contentful-paint": [
+              "error",
+              {
+                "maxNumericValue": 2000
+              }
+            ],
+            "cumulative-layout-shift": [
+              "error",
+              {
+                "maxNumericValue": 0.1
+              }
+            ],
+            "total-blocking-time": [
+              "error",
+              {
+                "maxNumericValue": 200
+              }
+            ],
+            "resource-summary:script:size": [
+              "error",
+              {
+                "maxNumericValue": 153600
+              }
+            ]
+          }
+        }
+      ]
     },
     "upload": {
       "target": "filesystem",

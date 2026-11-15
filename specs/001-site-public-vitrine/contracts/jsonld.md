@@ -12,9 +12,12 @@ voir principe V et research R10).
 
 ### Organization + TravelAgency (toutes les pages indexables)
 
+`TravelAgency` est un sous-type d'`Organization` (via `LocalBusiness`) : un seul `@type` suffit.
+Tout champ non renseigné dans `siteSettings` est omis (aucune valeur inventée).
+
 ```json
 {
-  "@type": ["Organization", "TravelAgency"],
+  "@type": "TravelAgency",
   "@id": "https://{domaine}/#org",
   "name": "{siteSettings.brandName}",
   "legalName": "{siteSettings.legalName}",
@@ -71,7 +74,6 @@ Les éléments correspondent exactement au fil d'Ariane visible.
   "@id": "{url}#trip",
   "name": "{title}", "description": "{metaDescription}", "url": "{url}",
   "image": ["{heroImage}", "{gallery[0..2]}"],
-  "inLanguage": "fr-SN",
   "touristType": ["{moods → libellés}"],
   "provider": { "@id": "https://{domaine}/#org" },
   "itinerary": {
@@ -97,7 +99,14 @@ Les éléments correspondent exactement au fil d'Ariane visible.
 
 \+ `FAQPage` (`@id: {url}#faq`) si la fiche a des FAQ affichées.
 
-### Fiche expérience → `TouristAttraction` + `Offer`
+Pas de `inLanguage` : la propriété n'existe pas sur `TouristTrip` (réservée aux œuvres, `CreativeWork`).
+
+### Fiche expérience → `TouristAttraction` + `TouristTrip` (offre)
+
+`TouristAttraction` est un `Place` : schema.org ne lui permet pas de porter une offre. L'expérience
+est donc décrite par deux nœuds : l'attraction (lieu, géolocalisation, photos, univers) et un
+`TouristTrip` (`@id: {url}#trip`) qui porte l'offre XOF par personne et désigne l'attraction comme
+`itinerary`. La destination est décrite en ligne (`Place` + `geo`) tant que sa page n'est pas livrée.
 
 ```json
 {

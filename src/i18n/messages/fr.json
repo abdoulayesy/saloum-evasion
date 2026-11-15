@@ -1,0 +1,242 @@
+{
+  "common": {
+    "brand": "Saloum Évasion",
+    "skipToContent": "Aller au contenu",
+    "home": "Accueil",
+    "breadcrumbLabel": "Fil d’Ariane"
+  },
+  "header": {
+    "homeLink": "Saloum Évasion, accueil",
+    "menu": "Menu",
+    "switchLanguage": "EN",
+    "switchLanguageLabel": "EN, English version"
+  },
+  "menu": {
+    "title": "Menu",
+    "close": "Fermer le menu",
+    "navLabel": "Navigation principale"
+  },
+  "footer": {
+    "navLabel": "Navigation du pied de page",
+    "tagline": "Séjours immersifs à Ndangane et dans les îles du Sine-Saloum, organisés par des gens d’ici.",
+    "contactTitle": "Nous trouver",
+    "paymentTitle": "Moyens de paiement acceptés",
+    "paymentNote": "Paiement en francs CFA (XOF).",
+    "rights": "Tous droits réservés."
+  },
+  "routes": {
+    "staysList": "Séjours",
+    "experiencesHub": "Expériences",
+    "accommodationsList": "Hébergements",
+    "destinationsList": "Destinations",
+    "film": "Film d’immersion",
+    "commitment": "Notre engagement",
+    "about": "À propos",
+    "faq": "Questions fréquentes",
+    "contact": "Contact",
+    "legal": "Mentions légales",
+    "privacy": "Confidentialité",
+    "request": "Demande de séjour",
+    "requestThanks": "Merci"
+  },
+  "errors": {
+    "notFoundTitle": "Page introuvable",
+    "notFoundBody": "Cette page n’existe pas ou plus. Le Saloum, lui, vous attend toujours.",
+    "serverErrorTitle": "Une erreur est survenue",
+    "serverErrorBody": "Nous n’avons pas pu afficher cette page. Réessayez dans un instant.",
+    "retry": "Réessayer",
+    "backHome": "Retour à l’accueil",
+    "explore": "Continuer la découverte"
+  },
+  "price": {
+    "from": "À partir de",
+    "perPerson": "par personne",
+    "perNight": "par nuit",
+    "indicative": "indicatif",
+    "ttc": "TTC"
+  },
+  "moods": {
+    "nature": "Nature",
+    "culture": "Culture",
+    "gastronomie": "Gastronomie",
+    "detente": "Détente",
+    "aventure": "Aventure",
+    "famille": "Famille"
+  },
+  "durations": {
+    "weekend": "Week-end (1 à 2 nuits)",
+    "short": "Court séjour (3 à 4 nuits)",
+    "week": "Une semaine ou plus"
+  },
+  "budgets": {
+    "lt250k": "Moins de 250 000 FCFA",
+    "250k-500k": "250 000 à 500 000 FCFA",
+    "gt500k": "Plus de 500 000 FCFA"
+  },
+  "stay": {
+    "nights": "{count, plural, one {# nuit} other {# nuits}}",
+    "keyFacts": "En bref",
+    "duration": "Durée",
+    "destinations": "Destinations",
+    "moods": "Envies",
+    "maxTravellers": "Jusqu’à {count} voyageurs",
+    "itinerary": "Programme jour par jour",
+    "day": "Jour {day}",
+    "included": "Inclus",
+    "notIncluded": "Non inclus",
+    "cancellation": "Conditions d’annulation",
+    "gallery": "Photos",
+    "map": "Où se déroule ce séjour",
+    "faq": "Questions fréquentes",
+    "about": "Le séjour",
+    "accommodations": "Où vous dormirez",
+    "experiences": "Expériences incluses",
+    "similar": "Séjours similaires",
+    "basis": "Base de prix"
+  },
+  "actions": {
+    "requestStay": "Demander ce séjour",
+    "addToRequest": "Ajouter à ma demande",
+    "seeStaysAt": "Voir les séjours à {place}",
+    "whatsapp": "WhatsApp",
+    "whatsappLabel": "Écrire à un hôte sur WhatsApp",
+    "whatsappMessage": "Bonjour, je souhaite des informations sur « {title} » : {url}",
+    "whatsappGeneric": "Bonjour, je prépare un séjour dans le Sine-Saloum : {url}",
+    "seeStay": "Voir le séjour",
+    "discoverStays": "Découvrir les séjours",
+    "barLabel": "Actions rapides"
+  },
+  "gallery": {
+    "label": "Galerie de photos",
+    "previous": "Photo précédente",
+    "next": "Photo suivante",
+    "position": "Photo {current} sur {total}"
+  },
+  "list": {
+    "intro": "Des séjours tout compris, organisés par des gens d’ici : hébergement, expériences, table et transfert.",
+    "results": "{count, plural, =0 {Aucun séjour} one {# séjour} other {# séjours}}",
+    "filters": "Filtrer",
+    "filtersTitle": "Filtrer les séjours",
+    "duration": "Durée",
+    "mood": "Envie",
+    "budget": "Budget",
+    "apply": "Voir {count, plural, =0 {aucun séjour} one {# séjour} other {# séjours}}",
+    "reset": "Réinitialiser",
+    "close": "Fermer les filtres",
+    "empty": "Aucun séjour ne correspond à ces critères.",
+    "emptyHelp": "Élargissez les filtres ou écrivez-nous : nous composons aussi des séjours sur mesure."
+  },
+  "home": {
+    "title": "Saloum Évasion — séjours immersifs dans le Sine-Saloum",
+    "description": "Séjours tout compris à Ndangane et dans les îles du Sine-Saloum : hébergement, expériences, table locale et transfert en une seule demande.",
+    "heading": "Le Saloum, vécu de l’intérieur",
+    "lead": "Séjours immersifs à Ndangane et dans les îles du Sine-Saloum, organisés par des gens d’ici.",
+    "findStay": "Trouver mon séjour",
+    "searchTitle": "Trouver mon séjour",
+    "arrival": "Arrivée",
+    "departure": "Départ",
+    "adults": "Adultes",
+    "duration": "Durée",
+    "anyDuration": "Toutes",
+    "moods": "Envies",
+    "search": "Voir les séjours",
+    "guarantees": "Nos engagements",
+    "featured": "Séjours signature",
+    "universes": "Quatre façons de vivre le Saloum",
+    "destinations": "Destinations",
+    "steps": "Comment ça marche",
+    "step1": "Choisissez un séjour ou composez le vôtre.",
+    "step2": "Envoyez votre demande en deux minutes, ou écrivez-nous sur WhatsApp.",
+    "step3": "Un hôte de Ndangane vous répond et ajuste le programme avec vous.",
+    "commitment": "Un tourisme qui fait vivre le delta",
+    "commitmentText": "Nos séjours sont conçus avec les familles, les guides et les piroguiers du Saloum : ce que vous dépensez reste ici.",
+    "contact": "Une question ? Un hôte vous répond."
+  },
+  "experience": {
+    "keyFacts": "L’essentiel",
+    "duration": "Durée",
+    "level": "Niveau",
+    "season": "Saison",
+    "meetingPoint": "Départ",
+    "price": "Prix",
+    "minParticipants": "À partir de {count} participants",
+    "allYear": "Toute l’année",
+    "levels": {
+      "facile": "Facile",
+      "modere": "Modéré",
+      "sportif": "Sportif"
+    },
+    "about": "L’expérience",
+    "destination": "Où",
+    "inStays": "Séjours qui l’incluent",
+    "sameDestination": "À vivre aussi à {place}",
+    "gallery": "Photos",
+    "faq": "Questions fréquentes",
+    "seasonRange": "{from} à {to}"
+  },
+  "hub": {
+    "intro": "Mangrove, villages, table : choisissez votre façon de vivre le Saloum, avec des guides d’ici.",
+    "universes": "Les univers",
+    "all": "Toutes les expériences",
+    "count": "{count, plural, one {# expérience} other {# expériences}}"
+  },
+  "months": {
+    "1": "janvier",
+    "2": "février",
+    "3": "mars",
+    "4": "avril",
+    "5": "mai",
+    "6": "juin",
+    "7": "juillet",
+    "8": "août",
+    "9": "septembre",
+    "10": "octobre",
+    "11": "novembre",
+    "12": "décembre"
+  },
+  "destination": {
+    "stays": "Séjours à {place}",
+    "experiences": "Que faire à {place}",
+    "accommodations": "Où dormir à {place}",
+    "about": "Découvrir {place}",
+    "map": "Situer {place}",
+    "kinds": {
+      "village": "Village",
+      "ile": "Île",
+      "reserve": "Réserve naturelle"
+    },
+    "listIntro": "Villages de pêcheurs, îles et réserves : six lieux du delta, à vivre avec des gens d’ici."
+  },
+  "accommodation": {
+    "capacity": "Jusqu’à {count} personnes",
+    "bedrooms": "{count, plural, one {# chambre} other {# chambres}}",
+    "amenities": "Équipements",
+    "location": "Emplacement",
+    "inStays": "Séjours qui l’incluent",
+    "sameDestination": "Autres hébergements à {place}",
+    "about": "L’hébergement",
+    "gallery": "Photos",
+    "types": {
+      "villa": "Villas",
+      "ecolodge": "Écolodges",
+      "campement": "Campements"
+    },
+    "type": {
+      "villa": "Villa",
+      "ecolodge": "Écolodge",
+      "campement": "Campement"
+    },
+    "typeNav": "Types d’hébergement",
+    "listIntro": "Villas, écolodges et campements choisis pour leur emplacement et leur accueil.",
+    "amenityLabels": {
+      "piscine": "Piscine",
+      "climatisation": "Climatisation",
+      "wifi": "Wi-Fi",
+      "vue-bolong": "Vue sur le bolong",
+      "acces-plage": "Accès plage",
+      "cuisine": "Cuisine",
+      "parking": "Parking",
+      "pmr": "Accessible PMR"
+    }
+  }
+}

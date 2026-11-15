@@ -53,6 +53,12 @@ jobs:
       - name: Tests unitaires
         run: pnpm test
 
+      - name: Migrations de la base (CMS)
+        run: pnpm migrate
+
+      - name: Données de démonstration (seed)
+        run: pnpm seed
+
       - name: Build
         run: pnpm build
 

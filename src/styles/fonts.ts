@@ -1,23 +1,20 @@
-import { Cormorant_Garamond, Manrope } from 'next/font/google';
+import { preload } from 'react-dom';
 
-// Constitution II : 2 familles maximum, auto-hébergées (next/font télécharge au build),
-// sous-ensemble latin, font-display: swap.
-// Cormorant : graisses 500 et 600 seulement (l'italique sera ajouté si la maquette l'exige).
-export const cormorant = Cormorant_Garamond({
-  subsets: ['latin'],
-  weight: ['500', '600'],
-  style: ['normal'],
-  display: 'swap',
-  adjustFontFallback: true,
-  variable: '--font-cormorant',
-});
+// Constitution II : 2 familles maximum, auto-hébergées, sous-ensemble latin seulement,
+// font-display: swap. Les @font-face sont déclarées dans globals.css (une seule feuille CSS
+// bloquante au lieu de deux) ; les fichiers woff2 latins sont servis depuis /fonts avec un
+// cache immuable (noms versionnés, licence OFL). Les métriques de repli (size-adjust…)
+// évitent tout décalage de mise en page pendant le chargement. Préchargement conservé :
+// mesuré, il avance le LCP (moins de rendus successifs).
 
-// Manrope : police variable (une seule ressource pour 400 à 700).
-export const manrope = Manrope({
-  subsets: ['latin'],
-  display: 'swap',
-  adjustFontFallback: true,
-  variable: '--font-manrope',
-});
+export const FONT_FILES = [
+  '/fonts/cormorant-garamond-600-latin-v1.woff2',
+  '/fonts/manrope-variable-latin-v1.woff2',
+] as const;
 
-export const fontVariables = `${cormorant.variable} ${manrope.variable}`;
+/** Précharge les deux polices (à appeler depuis le layout, composant serveur). */
+export const preloadFonts = (): void => {
+  for (const href of FONT_FILES) {
+    preload(href, { as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' });
+  }
+};

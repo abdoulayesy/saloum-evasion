@@ -2,6 +2,8 @@ import { defineConfig, devices } from '@playwright/test';
 
 const PORT = 3000;
 const SEO_SPECS = /.*\.(seo|nojs)\.spec\.ts/;
+// Admin Payload : testé sur ordinateur seulement (dérogation D-T6b).
+const ADMIN_SPECS = /(cms\.smoke|us3-editor|us3-publication)\.spec\.ts/;
 const baseURL = process.env.BASE_URL ?? `http://localhost:${PORT}`;
 
 // Appareil de référence de la constitution : Android milieu de gamme, 360 px de large.
@@ -31,19 +33,22 @@ export default defineConfig({
     {
       name: 'android-360',
       use: { ...devices['Desktop Chrome'], ...android360 },
-      testIgnore: SEO_SPECS,
+      testIgnore: [SEO_SPECS, ADMIN_SPECS],
     },
     {
       name: 'android-360-landscape',
       use: { ...devices['Desktop Chrome'], ...android360, viewport: { width: 800, height: 360 } },
-      testIgnore: SEO_SPECS,
+      testIgnore: [SEO_SPECS, ADMIN_SPECS],
     },
-    { name: 'pixel-7', use: { ...devices['Pixel 7'] }, testIgnore: SEO_SPECS },
+    { name: 'pixel-7', use: { ...devices['Pixel 7'] }, testIgnore: [SEO_SPECS, ADMIN_SPECS] },
     {
       name: 'iphone-se',
       use: { ...devices['iPhone SE'] },
       grepInvert: /@chromium-only/,
-      testIgnore: SEO_SPECS,
+      testIgnore: [SEO_SPECS, ADMIN_SPECS],
+      // WebKit plante sous forte concurrence (constaté sous Windows avec 8 workers) :
+      // parallélisme limité pour ce seul projet, sans désactiver aucun test.
+      workers: 2,
     },
     {
       name: 'nojs',
@@ -53,13 +58,24 @@ export default defineConfig({
     {
       name: 'desktop',
       use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
-      testIgnore: SEO_SPECS,
+      testIgnore: [SEO_SPECS, ADMIN_SPECS],
+    },
+    {
+      // Tests d'administration (dérogation D-T6b : ordinateur seulement). Un seul worker : ils
+      // partagent le compte et les documents du seed, et ne doivent pas se gêner.
+      name: 'desktop-admin',
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
+      testMatch: ADMIN_SPECS,
+      workers: 1,
     },
   ],
   webServer: {
     command: `node ./node_modules/next/dist/bin/next start -p ${PORT}`,
     url: `${baseURL}/fr`,
-    reuseExistingServer: !process.env.CI,
+    // Toujours un serveur neuf sur le build courant (un serveur oublié testerait un ancien build).
+    reuseExistingServer: false,
     timeout: 120_000,
+    // Table des redirections relue à chaque requête pendant les tests (us3-editor).
+    env: { REDIRECTS_TTL_MS: '0' },
   },
 });

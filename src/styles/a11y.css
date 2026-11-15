@@ -49,3 +49,8 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Menu plein écran ouvert : la page dessous ne défile plus (sans JavaScript dédié). */
+body:has(dialog[open]) {
+  overflow: hidden;
+}
