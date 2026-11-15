@@ -1,6 +1,14 @@
 import type { MetadataRoute } from 'next';
 import { buildPath } from '@/i18n/pathnames';
-import { getAlternates, listExperiences, listStays, listUniverses } from '@/lib/cms/queries';
+import {
+  getAlternates,
+  listAccommodations,
+  listDestinations,
+  listExperiences,
+  listStays,
+  listUniverses,
+} from '@/lib/cms/queries';
+import { accommodationAlternates, destinationAlternates } from '@/lib/catalogPaths';
 import { populated, populatedList } from '@/lib/cms/populated';
 import { experienceAlternates, universeAlternates } from '@/lib/experiencePaths';
 import { entriesForRoute, fixedEntries, isListable } from '@/lib/seo/sitemapEntries';
@@ -76,11 +84,41 @@ const universeEntries = async (): Promise<MetadataRoute.Sitemap> => {
   return entries.flat();
 };
 
+const destinationEntries = async (): Promise<MetadataRoute.Sitemap> => {
+  if (!isListable('destination')) return [];
+  const destinations = (await listDestinations('fr')).filter((item) => !item.seo?.noindex);
+  const entries = await Promise.all(
+    destinations.map(async (destination) =>
+      entriesForRoute(await destinationAlternates(destination.id), {
+        lastModified: new Date(destination.updatedAt),
+        images: imagesOf(destination),
+      }),
+    ),
+  );
+  return entries.flat();
+};
+
+const accommodationEntries = async (): Promise<MetadataRoute.Sitemap> => {
+  if (!isListable('accommodation')) return [];
+  const accommodations = (await listAccommodations('fr')).filter((item) => !item.seo?.noindex);
+  const entries = await Promise.all(
+    accommodations.map(async (accommodation) =>
+      entriesForRoute(await accommodationAlternates(accommodation.id), {
+        lastModified: new Date(accommodation.updatedAt),
+        images: imagesOf(accommodation),
+      }),
+    ),
+  );
+  return entries.flat();
+};
+
 const sitemap = async (): Promise<MetadataRoute.Sitemap> => [
   ...fixedEntries(),
   ...(await stayEntries()),
   ...(await universeEntries()),
   ...(await experienceEntries()),
+  ...(await destinationEntries()),
+  ...(await accommodationEntries()),
 ];
 
 export default sitemap;

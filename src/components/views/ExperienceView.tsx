@@ -7,9 +7,11 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { CmsImage, HERO_SIZES } from '@/components/ui/CmsImage';
 import { Container } from '@/components/ui/Container';
+import { MaybeLink } from '@/components/ui/MaybeLink';
 import { Price } from '@/components/ui/Price';
 import { ActionBarSpacer, StickyActionBar } from '@/components/ui/StickyActionBar';
 import type { Locale } from '@/i18n/routing';
+import { destinationPath } from '@/lib/catalogPaths';
 import { populated, populatedList } from '@/lib/cms/populated';
 import { experiencePath } from '@/lib/experiencePaths';
 import { formatDuration, formatSeason } from '@/lib/format';
@@ -105,6 +107,9 @@ export const ExperienceView = async ({
           name: destination.name ?? '',
           latitude: destination.geo.latitude,
           longitude: destination.geo.longitude,
+          url: destinationPath(locale, destination)
+            ? absoluteUrl(destinationPath(locale, destination) ?? '')
+            : undefined,
         }
       : null,
     pricePerPersonXof: experience.pricePerPerson,
@@ -191,7 +196,7 @@ export const ExperienceView = async ({
         />
       </div>
 
-      <Container className="mt-8 grid grid-cols-1 gap-10 md:grid-cols-[2fr_1fr]">
+      <Container className="mt-8 grid grid-cols-1 gap-10 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <div className="flex flex-col gap-10">
           {experience.summary && <p className="text-lg text-ink-muted">{experience.summary}</p>}
           {experience.body && (
@@ -211,7 +216,11 @@ export const ExperienceView = async ({
               <h2 id="experience-lieu" className="text-2xl text-mangrove">
                 {t('destination')}
               </h2>
-              <p className="mt-2">{destination.name}</p>
+              <p className="mt-2">
+                <MaybeLink href={destinationPath(locale, destination)}>
+                  {destination.name}
+                </MaybeLink>
+              </p>
               {destination.intro && <p className="mt-1 text-ink-muted">{destination.intro}</p>}
             </section>
           )}

@@ -94,6 +94,10 @@
     font-weight: 600;
     line-height: 1.15;
     text-wrap: balance;
+    /* Zoom texte 200 % à 320 px (WCAG 1.4.4 / 1.4.10) : un mot long (« L’hébergement »,
+       titres saisis dans le CMS) se coupe plutôt que de provoquer un défilement horizontal. */
+    overflow-wrap: break-word;
+    hyphens: auto;
   }
 
   h1 {

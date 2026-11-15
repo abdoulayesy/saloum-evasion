@@ -9,10 +9,18 @@ import {
 
 // T097 : accueil à 360 px.
 test.describe('accueil', () => {
-  test('élément LCP = image principale, ≤ 120 Ko, en AVIF ou WebP', async ({ page, isMobile }) => {
+  test('élément LCP = image principale, ≤ 120 Ko, en AVIF ou WebP', async ({
+    page,
+    isMobile,
+    browserName,
+  }) => {
     // Budget LCP de la constitution : profil mobile. (Sur grand écran, Chrome écarte du LCP les
     // visuels de démonstration en aplat de couleur, jugés de trop faible entropie.)
-    test.skip(!isMobile, 'Budget LCP mesuré en profil mobile');
+    // Lighthouse mesure sous Chromium ; WebKit applique d'autres règles d'éligibilité au LCP.
+    test.skip(
+      !isMobile || browserName !== 'chromium',
+      'Budget LCP mesuré en profil mobile Chromium',
+    );
     const images: { url: string; type: string; size: number }[] = [];
     page.on('response', async (response) => {
       if (!response.url().includes('/_next/image')) return;

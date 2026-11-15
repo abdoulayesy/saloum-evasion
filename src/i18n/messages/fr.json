@@ -193,5 +193,50 @@
     "10": "octobre",
     "11": "novembre",
     "12": "décembre"
+  },
+  "destination": {
+    "stays": "Séjours à {place}",
+    "experiences": "Que faire à {place}",
+    "accommodations": "Où dormir à {place}",
+    "about": "Découvrir {place}",
+    "map": "Situer {place}",
+    "kinds": {
+      "village": "Village",
+      "ile": "Île",
+      "reserve": "Réserve naturelle"
+    },
+    "listIntro": "Villages de pêcheurs, îles et réserves : six lieux du delta, à vivre avec des gens d’ici."
+  },
+  "accommodation": {
+    "capacity": "Jusqu’à {count} personnes",
+    "bedrooms": "{count, plural, one {# chambre} other {# chambres}}",
+    "amenities": "Équipements",
+    "location": "Emplacement",
+    "inStays": "Séjours qui l’incluent",
+    "sameDestination": "Autres hébergements à {place}",
+    "about": "L’hébergement",
+    "gallery": "Photos",
+    "types": {
+      "villa": "Villas",
+      "ecolodge": "Écolodges",
+      "campement": "Campements"
+    },
+    "type": {
+      "villa": "Villa",
+      "ecolodge": "Écolodge",
+      "campement": "Campement"
+    },
+    "typeNav": "Types d’hébergement",
+    "listIntro": "Villas, écolodges et campements choisis pour leur emplacement et leur accueil.",
+    "amenityLabels": {
+      "piscine": "Piscine",
+      "climatisation": "Climatisation",
+      "wifi": "Wi-Fi",
+      "vue-bolong": "Vue sur le bolong",
+      "acces-plage": "Accès plage",
+      "cuisine": "Cuisine",
+      "parking": "Parking",
+      "pmr": "Accessible PMR"
+    }
   }
 }

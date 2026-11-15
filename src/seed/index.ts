@@ -591,7 +591,7 @@ const seed = async (): Promise<void> => {
     stays_list: { fr: 'Séjours signature', en: 'Signature stays' },
     experiences_hub: { fr: 'Que faire au Sine-Saloum', en: 'Things to do in Sine-Saloum' },
     accommodations_list: { fr: 'Hébergements', en: 'Accommodation' },
-    destinations_list: { fr: 'Destinations', en: 'Destinations' },
+    destinations_list: { fr: 'Destinations du Sine-Saloum', en: 'Sine-Saloum destinations' },
     not_found: { fr: 'Page introuvable', en: 'Page not found' },
   };
   for (const key of PAGE_KEYS) {

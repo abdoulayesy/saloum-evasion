@@ -193,5 +193,50 @@
     "10": "October",
     "11": "November",
     "12": "December"
+  },
+  "destination": {
+    "stays": "Stays in {place}",
+    "experiences": "Things to do in {place}",
+    "accommodations": "Where to stay in {place}",
+    "about": "Discover {place}",
+    "map": "Locate {place}",
+    "kinds": {
+      "village": "Village",
+      "ile": "Island",
+      "reserve": "Nature reserve"
+    },
+    "listIntro": "Fishing villages, islands and reserves: six places in the delta, lived with local people."
+  },
+  "accommodation": {
+    "capacity": "Up to {count} guests",
+    "bedrooms": "{count, plural, one {# bedroom} other {# bedrooms}}",
+    "amenities": "Amenities",
+    "location": "Location",
+    "inStays": "Stays that include it",
+    "sameDestination": "Other places to stay in {place}",
+    "about": "The accommodation",
+    "gallery": "Photos",
+    "types": {
+      "villa": "Villas",
+      "ecolodge": "Eco-lodges",
+      "campement": "Camps"
+    },
+    "type": {
+      "villa": "Villa",
+      "ecolodge": "Eco-lodge",
+      "campement": "Camp"
+    },
+    "typeNav": "Accommodation types",
+    "listIntro": "Villas, eco-lodges and camps chosen for their setting and their welcome.",
+    "amenityLabels": {
+      "piscine": "Swimming pool",
+      "climatisation": "Air conditioning",
+      "wifi": "Wi-Fi",
+      "vue-bolong": "Bolong view",
+      "acces-plage": "Beach access",
+      "cuisine": "Kitchen",
+      "parking": "Parking",
+      "pmr": "Wheelchair accessible"
+    }
   }
 }

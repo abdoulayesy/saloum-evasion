@@ -6,7 +6,7 @@ import { organizationId } from './organization';
 //   `Place`, qui ne peut pas porter d'offre ;
 // - TouristTrip : l'activité guidée elle-même, avec l'offre en XOF par personne et
 //   l'attraction comme itinéraire.
-// La destination est décrite en ligne tant que sa page n'est pas livrée ; aucune note ni avis.
+// La destination est référencée par son nœud `#place` quand sa page existe ; aucune note ni avis.
 
 export type AttractionInput = {
   url: string;
@@ -15,7 +15,8 @@ export type AttractionInput = {
   description: string;
   images: readonly string[];
   universeName: string | null;
-  destination: { name: string; latitude: number; longitude: number } | null;
+  /** Destination ; `url` présente quand sa page existe (référence à son nœud `#place`). */
+  destination: { name: string; latitude: number; longitude: number; url?: string } | null;
   pricePerPersonXof: number;
   hasFaq: boolean;
 };
@@ -33,7 +34,9 @@ export const buildTouristAttraction = (input: AttractionInput): TouristAttractio
   ...(input.universeName ? { touristType: input.universeName } : {}),
   ...(input.destination
     ? {
-        containedInPlace: { '@type': 'Place', name: input.destination.name },
+        containedInPlace: input.destination.url
+          ? { '@id': `${input.destination.url}#place` }
+          : { '@type': 'Place', name: input.destination.name },
         geo: {
           '@type': 'GeoCoordinates',
           latitude: input.destination.latitude,

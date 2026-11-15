@@ -58,7 +58,15 @@ export default defineConfig({
     {
       name: 'desktop',
       use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
-      testIgnore: SEO_SPECS,
+      testIgnore: [SEO_SPECS, ADMIN_SPECS],
+    },
+    {
+      // Tests d'administration (dérogation D-T6b : ordinateur seulement). Un seul worker : ils
+      // partagent le compte et les documents du seed, et ne doivent pas se gêner.
+      name: 'desktop-admin',
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
+      testMatch: ADMIN_SPECS,
+      workers: 1,
     },
   ],
   webServer: {

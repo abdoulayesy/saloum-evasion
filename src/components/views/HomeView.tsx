@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server';
+import { DestinationCard } from '@/components/cards/DestinationCard';
 import { StayCard } from '@/components/cards/StayCard';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { ButtonLink } from '@/components/ui/Button';
@@ -149,10 +150,10 @@ export const HomeView = async ({
 
       {destinations.length > 0 && (
         <Section id="destinations" title={t('destinations')} tone="deep">
-          <ul className="flex flex-wrap gap-2">
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {destinations.map((destination) => (
-              <li key={destination.id} className="rounded-full bg-white px-4 py-2 font-semibold">
-                {destination.name}
+              <li key={destination.id}>
+                <DestinationCard destination={destination} locale={locale} />
               </li>
             ))}
           </ul>

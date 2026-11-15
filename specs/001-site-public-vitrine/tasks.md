@@ -324,19 +324,27 @@ catalogue.
 **Independent Test** : la page Ndangane liste ses séjours, expériences et hébergements, sans
 section vide ; la fiche villa est complète et balisée.
 
-- [ ] T112 [P] [US2] Créer `src/components/cards/DestinationCard.tsx` et `src/components/cards/AccommodationCard.tsx`
-- [ ] T113 [US2] Créer `src/lib/seo/jsonld/touristDestination.ts` (`village` ou `ile` → TouristDestination ; `reserve` → TouristAttraction : seo CHK017) et `tests/unit/jsonld-destination.test.ts`
-- [ ] T114 [US2] Créer `src/components/views/DestinationView.tsx` : H1, intro, texte, galerie, carte, sections séjours, expériences et hébergements masquées si vides, barre collante « Voir les séjours à {lieu} » + WhatsApp, fil d'Ariane
-- [ ] T115 [US2] Créer `src/components/views/DestinationsListView.tsx`, ajouter les routes `destination` et `destinations_list` au résolveur (métadonnées, OG, JSON-LD ItemList + BreadcrumbList pour la liste) et au sitemap (analyse M1)
-- [ ] T116 [P] [US2] Écrire `tests/e2e/destination.mobile.spec.ts` (destination et liste : 360 px, paysage, zoom, axe, barre collante)
-- [ ] T117 [P] [US2] Écrire `tests/e2e/destination.seo.spec.ts` (projet `nojs` ; destination et liste : métadonnées, JSON-LD par `kind`, maillage vers les contenus du lieu, sitemap)
-- [ ] T118 [US2] Créer `src/lib/seo/jsonld/lodging.ts` (VacationRental seulement pour une villa avec `identifier`, `bedrooms` et au moins 8 photos ; sinon LodgingBusiness : seo CHK018) et `tests/unit/jsonld-lodging.test.ts`
-- [ ] T119 [US2] Créer `src/components/views/AccommodationView.tsx` (capacité, équipements, photos, emplacement, séjours qui l'incluent, hébergements de la même destination) et `src/components/views/AccommodationsListView.tsx` (puces de type), avec les routes, les métadonnées, le JSON-LD (ItemList + BreadcrumbList pour la liste) et le sitemap (analyse M1)
-- [ ] T120 [P] [US2] Écrire `tests/e2e/accommodation.mobile.spec.ts` (fiche et liste)
-- [ ] T121 [P] [US2] Écrire `tests/e2e/accommodation.seo.spec.ts` (projet `nojs` ; fiche et liste)
-- [ ] T122 [US2] Ajouter destination, liste des destinations, fiche hébergement et liste des hébergements FR et EN dans `lighthouserc.json`
+- [X] T112 [P] [US2] Créer `src/components/cards/DestinationCard.tsx` et `src/components/cards/AccommodationCard.tsx`
+- [X] T113 [US2] Créer `src/lib/seo/jsonld/touristDestination.ts` (`village` ou `ile` → TouristDestination ; `reserve` → TouristAttraction : seo CHK017) et `tests/unit/jsonld-destination.test.ts`
+- [X] T114 [US2] Créer `src/components/views/DestinationView.tsx` : H1, intro, texte, galerie, carte, sections séjours, expériences et hébergements masquées si vides, barre collante « Voir les séjours à {lieu} » + WhatsApp, fil d'Ariane
+- [X] T115 [US2] Créer `src/components/views/DestinationsListView.tsx`, ajouter les routes `destination` et `destinations_list` au résolveur (métadonnées, OG, JSON-LD ItemList + BreadcrumbList pour la liste) et au sitemap (analyse M1)
+- [X] T116 [P] [US2] Écrire `tests/e2e/destination.mobile.spec.ts` (destination et liste : 360 px, paysage, zoom, axe, barre collante)
+- [X] T117 [P] [US2] Écrire `tests/e2e/destination.seo.spec.ts` (projet `nojs` ; destination et liste : métadonnées, JSON-LD par `kind`, maillage vers les contenus du lieu, sitemap)
+- [X] T118 [US2] Créer `src/lib/seo/jsonld/lodging.ts` (VacationRental seulement pour une villa avec `identifier`, `bedrooms` et au moins 8 photos ; sinon LodgingBusiness : seo CHK018) et `tests/unit/jsonld-lodging.test.ts`
+- [X] T119 [US2] Créer `src/components/views/AccommodationView.tsx` (capacité, équipements, photos, emplacement, séjours qui l'incluent, hébergements de la même destination) et `src/components/views/AccommodationsListView.tsx` (puces de type), avec les routes, les métadonnées, le JSON-LD (ItemList + BreadcrumbList pour la liste) et le sitemap (analyse M1)
+- [X] T120 [P] [US2] Écrire `tests/e2e/accommodation.mobile.spec.ts` (fiche et liste)
+- [X] T121 [P] [US2] Écrire `tests/e2e/accommodation.seo.spec.ts` (projet `nojs` ; fiche et liste)
+- [X] T122 [US2] Ajouter destination, liste des destinations, fiche hébergement et liste des hébergements FR et EN dans `lighthouserc.json`
 
 **Checkpoint** : tous les contenus du catalogue sont indexables et reliés.
+
+> **Écarts constatés à l'implémentation (phase 6)** :
+> - T115/T119 : listes destinations et hébergements réunies dans `src/components/views/CatalogListViews.tsx`.
+> - T118 : tests hébergement dans `tests/unit/jsonld-destination.test.ts` (bloc « JSON-LD hébergement »), pas de fichier séparé.
+> - Maillage : `src/components/ui/MaybeLink.tsx` rend cliquables destinations, hébergements et expériences cités dans les fiches séjour et expérience ; le JSON-LD expérience référence désormais `destination#place`.
+> - Tests : projet Playwright `desktop-admin` (1 worker) pour isoler les tests d'administration ; `test.slow()` sur les deux tests lourds hébergement (délai dépassé au démarrage à froid).
+> - Titres : `overflow-wrap: break-word` + `hyphens: auto` sur h1–h3 (« L’hébergement » débordait à 320 px, zoom 200 %).
+> - Dérogation D-LCP-photo (2,7 s) étendue aux fiches et listes destinations et hébergements (plan.md).
 
 ---
 

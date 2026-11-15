@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { AccommodationView } from '@/components/views/AccommodationView';
+import { AccommodationsListView, DestinationsListView } from '@/components/views/CatalogListViews';
+import { DestinationView } from '@/components/views/DestinationView';
 import { ExperiencesListView } from '@/components/views/ExperiencesHubView';
 import { ExperienceView } from '@/components/views/ExperienceView';
 import { StaysListView } from '@/components/views/StaysListView';
@@ -8,16 +11,20 @@ import { StayView } from '@/components/views/StayView';
 import { buildPath, resolvePath, type Route } from '@/i18n/pathnames';
 import { isLocale, routing, type Locale } from '@/i18n/routing';
 import {
+  getAccommodationBySlug,
   getAlternates,
+  getDestinationBySlug,
   getExperienceBySlug,
   getPage,
   getStayBySlug,
   getUniverseBySlug,
+  listAccommodations,
   listDestinations,
   listExperiences,
   listStays,
   listUniverses,
 } from '@/lib/cms/queries';
+import { accommodationAlternates, destinationAlternates } from '@/lib/catalogPaths';
 import { experienceAlternates, universeAlternates, universeSlugOf } from '@/lib/experiencePaths';
 import { getSiteSettings } from '@/lib/cms/siteSettings';
 import { isLive } from '@/lib/navigation';
@@ -47,6 +54,16 @@ export const generateStaticParams = async (): Promise<Params[]> => {
       const slug = universe.seo?.slug;
       if (universe.kind === 'experience' && slug)
         params.push({ locale, segments: segmentsOf({ type: 'universe', universe: slug }) });
+    }
+    params.push({ locale, segments: segmentsOf({ type: 'destinationsList' }) });
+    for (const destination of await listDestinations(locale)) {
+      const slug = destination.seo?.slug;
+      if (slug) params.push({ locale, segments: segmentsOf({ type: 'destination', slug }) });
+    }
+    params.push({ locale, segments: segmentsOf({ type: 'accommodationsList' }) });
+    for (const accommodation of await listAccommodations(locale)) {
+      const slug = accommodation.seo?.slug;
+      if (slug) params.push({ locale, segments: segmentsOf({ type: 'accommodation', slug }) });
     }
     for (const experience of await listExperiences(locale)) {
       const slug = experience.seo?.slug;
@@ -86,6 +103,32 @@ const loadUniverse = async (locale: Locale, route: Extract<Route, { type: 'unive
   const universe = await getUniverseBySlug(locale, route.universe);
   if (!universe) notFound();
   return universe;
+};
+
+const loadDestination = async (locale: Locale, slug: string) => {
+  const destination = await getDestinationBySlug(locale, slug);
+  if (!destination) notFound();
+  return destination;
+};
+
+const loadAccommodation = async (locale: Locale, slug: string) => {
+  const accommodation = await getAccommodationBySlug(locale, slug);
+  if (!accommodation) notFound();
+  return accommodation;
+};
+
+const listMetadata = async (
+  locale: Locale,
+  type: 'destinationsList' | 'accommodationsList',
+  key: 'destinations_list' | 'accommodations_list',
+): Promise<Metadata> => {
+  const page = await getPage(locale, key);
+  return buildMetadata({
+    locale,
+    paths: { fr: buildPath('fr', { type }), en: buildPath('en', { type }) },
+    title: page?.seo?.metaTitle ?? page?.title ?? 'Saloum Évasion',
+    description: page?.seo?.metaDescription ?? '',
+  });
 };
 
 const relationId = (value: number | { id: number } | null | undefined): number | null =>
@@ -139,6 +182,43 @@ export const generateMetadata = async ({ params }: PageProps): Promise<Metadata>
       noindex: Boolean(universe.seo?.noindex),
     });
   }
+  if (route.type === 'destination') {
+    const destination = await loadDestination(locale, route.slug);
+    return buildMetadata({
+      locale,
+      paths: await destinationAlternates(destination.id),
+      title: destination.seo?.metaTitle ?? destination.name ?? '',
+      description: destination.seo?.metaDescription ?? destination.intro ?? '',
+      image: {
+        url: `/og/destinations/${destination.id}`,
+        width: 1200,
+        height: 630,
+        alt: destination.name ?? '',
+      },
+      noindex: Boolean(destination.seo?.noindex),
+    });
+  }
+  if (route.type === 'accommodation') {
+    const accommodation = await loadAccommodation(locale, route.slug);
+    return buildMetadata({
+      locale,
+      paths: await accommodationAlternates(accommodation.id),
+      title: accommodation.seo?.metaTitle ?? accommodation.title ?? '',
+      description: accommodation.seo?.metaDescription ?? accommodation.summary ?? '',
+      image: {
+        url: `/og/accommodations/${accommodation.id}`,
+        width: 1200,
+        height: 630,
+        alt: accommodation.title ?? '',
+      },
+      noindex: Boolean(accommodation.seo?.noindex),
+      type: 'article',
+    });
+  }
+  if (route.type === 'destinationsList')
+    return listMetadata(locale, route.type, 'destinations_list');
+  if (route.type === 'accommodationsList')
+    return listMetadata(locale, route.type, 'accommodations_list');
   if (route.type === 'experiencesHub') {
     const page = await getPage(locale, 'experiences_hub');
     return buildMetadata({
@@ -201,6 +281,70 @@ const ResolvedPage = async ({ params }: PageProps) => {
         settings={settings}
         allExperiences={allExperiences}
         allStays={allStays}
+      />
+    );
+  }
+  if (route.type === 'destination') {
+    const destination = await loadDestination(locale, route.slug);
+    const [stays, experiences, accommodations, allDestinations] = await Promise.all([
+      listStays(locale),
+      listExperiences(locale),
+      listAccommodations(locale),
+      listDestinations(locale),
+    ]);
+    return (
+      <DestinationView
+        destination={destination}
+        locale={locale}
+        settings={settings}
+        stays={stays}
+        experiences={experiences}
+        accommodations={accommodations}
+        allDestinations={allDestinations}
+      />
+    );
+  }
+  if (route.type === 'accommodation') {
+    const accommodation = await loadAccommodation(locale, route.slug);
+    const [allAccommodations, allStays] = await Promise.all([
+      listAccommodations(locale),
+      listStays(locale),
+    ]);
+    return (
+      <AccommodationView
+        accommodation={accommodation}
+        locale={locale}
+        settings={settings}
+        allAccommodations={allAccommodations}
+        allStays={allStays}
+      />
+    );
+  }
+  if (route.type === 'destinationsList') {
+    const [page, destinations] = await Promise.all([
+      getPage(locale, 'destinations_list'),
+      listDestinations(locale),
+    ]);
+    return (
+      <DestinationsListView
+        locale={locale}
+        title={page?.title ?? ''}
+        destinations={destinations}
+        settings={settings}
+      />
+    );
+  }
+  if (route.type === 'accommodationsList') {
+    const [page, accommodations] = await Promise.all([
+      getPage(locale, 'accommodations_list'),
+      listAccommodations(locale),
+    ]);
+    return (
+      <AccommodationsListView
+        locale={locale}
+        title={page?.title ?? ''}
+        accommodations={accommodations}
+        settings={settings}
       />
     );
   }

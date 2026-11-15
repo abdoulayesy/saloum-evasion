@@ -8,11 +8,14 @@ import { Chip } from '@/components/ui/Chip';
 import { CmsImage, HERO_SIZES } from '@/components/ui/CmsImage';
 import { Container } from '@/components/ui/Container';
 import { MapIllustration } from '@/components/ui/MapIllustration';
+import { MaybeLink } from '@/components/ui/MaybeLink';
 import { Price } from '@/components/ui/Price';
 import { ActionBarSpacer, StickyActionBar } from '@/components/ui/StickyActionBar';
 import { buildPath } from '@/i18n/pathnames';
 import type { Locale } from '@/i18n/routing';
+import { accommodationPath, destinationPath } from '@/lib/catalogPaths';
 import { populated, populatedList } from '@/lib/cms/populated';
+import { experiencePath } from '@/lib/experiencePaths';
 import { primaryAction, whatsappAction } from '@/lib/pageActions';
 import { priceFrom } from '@/lib/pricing';
 import { lexicalToPlainText } from '@/lib/richText';
@@ -156,7 +159,7 @@ export const StayView = async ({
         />
       </div>
 
-      <Container className="mt-6 grid grid-cols-1 gap-8 md:grid-cols-[2fr_1fr]">
+      <Container className="mt-6 grid grid-cols-1 gap-8 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <div className="flex flex-col gap-10">
           <section aria-labelledby="en-bref">
             <h2 id="en-bref" className="sr-only">
@@ -184,7 +187,14 @@ export const StayView = async ({
               {destinations.length > 0 && (
                 <p className="text-sm">
                   <strong>{t('destinations')} :</strong>{' '}
-                  {destinations.map((destination) => destination.name).join(', ')}
+                  {destinations.map((destination, index) => (
+                    <span key={destination.id}>
+                      {index > 0 && ', '}
+                      <MaybeLink href={destinationPath(locale, destination)}>
+                        {destination.name}
+                      </MaybeLink>
+                    </span>
+                  ))}
                 </p>
               )}
               {stay.maxTravellers && (
@@ -270,7 +280,9 @@ export const StayView = async ({
                   </h2>
                   <ul className="mt-2 flex flex-col gap-1">
                     {accommodations.map((item) => (
-                      <li key={item.id}>{item.title}</li>
+                      <li key={item.id}>
+                        <MaybeLink href={accommodationPath(locale, item)}>{item.title}</MaybeLink>
+                      </li>
                     ))}
                   </ul>
                 </section>
@@ -282,7 +294,9 @@ export const StayView = async ({
                   </h2>
                   <ul className="mt-2 flex flex-col gap-1">
                     {experiences.map((item) => (
-                      <li key={item.id}>{item.title}</li>
+                      <li key={item.id}>
+                        <MaybeLink href={experiencePath(locale, item)}>{item.title}</MaybeLink>
+                      </li>
                     ))}
                   </ul>
                 </section>

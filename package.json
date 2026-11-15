@@ -15,7 +15,7 @@
     "lint": "eslint . --max-warnings=0 && stylelint \"src/**/*.css\"",
     "format": "prettier --write .",
     "test": "vitest run",
-    "e2e": "playwright test --project=android-360 --project=android-360-landscape --project=iphone-se --project=pixel-7 --project=desktop",
+    "e2e": "playwright test --project=android-360 --project=android-360-landscape --project=iphone-se --project=pixel-7 --project=desktop --project=desktop-admin",
     "e2e:nojs": "playwright test --project=nojs",
     "lhci": "lhci autorun",
     "bundles": "node --experimental-strip-types --no-warnings scripts/check-bundles.ts",
