@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { Price } from '@/components/ui/Price';
-import { CmsImage } from '@/components/ui/CmsImage';
+import { CARD_QUALITY, CARD_SIZES, CmsImage } from '@/components/ui/CmsImage';
 import { buildPath } from '@/i18n/pathnames';
 import type { Locale } from '@/i18n/routing';
 import { populated } from '@/lib/cms/populated';
@@ -40,7 +40,8 @@ export const StayCard = async ({
       <CmsImage
         media={populated<Media>(stay.heroImage)}
         locale={locale}
-        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+        sizes={CARD_SIZES}
+        quality={CARD_QUALITY}
         priority={priority}
         className="aspect-[4/3] w-full object-cover"
       />

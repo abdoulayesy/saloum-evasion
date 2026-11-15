@@ -41,4 +41,23 @@ const nextConfig: NextConfig = {
   ],
 };
 
-export default withPayload(withNextIntl(nextConfig), { devBundleServerPackages: false });
+const withPayloadConfig = withPayload(withNextIntl(nextConfig), { devBundleServerPackages: false });
+const payloadHeaders = withPayloadConfig.headers;
+
+// withPayload ajoute `Accept-CH` + `Critical-CH: Sec-CH-Prefers-Color-Scheme` sur TOUTES les URL
+// (thème clair/sombre de l'admin). `Critical-CH` force Chrome à recommencer la navigation pour
+// envoyer l'indice : un aller-retour réseau perdu avant le HTML sur chaque page publique (LCP).
+// Ces en-têtes sont limités à l'admin, seul consommateur de l'indice.
+const ADMIN_SOURCES = ['/admin', '/admin/:path*'];
+
+export default {
+  ...withPayloadConfig,
+  headers: async () => {
+    const rules = payloadHeaders ? await payloadHeaders() : [];
+    return rules.flatMap((rule) =>
+      rule.source === '/:path*' && rule.headers.some((header) => header.key === 'Critical-CH')
+        ? ADMIN_SOURCES.map((source) => ({ ...rule, source }))
+        : [rule],
+    );
+  },
+} satisfies NextConfig;

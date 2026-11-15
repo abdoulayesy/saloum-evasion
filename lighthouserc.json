@@ -21,7 +21,15 @@
         "http://localhost:3000/en/destinations/ndangane",
         "http://localhost:3000/fr/hebergements",
         "http://localhost:3000/fr/hebergements/villa-piscine-ndangane",
-        "http://localhost:3000/en/accommodation/ndangane-villa-with-pool"
+        "http://localhost:3000/en/accommodation/ndangane-villa-with-pool",
+        "http://localhost:3000/fr/film-immersion",
+        "http://localhost:3000/en/immersion-film",
+        "http://localhost:3000/fr/faq",
+        "http://localhost:3000/en/faq",
+        "http://localhost:3000/fr/notre-engagement",
+        "http://localhost:3000/en/our-commitment",
+        "http://localhost:3000/fr/a-propos",
+        "http://localhost:3000/en/about"
       ],
       "settings": {
         "formFactor": "mobile",

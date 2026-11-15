@@ -591,6 +591,10 @@ export interface Video {
   description?: string | null;
   format: 'film' | 'vertical15' | 'loop';
   muxPlaybackId: string;
+  /**
+   * Facultatif : MP4 muet ≤ 1,5 Mo servi tel quel. Sinon, rendu MP4 « low » de Mux.
+   */
+  staticMp4Url?: string | null;
   durationSeconds: number;
   poster: number | Media;
   captions?:
@@ -751,6 +755,10 @@ export interface Page {
                   legalBasis: string;
                   retention: string;
                   recipients?: string | null;
+                  /**
+                   * Pays de destination et garanties (loi 2008-12, CDP).
+                   */
+                  transfers?: string | null;
                   id?: string | null;
                 }[]
               | null;
@@ -1259,6 +1267,7 @@ export interface VideosSelect<T extends boolean = true> {
   description?: T;
   format?: T;
   muxPlaybackId?: T;
+  staticMp4Url?: T;
   durationSeconds?: T;
   poster?: T;
   captions?:
@@ -1416,6 +1425,7 @@ export interface PagesSelect<T extends boolean = true> {
                     legalBasis?: T;
                     retention?: T;
                     recipients?: T;
+                    transfers?: T;
                     id?: T;
                   };
               id?: T;

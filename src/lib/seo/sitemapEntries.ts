@@ -9,6 +9,7 @@ import { absoluteUrl } from '@/lib/site';
 // images, vidéos) s'ajoutent en phase 2B via `documentEntries`.
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
+export type SitemapVideo = NonNullable<SitemapEntry['videos']>[number];
 
 /** Pages jamais listées : noindex (constitution III, contrat routes.md). */
 const NOINDEX_TYPES: ReadonlySet<RouteType> = new Set<RouteType>([
@@ -44,7 +45,12 @@ export const isListable = (type: RouteType): boolean => isLive(type) && !NOINDEX
 /** Une entrée par langue pour une route présente dans les langues `locales`. */
 export const entriesForRoute = (
   paths: Partial<Record<Locale, string>>,
-  options: { lastModified?: Date; priority?: number; images?: string[] } = {},
+  options: {
+    lastModified?: Date;
+    priority?: number;
+    images?: string[];
+    videos?: SitemapVideo[];
+  } = {},
 ): SitemapEntry[] => {
   const languages: Record<string, string> = {};
   for (const locale of routing.locales) {
@@ -63,13 +69,15 @@ export const entriesForRoute = (
         ...(options.lastModified ? { lastModified: options.lastModified } : {}),
         ...(options.priority !== undefined ? { priority: options.priority } : {}),
         ...(options.images && options.images.length > 0 ? { images: options.images } : {}),
+        ...(options.videos && options.videos.length > 0 ? { videos: options.videos } : {}),
       },
     ];
   });
 };
 
+/** Pages fixes ; la page film a ses propres entrées (balises vidéo) dans app/sitemap.ts. */
 export const fixedEntries = (): SitemapEntry[] =>
-  FIXED_ROUTES.filter((route) => isListable(route.type)).flatMap((route) =>
+  FIXED_ROUTES.filter((route) => isListable(route.type) && route.type !== 'film').flatMap((route) =>
     entriesForRoute(
       { fr: buildPath('fr', route), en: buildPath('en', route) },
       route.type === 'home' ? { priority: 1 } : {},
