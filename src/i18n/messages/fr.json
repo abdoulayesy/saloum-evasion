@@ -238,5 +238,52 @@
       "parking": "Parking",
       "pmr": "Accessible PMR"
     }
+  },
+  "film": {
+    "chapters": "Chapitres du film",
+    "play": "Lire le film",
+    "playLabel": "Lire le film : {title}",
+    "playVideo": "Lire",
+    "playVideoLabel": "Lire la vidéo : {title}",
+    "verticals": "En 15 secondes",
+    "transcript": "Transcription descriptive",
+    "captionsFr": "Français",
+    "captionsEn": "English",
+    "duration": "Durée : {minutes} min {seconds} s",
+    "noVideo": "Le film sera bientôt en ligne."
+  },
+  "ambient": {
+    "pause": "Pause",
+    "play": "Lecture"
+  },
+  "blocks": {
+    "purpose": "Finalité",
+    "data": "Données traitées",
+    "legalBasis": "Base légale",
+    "retention": "Conservation",
+    "recipients": "Destinataires",
+    "transfers": "Transferts hors du Sénégal",
+    "ctaStays": "Voir les séjours",
+    "ctaWhatsapp": "Écrire sur WhatsApp",
+    "ctaRequest": "Demander un séjour"
+  },
+  "faqPage": {
+    "categories": {
+      "general": "Général",
+      "reservation": "Réservation",
+      "paiement": "Paiement",
+      "transport": "Transport",
+      "sejour": "Pendant le séjour"
+    },
+    "more": "Vous ne trouvez pas votre réponse ?"
+  },
+  "contact": {
+    "whatsapp": "Écrire sur WhatsApp",
+    "address": "Adresse",
+    "phone": "Téléphone",
+    "email": "E-mail",
+    "map": "Situer Saloum Évasion",
+    "reach": "Nous joindre",
+    "country": "Sénégal"
   }
 }

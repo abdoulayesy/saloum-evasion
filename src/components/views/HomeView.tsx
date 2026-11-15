@@ -1,9 +1,10 @@
 import { getTranslations } from 'next-intl/server';
 import { DestinationCard } from '@/components/cards/DestinationCard';
+import { AmbientLoop } from '@/components/client/AmbientLoop';
 import { StayCard } from '@/components/cards/StayCard';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { ButtonLink } from '@/components/ui/Button';
-import { CmsImage, HERO_SIZES } from '@/components/ui/CmsImage';
+import { CARD_QUALITY, CmsImage, HERO_SIZES } from '@/components/ui/CmsImage';
 import { Container } from '@/components/ui/Container';
 import { Section } from '@/components/ui/Section';
 import { buildPath } from '@/i18n/pathnames';
@@ -25,6 +26,8 @@ type HomeViewProps = {
   featured: readonly Stay[];
   universes: readonly Universe[];
   destinations: readonly Destination[];
+  /** Boucle d'ambiance (rendu MP4 basse définition), ordinateur seulement. */
+  ambientLoopSrc: string | null;
 };
 
 /** Image du héro : bloc « Héro » de la page d'accueil, sinon image du premier séjour vedette. */
@@ -47,9 +50,11 @@ export const HomeView = async ({
   featured,
   universes,
   destinations,
+  ambientLoopSrc,
 }: HomeViewProps) => {
   const t = await getTranslations({ locale, namespace: 'home' });
   const tActions = await getTranslations({ locale, namespace: 'actions' });
+  const tAmbient = await getTranslations({ locale, namespace: 'ambient' });
   const origin = siteUrl();
   const graph = buildGraph([
     buildOrganization(settings, origin),
@@ -75,6 +80,13 @@ export const HomeView = async ({
           priority
           className="absolute inset-0 -z-10 h-full w-full object-cover"
         />
+        {ambientLoopSrc && (
+          <AmbientLoop
+            src={ambientLoopSrc}
+            pauseLabel={tAmbient('pause')}
+            playLabel={tAmbient('play')}
+          />
+        )}
         <div aria-hidden="true" className="absolute inset-0 -z-10 bg-scrim" />
         <Container className="flex min-h-[70dvh] flex-col justify-end gap-4 py-10">
           <p className="text-sm font-semibold tracking-wide uppercase">Ndangane · Sine-Saloum</p>
@@ -135,7 +147,8 @@ export const HomeView = async ({
                 <CmsImage
                   media={populated<Media>(universe.image)}
                   locale={locale}
-                  sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                  sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, (min-width: 400px) 360px, calc(100vw - 2rem)"
+                  quality={CARD_QUALITY}
                   className="aspect-[4/3] w-full object-cover"
                 />
                 <div className="p-4">

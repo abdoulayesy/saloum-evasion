@@ -10,7 +10,9 @@ import {
   listDestinations,
   listStays,
   listUniverses,
+  listVideos,
 } from '@/lib/cms/queries';
+import { mp4Url } from '@/lib/mux';
 import { getSiteSettings } from '@/lib/cms/siteSettings';
 import { buildMetadata } from '@/lib/seo/metadata';
 
@@ -37,14 +39,18 @@ export const generateMetadata = async ({ params }: PageProps): Promise<Metadata>
 const HomePage = async ({ params }: PageProps) => {
   const locale = resolveLocale((await params).locale);
   setRequestLocale(locale);
-  const [page, settings, settingsGlobal, stays, universes, destinations] = await Promise.all([
-    getPage(locale, 'home'),
-    getSiteSettings(locale),
-    getSiteSettingsGlobal(locale),
-    listStays(locale),
-    listUniverses(locale),
-    listDestinations(locale),
-  ]);
+  const [page, settings, settingsGlobal, stays, universes, destinations, loops] = await Promise.all(
+    [
+      getPage(locale, 'home'),
+      getSiteSettings(locale),
+      getSiteSettingsGlobal(locale),
+      listStays(locale),
+      listUniverses(locale),
+      listDestinations(locale),
+      listVideos(locale, 'loop'),
+    ],
+  );
+  const [loop] = loops;
   const featured = stays.filter((stay) => stay.featured).slice(0, 3);
   return (
     <HomeView
@@ -55,6 +61,7 @@ const HomePage = async ({ params }: PageProps) => {
       featured={featured.length > 0 ? featured : stays.slice(0, 3)}
       universes={universes}
       destinations={destinations}
+      ambientLoopSrc={loop ? (loop.staticMp4Url ?? mp4Url(loop.muxPlaybackId, 'low')) : null}
     />
   );
 };

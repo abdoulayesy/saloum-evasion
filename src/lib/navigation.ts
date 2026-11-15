@@ -14,6 +14,13 @@ const liveRouteTypes: ReadonlySet<RouteType> = new Set<RouteType>([
   'destination',
   'accommodationsList',
   'accommodation',
+  'film',
+  'commitment',
+  'about',
+  'faq',
+  'contact',
+  'legal',
+  'privacy',
 ]);
 
 export const isLive = (type: RouteType): boolean => liveRouteTypes.has(type);

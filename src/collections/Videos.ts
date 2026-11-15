@@ -3,6 +3,7 @@ import { isTeam, publishedOrTeam } from '@/access';
 import { requiredInFrench } from '@/fields/localized';
 import { provenanceField } from '@/fields/provenance';
 import { validateChapters } from '@/fields/validators';
+import { verifyMuxVideo } from '@/hooks/muxVideo';
 import { publishGuard } from '@/hooks/publishGuards';
 import { revalidateHooks } from '@/hooks/revalidate';
 
@@ -34,7 +35,7 @@ export const Videos: CollectionConfig = {
   admin: { useAsTitle: 'title', group: 'Médias', defaultColumns: ['title', 'format', '_status'] },
   access: { read: publishedOrTeam, create: isTeam, update: isTeam, delete: isTeam },
   versions: { drafts: true, maxPerDoc: 25 },
-  hooks: { ...revalidateHooks, beforeChange: [publishGuard] },
+  hooks: { ...revalidateHooks, beforeValidate: [verifyMuxVideo], beforeChange: [publishGuard] },
   fields: [
     {
       name: 'title',
@@ -62,6 +63,23 @@ export const Videos: CollectionConfig = {
       ],
     },
     { name: 'muxPlaybackId', type: 'text', required: true, label: 'Identifiant de lecture Mux' },
+    {
+      name: 'staticMp4Url',
+      type: 'text',
+      label: 'Fichier MP4 hébergé (boucle d’ambiance)',
+      admin: {
+        condition: (data: Data) => data.format === 'loop',
+        description:
+          'Facultatif : MP4 muet ≤ 1,5 Mo servi tel quel. Sinon, rendu MP4 « low » de Mux.',
+      },
+      validate: (value: unknown) =>
+        value === null ||
+        value === undefined ||
+        value === '' ||
+        (typeof value === 'string' && /^(\/|https:\/\/)\S+\.mp4$/.test(value))
+          ? true
+          : 'Adresse d’un fichier .mp4 (chemin commençant par / ou https://).',
+    },
     {
       name: 'durationSeconds',
       type: 'number',
