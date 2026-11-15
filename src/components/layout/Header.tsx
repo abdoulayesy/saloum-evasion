@@ -1,8 +1,11 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { DialogOpener } from '@/components/client/DialogOpener';
+import { RequestCounter } from '@/components/client/RequestCounter';
 import { buildPath } from '@/i18n/pathnames';
 import { htmlLang, type Locale } from '@/i18n/routing';
+import { getSiteSettings } from '@/lib/cms/siteSettings';
+import { siteWhatsappHref } from '@/lib/pageActions';
 import { FOOTER_NAV_ID } from './Footer';
 import { MENU_DIALOG_ID, MobileMenu } from './MobileMenu';
 
@@ -11,12 +14,16 @@ type HeaderProps = { locale: Locale };
 const controlClass =
   'inline-flex min-h-touch min-w-touch items-center justify-center rounded-control px-3 font-semibold';
 
-// En-tête : logo, sélecteur de langue (vers l'accueil de l'autre langue en attendant la
-// bascule sur la page équivalente, US5), bouton menu de 44 px. Emplacement réservé au
-// compteur de demande (phase 8).
+// En-tête : logo, compteur de la demande en cours (T147, emplacement de 44 px réservé), lien
+// WhatsApp (dès 640 px ; sur mobile il est dans le menu et la barre collante, T149),
+// sélecteur de langue (vers l'accueil de l'autre langue en attendant la bascule sur la page
+// équivalente, US5), bouton menu de 44 px.
 export const Header = async ({ locale }: HeaderProps) => {
   const t = await getTranslations({ locale, namespace: 'header' });
+  const tRequest = await getTranslations({ locale, namespace: 'request' });
+  const tActions = await getTranslations({ locale, namespace: 'actions' });
   const otherLocale: Locale = locale === 'fr' ? 'en' : 'fr';
+  const whatsappHref = await siteWhatsappHref(locale, await getSiteSettings(locale));
 
   return (
     <header className="border-b border-sable-deep bg-sable">
@@ -39,7 +46,24 @@ export const Header = async ({ locale }: HeaderProps) => {
           </svg>
           <span>Saloum Évasion</span>
         </Link>
-        <div className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center justify-end gap-1">
+          <RequestCounter
+            href={buildPath(locale, { type: 'request' })}
+            label={tRequest('counter')}
+            countLabelOne={tRequest('counterLabel', { count: 1 })}
+            countLabelOther={tRequest('counterLabel', { count: 2 }).replace('2', '{count}')}
+          />
+          {whatsappHref && (
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={tActions('whatsappLabel')}
+              className={`${controlClass} hidden text-ocre-deep underline underline-offset-4 sm:inline-flex`}
+            >
+              {tActions('whatsapp')}
+            </a>
+          )}
           <Link
             href={buildPath(otherLocale, { type: 'home' })}
             hrefLang={htmlLang[otherLocale]}

@@ -113,6 +113,17 @@ const seed = async (): Promise<void> => {
       data: { whatsappNumber: process.env.SEED_WHATSAPP_NUMBER ?? '+221700000000' },
     });
   }
+  // Destinataire FICTIF des demandes (domaine réservé .test), pour exercer la notification en
+  // développement et en test ; le vrai destinataire se saisit dans « Réglages du site ».
+  if (!current.notificationEmail) {
+    await payload.updateGlobal({
+      slug: 'siteSettings',
+      context,
+      data: {
+        notificationEmail: process.env.SEED_NOTIFICATION_EMAIL ?? 'demandes@saloum-evasion.test',
+      },
+    });
+  }
 
   const existing = await payload.count({ collection: 'stays' });
   if (existing.totalDocs > 0) {

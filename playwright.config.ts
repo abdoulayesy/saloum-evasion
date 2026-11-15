@@ -76,6 +76,13 @@ export default defineConfig({
     reuseExistingServer: false,
     timeout: 120_000,
     // Table des redirections relue à chaque requête pendant les tests (us3-editor).
-    env: { REDIRECTS_TTL_MS: '0' },
+    // E-mails des demandes écrits dans une boîte d'envoi de test ; limitation de débit relevée
+    // (tous les envois des tests viennent de la même adresse locale).
+    env: {
+      REDIRECTS_TTL_MS: '0',
+      EMAIL_OUTBOX_DIR: 'test-results/outbox',
+      REQUEST_RATE_LIMIT: '1000',
+      RATE_LIMIT_SALT: 'sel-de-test',
+    },
   },
 });

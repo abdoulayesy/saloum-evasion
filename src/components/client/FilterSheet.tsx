@@ -13,6 +13,7 @@ import {
   type StayFilters,
 } from '@/lib/filters';
 import type { BudgetBand, DurationCategory } from '@/lib/pricing';
+import { readDraft, tripFromSearch, writeDraft } from '@/lib/request/draft';
 
 // Panneau de filtres (T089, FR-018) : monte du bas de l'écran (<dialog> modal : focus enfermé,
 // Échap et bouton retour d'Android natifs, focus rendu à la fermeture), glissement vers le
@@ -85,6 +86,22 @@ export const FilterSheet = (props: FilterSheetProps) => {
     },
     [props.resultsLabel],
   );
+
+  // T148 : dates et voyageurs venus de la recherche de l'accueil (URL) mémorisés dans la
+  // « demande en cours », pour pré-remplir le formulaire depuis n'importe quelle fiche.
+  useEffect(() => {
+    const trip = tripFromSearch(new URLSearchParams(window.location.search));
+    if (!trip.arrivalDate && trip.adults === undefined) return;
+    const current = readDraft();
+    writeDraft({
+      ...current,
+      arrivalDate: trip.arrivalDate ?? current.arrivalDate,
+      departureDate: trip.departureDate ?? current.departureDate,
+      adults: trip.adults ?? current.adults,
+      children: trip.children ?? current.children,
+      updatedAt: new Date().toISOString(),
+    });
+  }, []);
 
   useEffect(() => {
     setMounted(true);

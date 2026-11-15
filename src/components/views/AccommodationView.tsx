@@ -97,7 +97,12 @@ export const AccommodationView = async ({
   ]);
 
   const [primary, whatsapp] = await Promise.all([
-    primaryAction(locale, 'accommodation', accommodation.seo?.slug ?? ''),
+    primaryAction(
+      locale,
+      'accommodation',
+      accommodation.seo?.slug ?? '',
+      accommodation.title ?? '',
+    ),
     whatsappAction(locale, settings, { title: accommodation.title ?? undefined, path }),
   ]);
 

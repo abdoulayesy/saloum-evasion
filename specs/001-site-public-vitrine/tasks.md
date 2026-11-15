@@ -394,25 +394,51 @@ une fiche (US2) et le contact WhatsApp contextuel partout (US4).
 **Independent Test** : parcours US1 complet en 3G sur 360 px en moins de 120 s, demande
 enregistrée et e-mail envoyé ; fonctionne aussi sans JavaScript.
 
-- [ ] T139 [P] [US1] Créer `src/lib/request/schema.ts` selon [request-form.md](./contracts/request-form.md#3-schéma-de-validation-serveur-zod) et `tests/unit/request-schema.test.ts` (dates passées, départ avant arrivée, E.164, consentement, honeypot)
-- [ ] T140 [P] [US1] Créer `src/lib/request/rateLimit.ts` (SHA-256 salé, 5 par heure, table `rateLimits`) et `tests/unit/rateLimit.test.ts`
-- [ ] T141 [US1] Créer la Server Action `src/lib/request/submit.ts` selon la séquence du contrat : honeypot ou envoi trop rapide → `ok` factice, limitation, idempotence `submissionId`, résolution des éléments, création de la demande, e-mail Resend, `notifiedAt`, `whatsappUrl`, redirection 303 sans JS (D2)
-- [ ] T142 [P] [US1] Créer `src/lib/request/email.tsx` (version texte et HTML : tous les champs, langue, page d'origine, référence)
-- [ ] T143 [P] [US1] Créer `src/lib/request/draft.ts` (stockage local `se.request.v1` dans `try/catch`, expiration à 30 jours, 10 éléments au maximum, sans doublon, repli par paramètre d'URL) et `tests/unit/draft.test.ts`
-- [ ] T144 [US1] Créer `src/components/client/RequestForm.tsx` (`useActionState`) : champs, types de clavier, `autocomplete` et `inputmode` du contrat, indicatif +221 par défaut, steppers de 44 px, conditions d'annulation au-dessus du bouton, consentement, honeypot, `startedAt`, `submissionId` ; en cas d'erreur, focus sur le premier champ fautif, `aria-describedby` et résumé en `aria-live` (mobile CHK023) ; bouton d'envoi collant en bas du formulaire sur mobile (mobile CHK010) ; hors ligne, saisies conservées, message et lien WhatsApp ; double envoi bloqué
-- [ ] T145 [US1] Créer `src/components/views/RequestView.tsx` (formulaire puis confirmation : référence, récapitulatif, `responseTimeText`, mention « les dates sont des souhaits », bouton principal « Envoyer aussi sur WhatsApp ») et `src/components/views/ThankYouView.tsx` ; routes `request` et `thank_you` en noindex, sans JSON-LD, hors sitemap ; titres des éléments résolus côté serveur dans la langue courante
-- [ ] T146 [US1] Créer `src/jobs/retryNotifications.ts` : toutes les 10 min, relance des demandes dont `notifiedAt` est vide (3 essais au plus, compteur `notifyAttempts`), puis alerte à `siteSettings.fallbackNotificationEmail` ; `tests/unit/retryNotifications.test.ts` ; tâche planifiée dans `vercel.json` (spec FR-013, SC-009 : analyse G1)
-- [ ] T147 [P] [US2] Créer `src/components/client/AddToRequest.tsx` et `src/components/client/RequestCounter.tsx` (en-tête, moins de 3 Ko, annonce « ajouté à votre demande ») et les brancher sur `StickyActionBar` (expérience et hébergement : ajout ; séjour : ajout puis ouverture du formulaire)
-- [ ] T148 [US1] Transmettre dates et voyageurs par l'URL (accueil → liste → fiche → formulaire) et pré-remplir le formulaire depuis ces paramètres, le brouillon local ne servant qu'en complément quand JavaScript est disponible (analyse K3)
-- [ ] T149 [P] [US4] Brancher `src/lib/whatsapp.ts` sur l'en-tête, le menu, le pied de page, la barre collante et la page contact (message contextuel avec titre et URL, `rel="noopener"`)
-- [ ] T150 [P] [US1] Écrire `tests/e2e/request.mobile.spec.ts` (Android 360, profil `3g`) : attributs de clavier de chaque champ, focus sur la première erreur, double tap sans doublon, coupure réseau pendant l'envoi (saisies conservées + repli WhatsApp), confirmation, axe sur les états formulaire, erreur et confirmation, envoi **au clavier seul** (perf-a11y CHK045), zoom à 200 %, paysage
-- [ ] T151 [P] [US1] Écrire `tests/e2e/request.nojs.spec.ts` (projet `nojs`) : envoi sans JS → 303 vers la confirmation, noindex des deux pages, absence du sitemap
-- [ ] T152 [US1] Écrire `tests/e2e/us1-journey.mobile.spec.ts` (Android 360, `3g`) : accueil → demande envoyée en **120 s au plus**, ligne `requests` créée, e-mail capturé (Resend en mode test) (SC-003)
-- [ ] T153 [P] [US2] Écrire `tests/e2e/us2-journey.mobile.spec.ts` : arrivée directe sur une fiche expérience → ajout → l'expérience figure dans le formulaire
-- [ ] T154 [P] [US4] Écrire `tests/e2e/us4-whatsapp.mobile.spec.ts` : chaque route publique du sitemap contient un lien `wa.me` avec le titre de la page, dans sa langue
-- [ ] T155 [US1] Ajouter `/fr/demande` et `/en/request` dans `lighthouserc.json` avec Perf, A11y et BP vérifiés, mais pas la catégorie SEO (constitution v1.0.1, pages noindex)
+- [X] T139 [P] [US1] Créer `src/lib/request/schema.ts` selon [request-form.md](./contracts/request-form.md#3-schéma-de-validation-serveur-zod) et `tests/unit/request-schema.test.ts` (dates passées, départ avant arrivée, E.164, consentement, honeypot)
+- [X] T140 [P] [US1] Créer `src/lib/request/rateLimit.ts` (SHA-256 salé, 5 par heure, table `rateLimits`) et `tests/unit/rateLimit.test.ts`
+- [X] T141 [US1] Créer la Server Action `src/lib/request/submit.ts` selon la séquence du contrat : honeypot ou envoi trop rapide → `ok` factice, limitation, idempotence `submissionId`, résolution des éléments, création de la demande, e-mail Resend, `notifiedAt`, `whatsappUrl`, redirection 303 sans JS (D2)
+- [X] T142 [P] [US1] Créer `src/lib/request/email.tsx` (version texte et HTML : tous les champs, langue, page d'origine, référence)
+- [X] T143 [P] [US1] Créer `src/lib/request/draft.ts` (stockage local `se.request.v1` dans `try/catch`, expiration à 30 jours, 10 éléments au maximum, sans doublon, repli par paramètre d'URL) et `tests/unit/draft.test.ts`
+- [X] T144 [US1] Créer `src/components/client/RequestForm.tsx` (`useActionState`) : champs, types de clavier, `autocomplete` et `inputmode` du contrat, indicatif +221 par défaut, steppers de 44 px, conditions d'annulation au-dessus du bouton, consentement, honeypot, `startedAt`, `submissionId` ; en cas d'erreur, focus sur le premier champ fautif, `aria-describedby` et résumé en `aria-live` (mobile CHK023) ; bouton d'envoi collant en bas du formulaire sur mobile (mobile CHK010) ; hors ligne, saisies conservées, message et lien WhatsApp ; double envoi bloqué
+- [X] T145 [US1] Créer `src/components/views/RequestView.tsx` (formulaire puis confirmation : référence, récapitulatif, `responseTimeText`, mention « les dates sont des souhaits », bouton principal « Envoyer aussi sur WhatsApp ») et `src/components/views/ThankYouView.tsx` ; routes `request` et `thank_you` en noindex, sans JSON-LD, hors sitemap ; titres des éléments résolus côté serveur dans la langue courante
+- [X] T146 [US1] Créer `src/jobs/retryNotifications.ts` : toutes les 10 min, relance des demandes dont `notifiedAt` est vide (3 essais au plus, compteur `notifyAttempts`), puis alerte à `siteSettings.fallbackNotificationEmail` ; `tests/unit/retryNotifications.test.ts` ; tâche planifiée dans `vercel.json` (spec FR-013, SC-009 : analyse G1)
+- [X] T147 [P] [US2] Créer `src/components/client/AddToRequest.tsx` et `src/components/client/RequestCounter.tsx` (en-tête, moins de 3 Ko, annonce « ajouté à votre demande ») et les brancher sur `StickyActionBar` (expérience et hébergement : ajout ; séjour : ajout puis ouverture du formulaire)
+- [X] T148 [US1] Transmettre dates et voyageurs par l'URL (accueil → liste → fiche → formulaire) et pré-remplir le formulaire depuis ces paramètres, le brouillon local ne servant qu'en complément quand JavaScript est disponible (analyse K3)
+- [X] T149 [P] [US4] Brancher `src/lib/whatsapp.ts` sur l'en-tête, le menu, le pied de page, la barre collante et la page contact (message contextuel avec titre et URL, `rel="noopener"`)
+- [X] T150 [P] [US1] Écrire `tests/e2e/request.mobile.spec.ts` (Android 360, profil `3g`) : attributs de clavier de chaque champ, focus sur la première erreur, double tap sans doublon, coupure réseau pendant l'envoi (saisies conservées + repli WhatsApp), confirmation, axe sur les états formulaire, erreur et confirmation, envoi **au clavier seul** (perf-a11y CHK045), zoom à 200 %, paysage
+- [X] T151 [P] [US1] Écrire `tests/e2e/request.nojs.spec.ts` (projet `nojs`) : envoi sans JS → 303 vers la confirmation, noindex des deux pages, absence du sitemap
+- [X] T152 [US1] Écrire `tests/e2e/us1-journey.mobile.spec.ts` (Android 360, `3g`) : accueil → demande envoyée en **120 s au plus**, ligne `requests` créée, e-mail capturé (Resend en mode test) (SC-003)
+- [X] T153 [P] [US2] Écrire `tests/e2e/us2-journey.mobile.spec.ts` : arrivée directe sur une fiche expérience → ajout → l'expérience figure dans le formulaire
+- [X] T154 [P] [US4] Écrire `tests/e2e/us4-whatsapp.mobile.spec.ts` : chaque route publique du sitemap contient un lien `wa.me` avec le titre de la page, dans sa langue
+- [X] T155 [US1] Ajouter `/fr/demande` et `/en/request` dans `lighthouserc.json` avec Perf, A11y et BP vérifiés, mais pas la catégorie SEO (constitution v1.0.1, pages noindex)
 
 **Checkpoint** : US1, US2 et US4 complets ; le site génère des demandes.
+
+> **Écarts constatés à l'implémentation (phase 8)** :
+> - Pages de demande et de confirmation servies par des **routes dédiées**
+>   (`src/app/(frontend)/[locale]/request-form/`), vers lesquelles `src/middleware.ts` réécrit
+>   `/fr/demande`, `/en/request` et leurs confirmations ; l'accès direct aux routes internes
+>   donne la 404. Raison : ces pages lisent l'URL (pré-remplissage, référence) et sont dynamiques ;
+>   servies par le résolveur `[...segments]`, elles auraient rendu dynamiques toutes les pages
+>   publiques (même principe que la tension T19 de la 002).
+> - Éléments de la demande identifiés par leur **slug** (`?stay=week-end-bolong-ndangane`) et non
+>   par leur identifiant interne, dans l'URL comme dans le brouillon local.
+> - Zod 4 et Resend 6 installés (dépendances prévues au plan) ; e-mails écrits dans une boîte
+>   d'envoi de test (`EMAIL_OUTBOX_DIR`) quand elle est définie ; destinataire de démonstration
+>   fictif (`.test`) posé par le seed si aucun n'est saisi ; limite de débit réglable
+>   (`REQUEST_RATE_LIMIT`) pour les tests de bout en bout.
+> - T146 : relance par la route `/api/cron/notify` (toutes les 10 min, `vercel.json`, offre Vercel
+>   Pro décidée le 2026-11-15) ; alerte unique vers l'adresse de secours après 3 essais.
+> - T148 : dates et voyageurs de la recherche de l'accueil mémorisés dans la « demande en cours »
+>   par l'îlot de la liste des séjours, puis repris par le formulaire (avec JavaScript) ; sans
+>   JavaScript, le formulaire reprend seulement ce qui est dans son URL.
+> - T149 : WhatsApp dans l'en-tête dès 640 px ; sur mobile, dans le menu, le pied de page et la
+>   barre collante (l'en-tête à 360 px n'a pas la place d'un bouton de plus).
+> - Sans JavaScript, un envoi incomplet est bloqué par le navigateur (attributs `required`) ; les
+>   autres erreurs serveur s'affichent avec JavaScript.
+> - Corrections transverses : texte des puces sécable et indicatif / numéro repliables à 320 px et
+>   200 % ; groupe de commandes de l'en-tête repliable (zoom) ; contrôle des cibles tactiles qui
+>   ignore les éléments `aria-hidden` (pot de miel).
 
 ---
 

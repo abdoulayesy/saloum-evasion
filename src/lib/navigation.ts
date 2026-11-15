@@ -21,6 +21,10 @@ const liveRouteTypes: ReadonlySet<RouteType> = new Set<RouteType>([
   'contact',
   'legal',
   'privacy',
+  // Demande de séjour (phase 8) : servie par des routes dédiées (middleware), jamais par le
+  // résolveur des pages publiques ; noindex et hors sitemap.
+  'request',
+  'requestThanks',
 ]);
 
 export const isLive = (type: RouteType): boolean => liveRouteTypes.has(type);

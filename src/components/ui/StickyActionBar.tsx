@@ -1,11 +1,29 @@
 import Link from 'next/link';
+import { AddToRequest } from '@/components/client/AddToRequest';
+import type { RequestItemKind } from '@/lib/request/constants';
 
 // Barre d'action collante (constitution I, FR-017) : fixe en bas d'écran sous `md`, dans la
 // zone du pouce, avec l'action principale et WhatsApp. Composant serveur sans JavaScript :
 // le clavier virtuel est géré par `interactiveWidget: 'resizes-content'` (layout).
 // Hauteur réservée par `ActionBarSpacer` pour ne jamais masquer le contenu ni le focus.
 
-export type ActionLink = { href: string; label: string; ariaLabel?: string };
+export type AddToRequestSpec = {
+  kind: RequestItemKind;
+  slug: string;
+  title: string;
+  formHref: string;
+  addedMessage: string;
+  viewLabel: string;
+  navigate: boolean;
+};
+
+export type ActionLink = {
+  href: string;
+  label: string;
+  ariaLabel?: string;
+  /** Ajout à la « demande en cours » (fiches séjour, expérience, hébergement). */
+  add?: AddToRequestSpec;
+};
 
 type StickyActionBarProps = {
   primary: ActionLink | null;
@@ -22,10 +40,18 @@ export const StickyActionBar = ({ primary, whatsapp, label }: StickyActionBarPro
     <nav
       aria-label={label}
       data-sticky-action-bar
-      className="sticky-action-bar border-t border-sable-deep bg-sable/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur md:border-0 md:bg-transparent md:px-0 md:pt-6 md:pb-0 md:backdrop-blur-none"
+      className="sticky-action-bar border-t border-sable-deep bg-sable/95 px-4 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur md:border-0 md:bg-transparent md:px-0 md:pt-6 md:pb-0 md:backdrop-blur-none"
     >
       <div className="mx-auto flex max-w-6xl gap-3 md:px-8">
-        {primary && (
+        {primary?.add && (
+          <AddToRequest
+            href={primary.href}
+            label={primary.label}
+            className={`${buttonBase} bg-mangrove text-sable`}
+            {...primary.add}
+          />
+        )}
+        {primary && !primary.add && (
           <Link
             href={primary.href}
             aria-label={primary.ariaLabel}

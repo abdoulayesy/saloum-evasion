@@ -41,8 +41,10 @@
     "payload": "3.93.0",
     "react": "19",
     "react-dom": "19",
+    "resend": "6",
     "schema-dts": "^1",
-    "sharp": "^0.34.5"
+    "sharp": "^0.34.5",
+    "zod": "4"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",

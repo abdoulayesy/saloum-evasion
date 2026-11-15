@@ -16,6 +16,8 @@ export const expectTouchTargets = async (page: Page, minSize = 44): Promise<void
     interactive.forEach((element) => {
       if (element.closest('p, li > p, figcaption, .prose')) return;
       if (element.classList.contains('skip-link')) return;
+      // Masqué aux technologies d'assistance et hors tabulation (pot de miel) : pas une cible.
+      if (element.closest('[aria-hidden="true"]')) return;
       const style = window.getComputedStyle(element);
       if (style.visibility === 'hidden' || style.display === 'none') return;
       // Case à cocher ou bouton radio masqué visuellement : la cible réelle est son étiquette.

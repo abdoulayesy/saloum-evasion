@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { buildPath } from '@/i18n/pathnames';
 import { isLocale, routing } from '@/i18n/routing';
 
 // Contrat routes.md « Redirections » : une seule redirection 301 au plus.
@@ -51,6 +52,24 @@ const loadRedirectTable = async (origin: string): Promise<ReadonlyMap<string, st
 
 const isLocaleRoot = (pathname: string): boolean => isLocale(pathname.slice(1));
 
+// --- Demande de séjour (phase 8) ---------------------------------------------------------
+// Pages dynamiques servies par des routes internes (`request-form`), isolées du résolveur
+// des pages publiques (qui restent statiques). Les URL publiques traduites y sont réécrites ;
+// l'accès direct aux routes internes reçoit la 404.
+
+export const INTERNAL_REQUEST_SEGMENT = 'request-form';
+
+export const requestRewrite = (pathname: string): string | 'blocked' | null => {
+  const [, locale = '', section = ''] = pathname.split('/');
+  if (!isLocale(locale)) return null;
+  if (section === INTERNAL_REQUEST_SEGMENT) return 'blocked';
+  if (pathname === buildPath(locale, { type: 'request' }))
+    return `/${locale}/${INTERNAL_REQUEST_SEGMENT}`;
+  if (pathname === buildPath(locale, { type: 'requestThanks' }))
+    return `/${locale}/${INTERNAL_REQUEST_SEGMENT}/thanks`;
+  return null;
+};
+
 export const middleware = async (request: NextRequest) => {
   const { pathname, search } = request.nextUrl;
   const canonical = canonicalPathname(pathname);
@@ -66,6 +85,9 @@ export const middleware = async (request: NextRequest) => {
   if (!hasLocalePrefix(pathname)) {
     return NextResponse.rewrite(new URL(NOT_FOUND_REWRITE, request.url));
   }
+  const internal = requestRewrite(pathname);
+  if (internal === 'blocked') return NextResponse.rewrite(new URL(NOT_FOUND_REWRITE, request.url));
+  if (internal) return NextResponse.rewrite(new URL(`${internal}${search}`, request.url));
   return NextResponse.next();
 };
 
