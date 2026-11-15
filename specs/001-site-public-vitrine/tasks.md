@@ -356,24 +356,33 @@ lit l'engagement et l'équipe, et trouve FAQ, contact et pages légales.
 **Independent Test** : sur mobile, aucune requête vidéo avant le clic ; le chapitre `?t=`
 fonctionne ; sous-titres FR et EN disponibles.
 
-- [ ] T123 [US4] Créer `src/lib/mux.ts` (URL HLS, rendu MP4 statique, URL d'affiche) et un hook dans `src/collections/Videos.ts` qui vérifie le `muxPlaybackId` et renseigne la durée via l'API Mux
-- [ ] T124 [US4] Créer `src/components/client/VideoPlayer.tsx` : affiche via `CmsImage`, bouton lecture de 44 px avec nom accessible, aucun `src` et `preload="none"` avant le clic, puis `import()` de la **version allégée** de hls.js (`hls.js/dist/hls.light.mjs`, pour tenir le budget de 100 Ko du code à la demande : analyse P2 ; HLS natif sur Safari), pistes de sous-titres FR/EN (langue de la page par défaut), commandes natives au clavier, liste de chapitres en boutons, prise en compte de `?t=` après lecture (perf-a11y CHK043)
-- [ ] T125 [US4] Créer `src/components/client/AmbientLoop.tsx` : seulement si `(min-width: 1024px) and (pointer: fine)`, ni mouvement réduit ni `Save-Data`, après `load` ; MP4 ≤ 1,5 Mo ; vidéo décorative `aria-hidden` ; **bouton pause/lecture visible** (WCAG 2.2.2 : perf-a11y CHK042)
-- [ ] T126 [US4] Créer `src/components/views/FilmView.tsx` : H1, lecteur principal, chapitres (liens `?t=`), grille des vidéos verticales 9:16, section « Transcription descriptive » (`descriptiveTranscript`) ; piste d'audiodescription en attente de D4
-- [ ] T127 [US4] Créer `src/lib/seo/jsonld/video.ts` (VideoObject + Clip, `endOffset` = début du chapitre suivant, `contentUrl` = rendu MP4 : seo CHK019) et `tests/unit/jsonld-video.test.ts`
-- [ ] T128 [US4] Ajouter la route `film` au résolveur (métadonnées, OG = affiche) et les entrées vidéo du sitemap dans `src/lib/seo/sitemapEntries.ts`
-- [ ] T129 [P] [US4] Écrire `tests/e2e/film.mobile.spec.ts` : aucune requête vers `stream.mux.com` avant le clic, HLS après le clic, `?t=`, pistes de sous-titres présentes, pas de lecture automatique avec mouvement réduit ou `Save-Data`, orientation non bloquée, axe, lecture au clavier
-- [ ] T130 [P] [US4] Écrire `tests/e2e/film.seo.spec.ts` (projet `nojs`) : VideoObject + Clip, balises vidéo du sitemap, métadonnées
-- [ ] T131 [P] [US4] Écrire `tests/e2e/ambient-loop.desktop.spec.ts` : boucle seulement sur ordinateur, bouton pause opérationnel, aucune boucle avec mouvement réduit ou `Save-Data`
-- [ ] T132 [US4] Intégrer `AmbientLoop` au héro de l'accueil (ordinateur seulement ; l'image reste l'élément LCP) dans `src/components/views/HomeView.tsx`
-- [ ] T133 [P] [US4] Créer le rendu des blocs `src/components/blocks/{Hero,RichText,Team,Figures,Gallery,Steps,Guarantees,Cta}.tsx` (composants serveur)
-- [ ] T134 [US4] Ajouter au résolveur les pages `commitment`, `about` (membres de l'équipe), `faq` (FAQPage par catégorie), `contact` (NAP de `siteSettings`, WhatsApp, carte, ContactPage), `legal` (noindex, hors sitemap) et `privacy`, avec JSON-LD AboutPage, ContactPage ou WebPage
-- [ ] T135 [US4] Ajouter le **registre des traitements** à la page Confidentialité (bloc `src/blocks/ProcessingRegister.ts` et rendu `src/components/blocks/ProcessingRegister.tsx`, contenu FR et EN dans `src/seed/index.ts`) : pour les demandes de séjour, la mesure d'audience, les comptes de l'équipe et la limitation de débit, indiquer la finalité, la base légale, la durée de conservation, les destinataires (hébergeur, Resend, Plausible, Mux) et les transferts hors du Sénégal ; ajouter dans `launch/checklist.md` (T176) la vérification par un juriste de la déclaration à la CDP (loi 2008-12) (analyse C4, constitution IX)
-- [ ] T136 [P] [US4] Écrire `tests/e2e/editorial.mobile.spec.ts` (les 6 pages : 360 px, cibles, axe, zoom, FAQ au clavier)
-- [ ] T137 [P] [US4] Écrire `tests/e2e/editorial.seo.spec.ts` (projet `nojs`) : métadonnées, FAQPage sur la FAQ, mentions légales en noindex et hors sitemap, NAP identique dans le pied de page, la page contact et le JSON-LD
-- [ ] T138 [US4] Ajouter film, FAQ, engagement et à propos FR et EN dans `lighthouserc.json`
+- [X] T123 [US4] Créer `src/lib/mux.ts` (URL HLS, rendu MP4 statique, URL d'affiche) et un hook dans `src/collections/Videos.ts` qui vérifie le `muxPlaybackId` et renseigne la durée via l'API Mux
+- [X] T124 [US4] Créer `src/components/client/VideoPlayer.tsx` : affiche via `CmsImage`, bouton lecture de 44 px avec nom accessible, aucun `src` et `preload="none"` avant le clic, puis `import()` de la **version allégée** de hls.js (`hls.js/dist/hls.light.mjs`, pour tenir le budget de 100 Ko du code à la demande : analyse P2 ; HLS natif sur Safari), pistes de sous-titres FR/EN (langue de la page par défaut), commandes natives au clavier, liste de chapitres en boutons, prise en compte de `?t=` après lecture (perf-a11y CHK043)
+- [X] T125 [US4] Créer `src/components/client/AmbientLoop.tsx` : seulement si `(min-width: 1024px) and (pointer: fine)`, ni mouvement réduit ni `Save-Data`, après `load` ; MP4 ≤ 1,5 Mo ; vidéo décorative `aria-hidden` ; **bouton pause/lecture visible** (WCAG 2.2.2 : perf-a11y CHK042)
+- [X] T126 [US4] Créer `src/components/views/FilmView.tsx` : H1, lecteur principal, chapitres (liens `?t=`), grille des vidéos verticales 9:16, section « Transcription descriptive » (`descriptiveTranscript`) ; piste d'audiodescription en attente de D4
+- [X] T127 [US4] Créer `src/lib/seo/jsonld/video.ts` (VideoObject + Clip, `endOffset` = début du chapitre suivant, `contentUrl` = rendu MP4 : seo CHK019) et `tests/unit/jsonld-video.test.ts`
+- [X] T128 [US4] Ajouter la route `film` au résolveur (métadonnées, OG = affiche) et les entrées vidéo du sitemap dans `src/lib/seo/sitemapEntries.ts`
+- [X] T129 [P] [US4] Écrire `tests/e2e/film.mobile.spec.ts` : aucune requête vers `stream.mux.com` avant le clic, HLS après le clic, `?t=`, pistes de sous-titres présentes, pas de lecture automatique avec mouvement réduit ou `Save-Data`, orientation non bloquée, axe, lecture au clavier
+- [X] T130 [P] [US4] Écrire `tests/e2e/film.seo.spec.ts` (projet `nojs`) : VideoObject + Clip, balises vidéo du sitemap, métadonnées
+- [X] T131 [P] [US4] Écrire `tests/e2e/ambient-loop.desktop.spec.ts` : boucle seulement sur ordinateur, bouton pause opérationnel, aucune boucle avec mouvement réduit ou `Save-Data`
+- [X] T132 [US4] Intégrer `AmbientLoop` au héro de l'accueil (ordinateur seulement ; l'image reste l'élément LCP) dans `src/components/views/HomeView.tsx`
+- [X] T133 [P] [US4] Créer le rendu des blocs `src/components/blocks/{Hero,RichText,Team,Figures,Gallery,Steps,Guarantees,Cta}.tsx` (composants serveur)
+- [X] T134 [US4] Ajouter au résolveur les pages `commitment`, `about` (membres de l'équipe), `faq` (FAQPage par catégorie), `contact` (NAP de `siteSettings`, WhatsApp, carte, ContactPage), `legal` (noindex, hors sitemap) et `privacy`, avec JSON-LD AboutPage, ContactPage ou WebPage
+- [X] T135 [US4] Ajouter le **registre des traitements** à la page Confidentialité (bloc `src/blocks/ProcessingRegister.ts` et rendu `src/components/blocks/ProcessingRegister.tsx`, contenu FR et EN dans `src/seed/index.ts`) : pour les demandes de séjour, la mesure d'audience, les comptes de l'équipe et la limitation de débit, indiquer la finalité, la base légale, la durée de conservation, les destinataires (hébergeur, Resend, Plausible, Mux) et les transferts hors du Sénégal ; ajouter dans `launch/checklist.md` (T176) la vérification par un juriste de la déclaration à la CDP (loi 2008-12) (analyse C4, constitution IX)
+- [X] T136 [P] [US4] Écrire `tests/e2e/editorial.mobile.spec.ts` (les 6 pages : 360 px, cibles, axe, zoom, FAQ au clavier)
+- [X] T137 [P] [US4] Écrire `tests/e2e/editorial.seo.spec.ts` (projet `nojs`) : métadonnées, FAQPage sur la FAQ, mentions légales en noindex et hors sitemap, NAP identique dans le pied de page, la page contact et le JSON-LD
+- [X] T138 [US4] Ajouter film, FAQ, engagement et à propos FR et EN dans `lighthouserc.json`
 
 **Checkpoint** : film et contenus de confiance en ligne.
+
+> **Écarts constatés à l'implémentation (phase 7)** :
+> - T124 : hls.js figé à 1.5.20 (version allégée ≈ 90 Ko compressés ; 1.7.x ≈ 115 Ko, hors budget de 100 Ko) ; import `hls.js/dist/hls.light.mjs`. HLS natif d'abord (Safari, Chrome récent) : `play()` appelé tout de suite (avec `preload="none"`, attendre les métadonnées bloquait la lecture).
+> - T125/T132 : boucle d'ambiance servie par un MP4 hébergé (`staticMp4Url`, nouveau champ et migration) ou, à défaut, par le rendu `low` de Mux ; démonstration tirée de la vidéo fournie par l'équipe.
+> - T126/T134 : pages institutionnelles réunies dans `EditorialView.tsx` ; blocs dans `src/components/blocks/` (dont `Blocks.tsx`).
+> - T135 : `launch/checklist.md` amorcée (CDP, droits des photos, contenus de démonstration).
+> - Seed : photos et vidéo de l'équipe (dossier `public/activites illustration/`, non versionné), HEIC converti par ffmpeg, photos < 1600 px agrandies avec provenance « original HD à fournir » (décision du propriétaire).
+> - Performance (tout le site) : `Critical-CH` de Payload limité à `/admin`, plus de `preload()` d'image, vignettes plafonnées à 360 px en qualité 50, seule la police du texte préchargée.
+> - T138 : dérogation D-LCP-photo étendue à toute page à photo principale (accueil, film, engagement, à propos) et portée à 3,0 s (plan.md).
 
 ---
 
