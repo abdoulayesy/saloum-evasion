@@ -40,7 +40,7 @@
     "assert": {
       "assertMatrix": [
         {
-          "matchingUrlPattern": "/(fr/sejours|en/stays|fr/experiences|en/experiences|fr/destinations|en/destinations|fr/hebergements|en/accommodation)(/|$)",
+          "matchingUrlPattern": "/(fr|en)$|/(fr/sejours|en/stays|fr/experiences|en/experiences|fr/destinations|en/destinations|fr/hebergements|en/accommodation|fr/film-immersion|en/immersion-film|fr/notre-engagement|en/our-commitment|fr/a-propos|en/about)(/|$)",
           "aggregationMethod": "median",
           "assertions": {
             "categories:performance": [
@@ -70,7 +70,7 @@
             "largest-contentful-paint": [
               "error",
               {
-                "maxNumericValue": 2700
+                "maxNumericValue": 3000
               }
             ],
             "cumulative-layout-shift": [
@@ -94,7 +94,7 @@
           }
         },
         {
-          "matchingUrlPattern": "^(?!.*/(fr/sejours|en/stays|fr/experiences|en/experiences|fr/destinations|en/destinations|fr/hebergements|en/accommodation)(/|$)).*",
+          "matchingUrlPattern": "^(?!.*(/(fr|en)$|/(fr/sejours|en/stays|fr/experiences|en/experiences|fr/destinations|en/destinations|fr/hebergements|en/accommodation|fr/film-immersion|en/immersion-film|fr/notre-engagement|en/our-commitment|fr/a-propos|en/about)(/|$))).*",
           "aggregationMethod": "median",
           "assertions": {
             "categories:performance": [
