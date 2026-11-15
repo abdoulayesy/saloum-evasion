@@ -27,6 +27,13 @@ export const ProcessingRegister: Block = {
           label: 'Durée de conservation',
         },
         { name: 'recipients', type: 'text', localized: true, label: 'Destinataires' },
+        {
+          name: 'transfers',
+          type: 'text',
+          localized: true,
+          label: 'Transferts hors du Sénégal',
+          admin: { description: 'Pays de destination et garanties (loi 2008-12, CDP).' },
+        },
       ],
     },
   ],

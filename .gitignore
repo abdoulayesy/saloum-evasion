@@ -36,3 +36,7 @@ Thumbs.db
 
 # media uploaded locally by Payload (dev only)
 /media/
+
+# Photos et vidéos fournies (droits à confirmer) et boucle générée par le seed
+public/activites illustration/
+public/videos/demo/

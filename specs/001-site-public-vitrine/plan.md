@@ -26,7 +26,8 @@ Lighthouse et axe bloquent la fusion.
 **Primary Dependencies**: Next.js 15 (App Router, RSC, Server Actions, `next/image`,
 `next/font`, `next/og`), Payload CMS 3 (`@payloadcms/db-postgres`, richtext-lexical, plugin
 redirects, adaptateur de stockage S3), next-intl, Tailwind CSS (v4), Zod, schema-dts, hls.js
-(chargé à la demande), web-vitals, Resend SDK
+(chargé à la demande ; version allégée figée à 1.5.20 : environ 90 Ko compressés, contre environ
+115 Ko en 1.7.x, au-delà du budget de 100 Ko du code à la demande), web-vitals, Resend SDK
 **Storage**: PostgreSQL 16 managé (Europe de l'Ouest, pooling) ; médias en stockage objet
 S3-compatible ; vidéos chez Mux
 **Testing**: Vitest (logique métier, métadonnées, JSON-LD), Playwright (iPhone SE, Pixel 7,

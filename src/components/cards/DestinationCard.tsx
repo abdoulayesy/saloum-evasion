@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
-import { CmsImage } from '@/components/ui/CmsImage';
+import { CARD_QUALITY, CARD_SIZES, CmsImage } from '@/components/ui/CmsImage';
 import type { Locale } from '@/i18n/routing';
 import { destinationPath } from '@/lib/catalogPaths';
 import { populated } from '@/lib/cms/populated';
@@ -29,7 +29,8 @@ export const DestinationCard = async ({
       <CmsImage
         media={populated<Media>(destination.heroImage)}
         locale={locale}
-        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+        sizes={CARD_SIZES}
+        quality={CARD_QUALITY}
         priority={priority}
         className="aspect-[4/3] w-full object-cover"
       />
