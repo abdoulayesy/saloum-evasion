@@ -426,6 +426,10 @@ sans EN mène à la page parente avec un message.
 
 ## Phase 10 : Polish — optimisation finale et vérification des budgets
 
+> **Renvoi 002** : si la 002 démarre avant cette phase, le module de mesure d'audience
+> `src/lib/analytics.ts` est créé par sa tâche T064b ; la mesure de la 001 s'y branche au lieu de
+> le recréer.
+
 - [ ] T161 Créer `src/lib/analytics.ts` et `src/components/client/Analytics.tsx` (Plausible chargé en `requestIdleCallback`, file d'attente) et brancher les évènements de [analytics-events.md](./contracts/analytics-events.md)
 - [ ] T162 [P] Créer `src/components/client/WebVitals.tsx` (web-vitals → évènement `web_vital` avec modèle de route et tranche de valeur)
 - [ ] T163 [P] Écrire `tests/e2e/third-party.spec.ts` : aucun script tiers dans le HTML initial, Plausible seulement après inactivité, aucune requête de police vers un domaine externe, 2 familles de polices au plus (perf-a11y CHK023, CHK029)
