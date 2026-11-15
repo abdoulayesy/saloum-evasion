@@ -10,7 +10,12 @@
         "http://localhost:3000/fr/sejours",
         "http://localhost:3000/en/stays",
         "http://localhost:3000/fr/sejours/week-end-bolong-ndangane",
-        "http://localhost:3000/en/stays/bolong-weekend-ndangane"
+        "http://localhost:3000/en/stays/bolong-weekend-ndangane",
+        "http://localhost:3000/fr/experiences",
+        "http://localhost:3000/en/experiences",
+        "http://localhost:3000/fr/experiences/mangrove-et-iles",
+        "http://localhost:3000/fr/experiences/mangrove-et-iles/excursion-pirogue-bolongs",
+        "http://localhost:3000/en/experiences/mangrove-and-islands/pirogue-trip-bolongs"
       ],
       "settings": {
         "formFactor": "mobile",
@@ -21,7 +26,7 @@
     "assert": {
       "assertMatrix": [
         {
-          "matchingUrlPattern": "/(fr/sejours|en/stays)(/|$)",
+          "matchingUrlPattern": "/(fr/sejours|en/stays|fr/experiences|en/experiences)(/|$)",
           "aggregationMethod": "median",
           "assertions": {
             "categories:performance": [
@@ -75,7 +80,7 @@
           }
         },
         {
-          "matchingUrlPattern": "^(?!.*/(fr/sejours|en/stays)(/|$)).*",
+          "matchingUrlPattern": "^(?!.*/(fr/sejours|en/stays|fr/experiences|en/experiences)(/|$)).*",
           "aggregationMethod": "median",
           "assertions": {
             "categories:performance": [

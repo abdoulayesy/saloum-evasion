@@ -3,7 +3,14 @@ import type { Route, RouteType } from '@/i18n/pathnames';
 // Routes publiques effectivement livrées. Le menu, le pied de page et le sitemap ne lient que
 // celles-ci, pour qu'aucun lien interne ne mène à une 404 pendant la construction du site
 // (contrôle des liens cassés en CI). Chaque phase ajoute ses routes ici.
-const liveRouteTypes: ReadonlySet<RouteType> = new Set<RouteType>(['home', 'staysList', 'stay']);
+const liveRouteTypes: ReadonlySet<RouteType> = new Set<RouteType>([
+  'home',
+  'staysList',
+  'stay',
+  'experiencesHub',
+  'universe',
+  'experience',
+]);
 
 export const isLive = (type: RouteType): boolean => liveRouteTypes.has(type);
 

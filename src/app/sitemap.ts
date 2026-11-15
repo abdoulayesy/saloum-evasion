@@ -1,17 +1,30 @@
 import type { MetadataRoute } from 'next';
 import { buildPath } from '@/i18n/pathnames';
-import { getAlternates, listStays } from '@/lib/cms/queries';
+import { getAlternates, listExperiences, listStays, listUniverses } from '@/lib/cms/queries';
 import { populated, populatedList } from '@/lib/cms/populated';
+import { experienceAlternates, universeAlternates } from '@/lib/experiencePaths';
 import { entriesForRoute, fixedEntries, isListable } from '@/lib/seo/sitemapEntries';
 import { absoluteUrl } from '@/lib/site';
-import type { Media, Stay } from '@/payload-types';
+import type { Media } from '@/payload-types';
 
 // /sitemap.xml (contrat routes.md) : pages fixes livrées + fiches publiées, une entrée par
 // langue publiée avec hreflang, `lastModified` réel et images (principale + galerie).
-// Régénéré à chaque publication (tags des collections invalidés par hooks/revalidate.ts).
+// Rendu à la demande : toujours à jour après une publication. Les lectures passent par le
+// cache de données (tags invalidés par hooks/revalidate.ts), la génération reste légère.
+export const dynamic = 'force-dynamic';
 
-const imagesOf = (stay: Stay): string[] =>
-  [populated<Media>(stay.heroImage), ...populatedList<Media>(stay.gallery)]
+type WithImages = {
+  heroImage?: number | Media | null;
+  image?: number | Media | null;
+  gallery?: (number | Media)[] | null;
+};
+
+const imagesOf = (doc: WithImages): string[] =>
+  [
+    populated<Media>(doc.heroImage),
+    populated<Media>(doc.image),
+    ...populatedList<Media>(doc.gallery),
+  ]
     .flatMap((media) => (media?.url ? [media.url] : []))
     .map((url) => (url.startsWith('http') ? url : absoluteUrl(url)));
 
@@ -33,9 +46,41 @@ const stayEntries = async (): Promise<MetadataRoute.Sitemap> => {
   return entries.flat();
 };
 
+const experienceEntries = async (): Promise<MetadataRoute.Sitemap> => {
+  if (!isListable('experience')) return [];
+  const experiences = (await listExperiences('fr')).filter((item) => !item.seo?.noindex);
+  const entries = await Promise.all(
+    experiences.map(async (experience) =>
+      entriesForRoute(await experienceAlternates(experience), {
+        lastModified: new Date(experience.updatedAt),
+        images: imagesOf(experience),
+      }),
+    ),
+  );
+  return entries.flat();
+};
+
+const universeEntries = async (): Promise<MetadataRoute.Sitemap> => {
+  if (!isListable('universe')) return [];
+  const universes = (await listUniverses('fr')).filter(
+    (universe) => universe.kind === 'experience' && !universe.seo?.noindex,
+  );
+  const entries = await Promise.all(
+    universes.map(async (universe) =>
+      entriesForRoute(await universeAlternates(universe.id), {
+        lastModified: new Date(universe.updatedAt),
+        images: imagesOf(universe),
+      }),
+    ),
+  );
+  return entries.flat();
+};
+
 const sitemap = async (): Promise<MetadataRoute.Sitemap> => [
   ...fixedEntries(),
   ...(await stayEntries()),
+  ...(await universeEntries()),
+  ...(await experienceEntries()),
 ];
 
 export default sitemap;

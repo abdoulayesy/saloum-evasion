@@ -141,6 +141,13 @@ export const listUniverses = cached(
   (locale: Locale) => findMany('universes', locale, [], 'order'),
 );
 
+export const getUniverseBySlug = cached(
+  'universe-by-slug',
+  () => ['universes'],
+  (locale: Locale, slug: string) =>
+    findOne('universes', locale, [...bySlug(slug), { kind: { equals: 'experience' } }]),
+);
+
 // --- Pages éditoriales ---------------------------------------------------------------------
 
 export const getPage = cached(

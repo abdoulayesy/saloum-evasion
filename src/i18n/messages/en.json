@@ -151,5 +151,47 @@
     "commitment": "Tourism that keeps the delta alive",
     "commitmentText": "Our stays are designed with Saloum families, guides and boatmen: what you spend stays here.",
     "contact": "A question? A host will answer."
+  },
+  "experience": {
+    "keyFacts": "Key facts",
+    "duration": "Duration",
+    "level": "Level",
+    "season": "Season",
+    "meetingPoint": "Meeting point",
+    "price": "Price",
+    "minParticipants": "From {count} participants",
+    "allYear": "All year round",
+    "levels": {
+      "facile": "Easy",
+      "modere": "Moderate",
+      "sportif": "Challenging"
+    },
+    "about": "The experience",
+    "destination": "Where",
+    "inStays": "Stays that include it",
+    "sameDestination": "Also in {place}",
+    "gallery": "Photos",
+    "faq": "Frequently asked questions",
+    "seasonRange": "{from} to {to}"
+  },
+  "hub": {
+    "intro": "Mangrove, villages, food: choose your way to live the Saloum, with local guides.",
+    "universes": "Universes",
+    "all": "All experiences",
+    "count": "{count, plural, one {# experience} other {# experiences}}"
+  },
+  "months": {
+    "1": "January",
+    "2": "February",
+    "3": "March",
+    "4": "April",
+    "5": "May",
+    "6": "June",
+    "7": "July",
+    "8": "August",
+    "9": "September",
+    "10": "October",
+    "11": "November",
+    "12": "December"
   }
 }

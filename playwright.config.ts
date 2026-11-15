@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 const PORT = 3000;
 const SEO_SPECS = /.*\.(seo|nojs)\.spec\.ts/;
 // Admin Payload : testé sur ordinateur seulement (dérogation D-T6b).
-const ADMIN_SPECS = /(cms\.smoke|us3-editor)\.spec\.ts/;
+const ADMIN_SPECS = /(cms\.smoke|us3-editor|us3-publication)\.spec\.ts/;
 const baseURL = process.env.BASE_URL ?? `http://localhost:${PORT}`;
 
 // Appareil de référence de la constitution : Android milieu de gamme, 360 px de large.

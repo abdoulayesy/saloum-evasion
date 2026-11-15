@@ -11,7 +11,7 @@ import type { Media } from '@/payload-types';
 // document, recadrée, avec le titre et la marque. Collections couvertes à mesure que leurs
 // pages sont livrées.
 
-const SUPPORTED = ['stays'] as const;
+const SUPPORTED = ['stays', 'experiences', 'universes'] as const;
 type Supported = (typeof SUPPORTED)[number];
 
 const isSupported = (value: string): value is Supported => SUPPORTED.some((slug) => slug === value);
@@ -55,10 +55,13 @@ export const GET = async (_request: Request, { params }: Params) => {
   });
   const [doc] = result.docs;
   if (!doc) return new Response('Introuvable', { status: 404 });
+  // Fiches : titre et image principale ; univers : nom et image.
+  const title = 'title' in doc ? doc.title : 'name' in doc ? doc.name : null;
+  const photo = 'heroImage' in doc ? doc.heroImage : 'image' in doc ? doc.image : null;
   const image = await renderOgImage({
     eyebrow: 'Ndangane · Sine-Saloum',
-    title: doc.title ?? 'Saloum Évasion',
-    photoUrl: await photoDataUri(populated<Media>(doc.heroImage)),
+    title: title ?? 'Saloum Évasion',
+    photoUrl: await photoDataUri(populated<Media>(photo)),
   });
   image.headers.set('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
   return image;

@@ -101,7 +101,12 @@ Les éléments correspondent exactement au fil d'Ariane visible.
 
 Pas de `inLanguage` : la propriété n'existe pas sur `TouristTrip` (réservée aux œuvres, `CreativeWork`).
 
-### Fiche expérience → `TouristAttraction` + `Offer`
+### Fiche expérience → `TouristAttraction` + `TouristTrip` (offre)
+
+`TouristAttraction` est un `Place` : schema.org ne lui permet pas de porter une offre. L'expérience
+est donc décrite par deux nœuds : l'attraction (lieu, géolocalisation, photos, univers) et un
+`TouristTrip` (`@id: {url}#trip`) qui porte l'offre XOF par personne et désigne l'attraction comme
+`itinerary`. La destination est décrite en ligne (`Place` + `geo`) tant que sa page n'est pas livrée.
 
 ```json
 {

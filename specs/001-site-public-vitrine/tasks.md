@@ -287,18 +287,30 @@ liste et lit une fiche complète (la demande arrive en phase 8).
 **Independent Test** : URL directe d'une fiche expérience sans JS : durée, niveau, saison,
 départ et prix XOF/€ dans le premier écran 360×800 ; JSON-LD TouristAttraction valide.
 
-- [ ] T100 [P] [US2] Créer `src/components/cards/ExperienceCard.tsx`
-- [ ] T101 [US2] Créer `src/lib/seo/jsonld/touristAttraction.ts` (+ Offer XOF par personne) et `tests/unit/jsonld-experience.test.ts`
-- [ ] T102 [US2] Créer `src/components/views/ExperienceView.tsx` : bloc de faits clés dans le premier écran (durée, niveau, mois de saison, point de départ, prix par personne : mobile CHK003), texte, galerie, destination, séjours qui l'incluent, 3 expériences de la même destination, FAQ, fil d'Ariane Accueil › Expériences › Univers › Fiche (seo CHK024), barre collante « Ajouter à ma demande » (lien `/demande?experience=` jusqu'à la phase 8)
-- [ ] T103 [P] [US2] Créer `src/components/views/UniverseView.tsx` et `src/components/views/ExperiencesHubView.tsx` (H1 « Que faire au Sine-Saloum » / « Things to do in Sine-Saloum », ItemList)
-- [ ] T104 [US2] Ajouter au résolveur les routes `experience` (univers + slug), `universe` et `experiences_hub` (params statiques, métadonnées, image OG)
-- [ ] T105 [US2] Ajouter expériences, univers et hub dans `src/lib/seo/sitemapEntries.ts`
-- [ ] T106 [P] [US2] Écrire `tests/e2e/experience.mobile.spec.ts` : faits clés et prix dans le premier écran 360×800, cibles, axe, zoom à 200 %, paysage
-- [ ] T107 [P] [US2] Écrire `tests/e2e/experience.seo.spec.ts` (projet `nojs`) : métadonnées, TouristAttraction + Offer XOF, fil d'Ariane à 4 niveaux, au moins 300 mots, aperçu OG
-- [ ] T108 [P] [US2] Écrire `tests/e2e/experiences-hub.mobile.spec.ts` (hub et une page d'univers)
-- [ ] T109 [P] [US2] Écrire `tests/e2e/experiences-hub.seo.spec.ts` (hub et univers : ItemList, fil d'Ariane, sitemap)
-- [ ] T110 [US2] Ajouter fiche expérience, hub et univers FR et EN dans `lighthouserc.json`
-- [ ] T111 [US3] Écrire `tests/e2e/us3-publication.spec.ts` : création d'une expérience bilingue dans l'admin → après revalidation, fiche FR et EN en ligne, présente dans son univers, sur sa destination et dans le sitemap ; EN incomplet → page EN absente et sans hreflang
+- [X] T100 [P] [US2] Créer `src/components/cards/ExperienceCard.tsx`
+- [X] T101 [US2] Créer `src/lib/seo/jsonld/touristAttraction.ts` (+ Offer XOF par personne) et `tests/unit/jsonld-experience.test.ts`
+- [X] T102 [US2] Créer `src/components/views/ExperienceView.tsx` : bloc de faits clés dans le premier écran (durée, niveau, mois de saison, point de départ, prix par personne : mobile CHK003), texte, galerie, destination, séjours qui l'incluent, 3 expériences de la même destination, FAQ, fil d'Ariane Accueil › Expériences › Univers › Fiche (seo CHK024), barre collante « Ajouter à ma demande » (lien `/demande?experience=` jusqu'à la phase 8)
+- [X] T103 [P] [US2] Créer `src/components/views/UniverseView.tsx` et `src/components/views/ExperiencesHubView.tsx` (H1 « Que faire au Sine-Saloum » / « Things to do in Sine-Saloum », ItemList)
+- [X] T104 [US2] Ajouter au résolveur les routes `experience` (univers + slug), `universe` et `experiences_hub` (params statiques, métadonnées, image OG)
+- [X] T105 [US2] Ajouter expériences, univers et hub dans `src/lib/seo/sitemapEntries.ts`
+- [X] T106 [P] [US2] Écrire `tests/e2e/experience.mobile.spec.ts` : faits clés et prix dans le premier écran 360×800, cibles, axe, zoom à 200 %, paysage
+- [X] T107 [P] [US2] Écrire `tests/e2e/experience.seo.spec.ts` (projet `nojs`) : métadonnées, TouristAttraction + Offer XOF, fil d'Ariane à 4 niveaux, au moins 300 mots, aperçu OG
+- [X] T108 [P] [US2] Écrire `tests/e2e/experiences-hub.mobile.spec.ts` (hub et une page d'univers)
+- [X] T109 [P] [US2] Écrire `tests/e2e/experiences-hub.seo.spec.ts` (hub et univers : ItemList, fil d'Ariane, sitemap)
+- [X] T110 [US2] Ajouter fiche expérience, hub et univers FR et EN dans `lighthouserc.json`
+- [X] T111 [US3] Écrire `tests/e2e/us3-publication.spec.ts` : création d'une expérience bilingue dans l'admin → après revalidation, fiche FR et EN en ligne, présente dans son univers, sur sa destination et dans le sitemap ; EN incomplet → page EN absente et sans hreflang
+
+> **Écarts d'implémentation phase 5 (2026-11-15)** :
+> - T101 : `TouristAttraction` est un `Place` et ne peut pas porter d'offre (schema.org) :
+>   l'expérience est décrite par un `TouristAttraction` (lieu) et un `TouristTrip` qui porte
+>   l'offre XOF par personne (contrat jsonld.md aligné).
+> - T103 : une seule vue `ExperiencesListView` pour le hub et les pages d'univers.
+> - T102 : destination affichée sans lien et décrite en ligne dans le JSON-LD jusqu'à la
+>   livraison de sa page (phase 6) ; « Ajouter à ma demande » active en phase 8.
+> - Sitemap rendu à la demande (`force-dynamic`) : toujours à jour après publication, lectures
+>   servies par le cache de données.
+> - Dérogation D-LCP-photo étendue aux URL `/fr/experiences…` et `/en/experiences…`
+>   (pages dont le LCP est une photo, comme prévu à leur livraison).
 
 **Checkpoint** : les fiches expérience servent d'entrées SEO autonomes.
 

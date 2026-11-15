@@ -151,5 +151,47 @@
     "commitment": "Un tourisme qui fait vivre le delta",
     "commitmentText": "Nos séjours sont conçus avec les familles, les guides et les piroguiers du Saloum : ce que vous dépensez reste ici.",
     "contact": "Une question ? Un hôte vous répond."
+  },
+  "experience": {
+    "keyFacts": "L’essentiel",
+    "duration": "Durée",
+    "level": "Niveau",
+    "season": "Saison",
+    "meetingPoint": "Départ",
+    "price": "Prix",
+    "minParticipants": "À partir de {count} participants",
+    "allYear": "Toute l’année",
+    "levels": {
+      "facile": "Facile",
+      "modere": "Modéré",
+      "sportif": "Sportif"
+    },
+    "about": "L’expérience",
+    "destination": "Où",
+    "inStays": "Séjours qui l’incluent",
+    "sameDestination": "À vivre aussi à {place}",
+    "gallery": "Photos",
+    "faq": "Questions fréquentes",
+    "seasonRange": "{from} à {to}"
+  },
+  "hub": {
+    "intro": "Mangrove, villages, table : choisissez votre façon de vivre le Saloum, avec des guides d’ici.",
+    "universes": "Les univers",
+    "all": "Toutes les expériences",
+    "count": "{count, plural, one {# expérience} other {# expériences}}"
+  },
+  "months": {
+    "1": "janvier",
+    "2": "février",
+    "3": "mars",
+    "4": "avril",
+    "5": "mai",
+    "6": "juin",
+    "7": "juillet",
+    "8": "août",
+    "9": "septembre",
+    "10": "octobre",
+    "11": "novembre",
+    "12": "décembre"
   }
 }
