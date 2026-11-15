@@ -7,11 +7,18 @@ import {
   listExperiences,
   listStays,
   listUniverses,
+  listVideos,
 } from '@/lib/cms/queries';
 import { accommodationAlternates, destinationAlternates } from '@/lib/catalogPaths';
 import { populated, populatedList } from '@/lib/cms/populated';
 import { experienceAlternates, universeAlternates } from '@/lib/experiencePaths';
-import { entriesForRoute, fixedEntries, isListable } from '@/lib/seo/sitemapEntries';
+import { mp4Url, thumbnailUrl } from '@/lib/mux';
+import {
+  entriesForRoute,
+  fixedEntries,
+  isListable,
+  type SitemapVideo,
+} from '@/lib/seo/sitemapEntries';
 import { absoluteUrl } from '@/lib/site';
 import type { Media } from '@/payload-types';
 
@@ -112,8 +119,37 @@ const accommodationEntries = async (): Promise<MetadataRoute.Sitemap> => {
   return entries.flat();
 };
 
+/** Page film : une entrée par langue avec ses balises vidéo (film puis verticales). */
+const filmEntries = async (): Promise<MetadataRoute.Sitemap> => {
+  if (!isListable('film')) return [];
+  const paths = { fr: buildPath('fr', { type: 'film' }), en: buildPath('en', { type: 'film' }) };
+  const perLocale = await Promise.all(
+    (['fr', 'en'] as const).map(async (locale) => {
+      const videos = [
+        ...(await listVideos(locale, 'film')),
+        ...(await listVideos(locale, 'vertical15')),
+      ];
+      const items: SitemapVideo[] = videos.map((video) => ({
+        title: video.title ?? '',
+        description: video.description ?? '',
+        thumbnail_loc: thumbnailUrl(video.muxPlaybackId),
+        content_loc: mp4Url(video.muxPlaybackId),
+        duration: video.durationSeconds,
+        publication_date: video.uploadDate,
+      }));
+      const updatedAt = Math.max(0, ...videos.map((video) => new Date(video.updatedAt).getTime()));
+      return entriesForRoute(paths, {
+        videos: items,
+        ...(updatedAt > 0 ? { lastModified: new Date(updatedAt) } : {}),
+      }).filter((entry) => entry.url === absoluteUrl(paths[locale]));
+    }),
+  );
+  return perLocale.flat();
+};
+
 const sitemap = async (): Promise<MetadataRoute.Sitemap> => [
   ...fixedEntries(),
+  ...(await filmEntries()),
   ...(await stayEntries()),
   ...(await universeEntries()),
   ...(await experienceEntries()),

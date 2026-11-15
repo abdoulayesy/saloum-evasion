@@ -238,5 +238,52 @@
       "parking": "Parking",
       "pmr": "Wheelchair accessible"
     }
+  },
+  "film": {
+    "chapters": "Film chapters",
+    "play": "Play the film",
+    "playLabel": "Play the film: {title}",
+    "playVideo": "Play",
+    "playVideoLabel": "Play the video: {title}",
+    "verticals": "In 15 seconds",
+    "transcript": "Descriptive transcript",
+    "captionsFr": "Français",
+    "captionsEn": "English",
+    "duration": "Length: {minutes} min {seconds} s",
+    "noVideo": "The film will be online soon."
+  },
+  "ambient": {
+    "pause": "Pause",
+    "play": "Play"
+  },
+  "blocks": {
+    "purpose": "Purpose",
+    "data": "Data processed",
+    "legalBasis": "Legal basis",
+    "retention": "Retention",
+    "recipients": "Recipients",
+    "transfers": "Transfers outside Senegal",
+    "ctaStays": "See the stays",
+    "ctaWhatsapp": "Message us on WhatsApp",
+    "ctaRequest": "Request a stay"
+  },
+  "faqPage": {
+    "categories": {
+      "general": "General",
+      "reservation": "Booking",
+      "paiement": "Payment",
+      "transport": "Transport",
+      "sejour": "During your stay"
+    },
+    "more": "Can’t find your answer?"
+  },
+  "contact": {
+    "whatsapp": "Message us on WhatsApp",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "map": "Where to find Saloum Évasion",
+    "reach": "Get in touch",
+    "country": "Senegal"
   }
 }

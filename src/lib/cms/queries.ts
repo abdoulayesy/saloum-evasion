@@ -4,7 +4,7 @@ import { getPayload, type DataFromCollectionSlug, type Where } from 'payload';
 import type { PageKey } from '@/collections/Pages';
 import { docTag } from '@/hooks/revalidate';
 import type { Locale } from '@/i18n/routing';
-import type { SiteSetting } from '@/payload-types';
+import type { FaqItem, SiteSetting, Video } from '@/payload-types';
 
 // Lectures publiques du CMS (tâche T060) : documents publiés seulement (aucun brouillon,
 // jamais d'accès privilégié), mises en cache avec les tags invalidés par
@@ -154,6 +154,48 @@ export const getPage = cached(
   'page-by-key',
   () => ['pages'],
   (locale: Locale, key: PageKey) => findOne('pages', locale, [{ key: { equals: key } }]),
+);
+
+// --- Vidéos et FAQ ---------------------------------------------------------------------------
+// Pas de statut par langue sur ces collections : les champs traduits manquants restent vides
+// (fallbackLocale: false) et la vue n'affiche que ce qui est renseigné.
+
+export const listVideos = cached(
+  'list-videos',
+  () => ['videos'],
+  async (locale: Locale, format: 'film' | 'vertical15' | 'loop'): Promise<Video[]> => {
+    const payload = await getPayloadClient();
+    const result = await payload.find({
+      collection: 'videos',
+      locale,
+      fallbackLocale: false,
+      where: { and: [{ _status: { equals: 'published' } }, { format: { equals: format } }] },
+      depth: 1,
+      limit: 20,
+      sort: '-uploadDate',
+      draft: false,
+      overrideAccess: false,
+    });
+    return result.docs;
+  },
+);
+
+export const listFaqItems = cached(
+  'list-faq-items',
+  () => ['faqItems'],
+  async (locale: Locale): Promise<FaqItem[]> => {
+    const payload = await getPayloadClient();
+    const result = await payload.find({
+      collection: 'faqItems',
+      locale,
+      fallbackLocale: false,
+      depth: 0,
+      limit: 200,
+      sort: 'order',
+      overrideAccess: false,
+    });
+    return result.docs.filter((item) => item.question);
+  },
 );
 
 // --- Réglages du site ----------------------------------------------------------------------

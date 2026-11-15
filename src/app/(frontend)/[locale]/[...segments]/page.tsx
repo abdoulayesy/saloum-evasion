@@ -4,8 +4,10 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { AccommodationView } from '@/components/views/AccommodationView';
 import { AccommodationsListView, DestinationsListView } from '@/components/views/CatalogListViews';
 import { DestinationView } from '@/components/views/DestinationView';
+import { EditorialView, type EditorialRoute } from '@/components/views/EditorialView';
 import { ExperiencesListView } from '@/components/views/ExperiencesHubView';
 import { ExperienceView } from '@/components/views/ExperienceView';
+import { FilmView } from '@/components/views/FilmView';
 import { StaysListView } from '@/components/views/StaysListView';
 import { StayView } from '@/components/views/StayView';
 import { buildPath, resolvePath, type Route } from '@/i18n/pathnames';
@@ -17,18 +19,24 @@ import {
   getExperienceBySlug,
   getPage,
   getStayBySlug,
+  getSiteSettingsGlobal,
   getUniverseBySlug,
   listAccommodations,
   listDestinations,
   listExperiences,
+  listFaqItems,
   listStays,
   listUniverses,
+  listVideos,
 } from '@/lib/cms/queries';
+import { populated } from '@/lib/cms/populated';
 import { accommodationAlternates, destinationAlternates } from '@/lib/catalogPaths';
 import { experienceAlternates, universeAlternates, universeSlugOf } from '@/lib/experiencePaths';
 import { getSiteSettings } from '@/lib/cms/siteSettings';
 import { isLive } from '@/lib/navigation';
-import { buildMetadata } from '@/lib/seo/metadata';
+import { buildMetadata, type OgImage } from '@/lib/seo/metadata';
+import type { PageKey } from '@/collections/Pages';
+import type { Media } from '@/payload-types';
 
 // Résolveur des routes traduites (plan, « Structure Decision ») : associe les segments au
 // type de page. Chaque type est branché ici à mesure que sa phase le livre ; un type non
@@ -65,6 +73,8 @@ export const generateStaticParams = async (): Promise<Params[]> => {
       const slug = accommodation.seo?.slug;
       if (slug) params.push({ locale, segments: segmentsOf({ type: 'accommodation', slug }) });
     }
+    for (const type of EDITORIAL_TYPES) params.push({ locale, segments: segmentsOf({ type }) });
+    params.push({ locale, segments: segmentsOf({ type: 'film' }) });
     for (const experience of await listExperiences(locale)) {
       const slug = experience.seo?.slug;
       const universe = universeSlugOf(experience);
@@ -130,6 +140,28 @@ const listMetadata = async (
     description: page?.seo?.metaDescription ?? '',
   });
 };
+
+/** Pages institutionnelles : type de route → clé de la page dans le CMS. */
+const EDITORIAL_KEYS: Record<EditorialRoute['type'], PageKey> = {
+  commitment: 'commitment',
+  about: 'about',
+  faq: 'faq',
+  contact: 'contact',
+  legal: 'legal',
+  privacy: 'privacy',
+};
+const EDITORIAL_TYPES = Object.keys(EDITORIAL_KEYS).filter(
+  (type): type is EditorialRoute['type'] => type in EDITORIAL_KEYS,
+);
+const isEditorial = (route: Route): route is EditorialRoute => route.type in EDITORIAL_KEYS;
+
+const fixedPaths = (route: Route) => ({ fr: buildPath('fr', route), en: buildPath('en', route) });
+
+/** Image de partage d'un média (affiche du film), sinon l'image par défaut. */
+const mediaOgImage = (media: Media | null, alt: string): OgImage | undefined =>
+  media?.url
+    ? { url: media.url, width: media.width ?? 1200, height: media.height ?? 630, alt }
+    : undefined;
 
 const relationId = (value: number | { id: number } | null | undefined): number | null =>
   typeof value === 'number' ? value : (value?.id ?? null);
@@ -213,6 +245,30 @@ export const generateMetadata = async ({ params }: PageProps): Promise<Metadata>
       },
       noindex: Boolean(accommodation.seo?.noindex),
       type: 'article',
+    });
+  }
+  if (route.type === 'film') {
+    const [page, films] = await Promise.all([getPage(locale, 'film'), listVideos(locale, 'film')]);
+    const [film] = films;
+    return buildMetadata({
+      locale,
+      paths: fixedPaths(route),
+      title: page?.seo?.metaTitle ?? page?.title ?? 'Saloum Évasion',
+      description: page?.seo?.metaDescription ?? film?.description ?? '',
+      image: mediaOgImage(film ? populated<Media>(film.poster) : null, film?.title ?? ''),
+      type: 'article',
+    });
+  }
+  if (isEditorial(route)) {
+    const page = await getPage(locale, EDITORIAL_KEYS[route.type]);
+    if (!page) notFound();
+    return buildMetadata({
+      locale,
+      paths: fixedPaths(route),
+      title: page.seo?.metaTitle ?? page.title ?? 'Saloum Évasion',
+      description: page.seo?.metaDescription ?? '',
+      // Mentions légales : noindex et hors sitemap (contrat routes.md).
+      noindex: route.type === 'legal' || Boolean(page.seo?.noindex),
     });
   }
   if (route.type === 'destinationsList')
@@ -317,6 +373,44 @@ const ResolvedPage = async ({ params }: PageProps) => {
         settings={settings}
         allAccommodations={allAccommodations}
         allStays={allStays}
+      />
+    );
+  }
+  if (route.type === 'film') {
+    const [page, films, verticals, settingsGlobal] = await Promise.all([
+      getPage(locale, 'film'),
+      listVideos(locale, 'film'),
+      listVideos(locale, 'vertical15'),
+      getSiteSettingsGlobal(locale),
+    ]);
+    return (
+      <FilmView
+        locale={locale}
+        page={page}
+        settings={settings}
+        settingsGlobal={settingsGlobal}
+        film={films[0] ?? null}
+        verticals={verticals}
+      />
+    );
+  }
+  if (isEditorial(route)) {
+    const [page, settingsGlobal, faqItems, destinations] = await Promise.all([
+      getPage(locale, EDITORIAL_KEYS[route.type]),
+      getSiteSettingsGlobal(locale),
+      route.type === 'faq' ? listFaqItems(locale) : Promise.resolve([]),
+      route.type === 'contact' ? listDestinations(locale) : Promise.resolve([]),
+    ]);
+    if (!page) notFound();
+    return (
+      <EditorialView
+        locale={locale}
+        route={route}
+        page={page}
+        settings={settings}
+        settingsGlobal={settingsGlobal}
+        faqItems={faqItems}
+        destinations={destinations}
       />
     );
   }

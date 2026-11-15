@@ -8,6 +8,9 @@ import { getPayload, type Payload } from 'payload';
 import sharp from 'sharp';
 import { PAGE_KEYS, type PageKey } from '@/collections/Pages';
 import { demoBody, destinations, richText, universes, type Bilingual } from './content';
+import { prepareAmbientLoop } from './ambientLoop';
+import { pageBlocks } from './pages';
+import { importPhotos, type PhotoKey } from './photos';
 
 const context = { disableRevalidate: true };
 
@@ -21,6 +24,8 @@ const SEEDED_COLLECTIONS = [
   'destinations',
   'universes',
   'pages',
+  'videos',
+  'teamMembers',
   'faqItems',
   'cancellationPolicies',
   'media',
@@ -118,6 +123,52 @@ const seed = async (): Promise<void> => {
   }
 
   const media = await createMedia(payload, 12);
+  // Vraies photos fournies (si présentes) ; sinon visuels de remplacement. Les hébergements et
+  // l'équipe gardent des visuels de remplacement : aucune photo de logement ni de portrait.
+  const photoIds = await importPhotos(payload, context);
+  const photo = (key: PhotoKey, fallback: number): number =>
+    photoIds[key] ?? media[fallback % media.length] ?? media[0] ?? 0;
+  const photos = (keys: readonly PhotoKey[], fallback: number): number[] =>
+    keys.map((key, offset) => photo(key, fallback + offset));
+  // Par destination, dans l'ordre de content.ts : héro puis galerie.
+  const destinationPhotos: readonly (readonly PhotoKey[])[] = [
+    ['villageWaterfront', 'jetty', 'bolongPontoons', 'sunset'],
+    ['bolongBend', 'flagPirogue', 'familyKayak', 'mangroveKayak'],
+    ['gullColony', 'cormorants', 'egret', 'bolongWide'],
+    ['villageShore', 'groupPirogue', 'sunset', 'cormorants'],
+    ['horseRide', 'jettyGarden', 'quadYard', 'egret'],
+    ['bolongWide', 'cormorants', 'gullColony', 'villageShore'],
+  ];
+  const universePhotos: readonly PhotoKey[] = [
+    'bolongChannel',
+    'quadYard',
+    'familyMeal',
+    'villaPool',
+  ];
+  // Par expérience : pirogue, quad, cheval, table.
+  const experiencePhotos: readonly (readonly PhotoKey[])[] = [
+    ['boatTrip', 'bolongPirogue', 'bolongBend', 'groupPirogue'],
+    ['quadYard', 'quad', 'microlight', 'jettyGarden'],
+    ['horseRide', 'jettyGarden', 'quad', 'sunset'],
+    ['familyMeal', 'villaTerrace', 'sunset', 'villageWaterfront'],
+  ];
+  // Par séjour : héro puis 4 photos de galerie.
+  const stayPhotos: readonly (readonly PhotoKey[])[] = [
+    ['jetty', 'villageWaterfront', 'bolongChannel', 'villaPool', 'sunset'],
+    ['bolongBend', 'familyKayak', 'gullColony', 'boatTrip', 'familyMeal'],
+    ['bolongPontoons', 'horseRide', 'quadYard', 'giraffe', 'microlight'],
+  ];
+  // Hébergements : seule la villa a des photos ; écolodge et campement gardent des visuels de
+  // remplacement plutôt que les photos d'un autre logement.
+  const accommodationPhotos: readonly (readonly PhotoKey[])[] = [
+    ['villaPool', 'villaFacade', 'villaTerrace', 'villaCorridor', 'jetty', 'jettyGarden'],
+  ];
+  const heroOf = (list: readonly (readonly PhotoKey[])[], index: number, fallback: number) => {
+    const [hero = 'sunset'] = list[index] ?? [];
+    return photo(hero, fallback);
+  };
+  const galleryOf = (list: readonly (readonly PhotoKey[])[], index: number, fallback: number) =>
+    photos((list[index] ?? []).slice(1), fallback);
 
   // --- Réglages du site (aucune coordonnée inventée : téléphone et e-mail laissés vides).
   await payload.updateGlobal({
@@ -182,14 +233,24 @@ const seed = async (): Promise<void> => {
   });
 
   const faqIds: number[] = [];
-  for (const [index, entry] of [
-    { fr: 'Comment réserver un séjour ?', en: 'How do I book a stay?' },
-    { fr: 'Quels moyens de paiement acceptez-vous ?', en: 'Which payment methods do you accept?' },
+  const faqEntries: {
+    fr: string;
+    en: string;
+    category: 'reservation' | 'paiement' | 'transport';
+  }[] = [
+    { fr: 'Comment réserver un séjour ?', en: 'How do I book a stay?', category: 'reservation' },
+    {
+      fr: 'Quels moyens de paiement acceptez-vous ?',
+      en: 'Which payment methods do you accept?',
+      category: 'paiement',
+    },
     {
       fr: 'Organisez-vous le transfert depuis Dakar ?',
       en: 'Do you arrange transfers from Dakar?',
+      category: 'transport',
     },
-  ].entries()) {
+  ];
+  for (const [index, entry] of faqEntries.entries()) {
     const faq = await payload.create({
       collection: 'faqItems',
       context,
@@ -198,7 +259,7 @@ const seed = async (): Promise<void> => {
         question: entry.fr,
         answer: richText(['Réponse de démonstration.']),
         order: index,
-        category: 'general',
+        category: entry.category,
       },
     });
     await payload.update({
@@ -232,8 +293,8 @@ const seed = async (): Promise<void> => {
         _status: 'published',
         name: destination.name.fr,
         kind: destination.kind,
-        heroImage: media[index % media.length] ?? media[0] ?? 0,
-        gallery: pick(media, index, 3),
+        heroImage: heroOf(destinationPhotos, index, index),
+        gallery: galleryOf(destinationPhotos, index, index),
         intro: `${destination.name.fr}, une destination du delta du Saloum (texte de démonstration).`,
         geo: { latitude: destination.lat, longitude: destination.lng },
         body: demoBody('fr', `${destination.name.fr} vous attend.`),
@@ -283,7 +344,7 @@ const seed = async (): Promise<void> => {
         _status: 'published',
         name: universe.name.fr,
         kind: universe.kind,
-        image: media[index] ?? media[0] ?? 0,
+        image: photo(universePhotos[index] ?? 'sunset', index),
         intro: `${universe.name.fr} : texte d’introduction de démonstration.`,
         order: index,
         ...(isExperience ? { seo: meta.fr } : {}),
@@ -368,8 +429,8 @@ const seed = async (): Promise<void> => {
         _status: 'published',
         title: experience.title.fr,
         summary: `${experience.title.fr} (résumé de démonstration).`,
-        heroImage: media[(index + 3) % media.length] ?? media[0] ?? 0,
-        gallery: pick(media, index + 4, 3),
+        heroImage: heroOf(experiencePhotos, index, index + 3),
+        gallery: galleryOf(experiencePhotos, index, index + 4),
         universe: universeId(experience.universe),
         durationMinutes: experience.minutes,
         level: experience.level,
@@ -453,8 +514,12 @@ const seed = async (): Promise<void> => {
         _status: 'published',
         title: accommodation.title.fr,
         summary: `${accommodation.title.fr} (résumé de démonstration).`,
-        heroImage: media[(index + 6) % media.length] ?? media[0] ?? 0,
-        gallery: pick(media, index + 2, 5),
+        heroImage: accommodationPhotos[index]
+          ? heroOf(accommodationPhotos, index, index + 6)
+          : (media[(index + 6) % media.length] ?? media[0] ?? 0),
+        gallery: accommodationPhotos[index]
+          ? galleryOf(accommodationPhotos, index, index + 2)
+          : pick(media, index + 2, 5),
         type: accommodation.type,
         capacity: accommodation.capacity,
         amenities: [...accommodation.amenities],
@@ -530,8 +595,8 @@ const seed = async (): Promise<void> => {
         _status: 'published',
         title: stay.title.fr,
         summary: `${stay.title.fr} (résumé de démonstration).`,
-        heroImage: media[(index + 9) % media.length] ?? media[0] ?? 0,
-        gallery: pick(media, index + 1, 4),
+        heroImage: heroOf(stayPhotos, index, index + 9),
+        gallery: galleryOf(stayPhotos, index, index + 1),
         durationNights: stay.nights,
         moods: ['nature', 'detente'],
         pricing: { lowSeasonPerPerson: stay.low, highSeasonPerPerson: stay.high },
@@ -584,7 +649,7 @@ const seed = async (): Promise<void> => {
     commitment: { fr: 'Notre engagement', en: 'Our commitment' },
     about: { fr: 'À propos', en: 'About us' },
     faq: { fr: 'Questions fréquentes', en: 'Frequently asked questions' },
-    contact: { fr: 'Contact', en: 'Contact' },
+    contact: { fr: 'Contact', en: 'Contact us' },
     legal: { fr: 'Mentions légales', en: 'Legal notice' },
     privacy: { fr: 'Confidentialité', en: 'Privacy' },
     film: { fr: 'Film d’immersion', en: 'Immersion film' },
@@ -594,6 +659,122 @@ const seed = async (): Promise<void> => {
     destinations_list: { fr: 'Destinations du Sine-Saloum', en: 'Sine-Saloum destinations' },
     not_found: { fr: 'Page introuvable', en: 'Page not found' },
   };
+  // --- Équipe présentée (visuels de remplacement : aucun portrait fourni).
+  const teamMembers: number[] = [];
+  for (const [index, member] of [
+    { role: { fr: 'Guide et piroguier', en: 'Guide and boatman' } },
+    { role: { fr: 'Hôtesse et cuisinière', en: 'Host and cook' } },
+    { role: { fr: 'Coordination des séjours', en: 'Stay coordination' } },
+  ].entries()) {
+    const doc = await payload.create({
+      collection: 'teamMembers',
+      context,
+      locale: 'fr',
+      data: {
+        name: `Membre de l’équipe ${index + 1} (démonstration)`,
+        role: member.role.fr,
+        bio: 'Présentation de démonstration, à remplacer par la vraie biographie.',
+        photo: media[(index + 6) % media.length] ?? media[0] ?? 0,
+        order: index,
+      },
+    });
+    await payload.update({
+      collection: 'teamMembers',
+      id: doc.id,
+      context,
+      locale: 'en',
+      data: { role: member.role.en, bio: 'Demonstration profile, to be replaced by the real bio.' },
+    });
+    teamMembers.push(doc.id);
+  }
+
+  // --- Vidéos : flux de DÉMONSTRATION publics de Mux, en attendant le film réel de l'équipe.
+  const film = await payload.create({
+    collection: 'videos',
+    context,
+    locale: 'fr',
+    data: {
+      _status: 'published',
+      title: 'Le Saloum, vécu de l’intérieur (démonstration)',
+      description:
+        'Film de démonstration en quatre chapitres, en attendant le film réel tourné dans le Sine-Saloum.',
+      format: 'film',
+      muxPlaybackId: 'EcHgOK9coz5K4rjSwOkoE7Y7O01201YMIC200RI6lNxnhs',
+      durationSeconds: 250,
+      poster: photo('bolongBend', 1),
+      captions: [
+        { locale: 'fr', url: '/videos/film-demo.fr.vtt' },
+        { locale: 'en', url: '/videos/film-demo.en.vtt' },
+      ],
+      chapters: [
+        { title: 'Ouverture', startSeconds: 0 },
+        { title: 'Deuxième partie', startSeconds: 62 },
+        { title: 'Troisième partie', startSeconds: 125 },
+        { title: 'Final', startSeconds: 190 },
+      ],
+      uploadDate: '2026-11-01T09:00:00.000Z',
+      descriptiveTranscript: richText([
+        'Transcription descriptive de démonstration : elle décrira les images, les sons et les paroles du film réel.',
+      ]),
+      provenance: {
+        author: 'Démonstration (flux public Mux)',
+        place: 'Non applicable',
+        date: '2026-11-01',
+      },
+    },
+  });
+  await payload.update({
+    collection: 'videos',
+    id: film.id,
+    context,
+    locale: 'en',
+    data: {
+      title: 'The Saloum, lived from within (demonstration)',
+      description:
+        'Four-chapter demonstration film, pending the real film shot in the Sine-Saloum.',
+      chapters: (film.chapters ?? []).map((chapter, index) => ({
+        id: chapter.id,
+        startSeconds: chapter.startSeconds,
+        title: ['Opening', 'Part two', 'Part three', 'Finale'][index] ?? chapter.title,
+      })),
+      descriptiveTranscript: richText([
+        'Demonstration descriptive transcript: it will describe the images, sounds and words of the real film.',
+      ]),
+    },
+  });
+  // Boucle : vidéo fournie par l'équipe (coupée à 8 s), sinon flux public Mux.
+  const ambientLoopPath = prepareAmbientLoop();
+  await payload.create({
+    collection: 'videos',
+    context,
+    locale: 'fr',
+    data: {
+      _status: 'published',
+      title: 'Boucle d’ambiance (démonstration)',
+      ...(ambientLoopPath ? { staticMp4Url: ambientLoopPath } : {}),
+      description: 'Boucle muette du héro de l’accueil, sur ordinateur seulement.',
+      format: 'loop',
+      muxPlaybackId: 'a4nOgmxGWg6gULfcBbAa00gXyfcwPnAFldF8RdsNyk8M',
+      durationSeconds: 8,
+      poster: photo('bolongChannel', 2),
+      uploadDate: '2026-11-01T09:00:00.000Z',
+      provenance: {
+        author: 'Démonstration (flux public Mux)',
+        place: 'Non applicable',
+        date: '2026-11-01',
+      },
+    },
+  });
+
+  const blocksContext = {
+    photo: (key: PhotoKey) => photo(key, 0),
+    galleryPhotos: photos(
+      ['villageWaterfront', 'familyMeal', 'boatTrip', 'bolongChannel', 'jetty', 'egret'],
+      3,
+    ),
+    teamMembers,
+  };
+
   for (const key of PAGE_KEYS) {
     const title = pageTitles[key];
     const meta = seo(
@@ -608,19 +789,30 @@ const seed = async (): Promise<void> => {
       collection: 'pages',
       context,
       locale: 'fr',
-      data: { _status: 'published', key, title: title.fr, seo: meta.fr },
+      data: {
+        _status: 'published',
+        key,
+        title: title.fr,
+        seo: meta.fr,
+        blocks: pageBlocks(key, 'fr', blocksContext, title.fr),
+      },
     });
     await payload.update({
       collection: 'pages',
       id: doc.id,
       context,
       locale: 'en',
-      data: { _status: 'published', title: title.en, seo: meta.en },
+      data: {
+        _status: 'published',
+        title: title.en,
+        seo: meta.en,
+        blocks: pageBlocks(key, 'en', blocksContext, title.en, doc.blocks),
+      },
     });
   }
 
   payload.logger.info(
-    `Seed terminé : ${destinations.length} destinations, ${universes.length} univers, ${experiences.length} expériences, ${accommodations.length} hébergements, ${stays.length} séjours, ${PAGE_KEYS.length} pages.`,
+    `Seed terminé : ${destinations.length} destinations, ${universes.length} univers, ${experiences.length} expériences, ${accommodations.length} hébergements, ${stays.length} séjours, ${PAGE_KEYS.length} pages, ${Object.keys(photoIds).length} photos fournies.`,
   );
 };
 
