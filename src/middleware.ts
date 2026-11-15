@@ -71,5 +71,5 @@ export const middleware = async (request: NextRequest) => {
 
 export const config = {
   // Exclut les ressources techniques et tout fichier avec extension (sitemap.xml, robots.txt…).
-  matcher: ['/((?!_next/|api/|admin|.*\\.[a-z0-9]+$).*)'],
+  matcher: ['/((?!_next/|api/|og/|admin|.*\\.[a-z0-9]+$).*)'],
 };

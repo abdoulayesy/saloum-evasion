@@ -215,42 +215,66 @@ liste et lit une fiche complète (la demande arrive en phase 8).
 
 ### Composants partagés
 
-- [ ] T073 [P] [US1] Créer les composants `src/components/ui/{Button,Chip,Section,Container,Price}.tsx` (cibles ≥ 44 px, variantes écrites à la main (objets de classes typés ; tailwind-variants refusé par le propriétaire), `Price` en chiffres tabulaires avec XOF TTC et « ≈ … € (indicatif) », passage à la ligne autorisé à 200 %)
-- [ ] T074 [P] [US1] Créer `src/components/ui/CmsImage.tsx` (`next/image`, `sizes` mobile d'abord, placeholder flou, `priority` réservé à l'image principale, `alt` de la langue, largeur et hauteur explicites) et régler `images` dans `next.config.ts` (`formats: ['image/avif','image/webp']`, `deviceSizes: [360,414,640,768,1024,1280,1600]`, qualité 60) ; pour l'image principale, `sizes` plafonnant la largeur demandée à 1 080 px sur mobile et qualité 50, afin de rester sous 120 Ko à densité 3 (analyse P3)
-- [ ] T075 [P] [US1] Créer `src/components/ui/StickyActionBar.tsx` (fixe en bas sous `md`, marge `env(safe-area-inset-bottom)`, libellé selon le type de page : séjour « Demander ce séjour », expérience ou hébergement « Ajouter à ma demande », destination « Voir les séjours à {lieu} » ; lien WhatsApp) ; composant serveur sans JS : le clavier virtuel est géré par `interactiveWidget` (T028), pas de hook client (analyse K2)
-- [ ] T076 [P] [US1] Créer `src/lib/whatsapp.ts` (lien `wa.me` avec message FR/EN contenant le titre et l'URL de la page) et `tests/unit/whatsapp.test.ts`
-- [ ] T077 [P] [US1] Créer `src/components/client/Gallery.tsx` : défilement natif `scroll-snap` (fonctionne sans JS), boutons précédent / suivant de 44 px (WCAG 2.5.1), position « 3 / 12 » annoncée poliment, flèches du clavier, images différées sauf la première, marges latérales de 16 px pour éviter le conflit avec le geste retour ; pas de plein écran dans ce MVP
-- [ ] T078 [P] [US1] Créer `src/components/ui/MapIllustration.tsx` et `public/maps/*.svg` (SVG en ligne avec `title` et `desc`, destination mise en évidence)
+- [X] T073 [P] [US1] Créer les composants `src/components/ui/{Button,Chip,Section,Container,Price}.tsx` (cibles ≥ 44 px, variantes écrites à la main (objets de classes typés ; tailwind-variants refusé par le propriétaire), `Price` en chiffres tabulaires avec XOF TTC et « ≈ … € (indicatif) », passage à la ligne autorisé à 200 %)
+- [X] T074 [P] [US1] Créer `src/components/ui/CmsImage.tsx` (`next/image`, `sizes` mobile d'abord, placeholder flou, `priority` réservé à l'image principale, `alt` de la langue, largeur et hauteur explicites) et régler `images` dans `next.config.ts` (`formats: ['image/avif','image/webp']`, `deviceSizes: [360,414,640,768,1024,1280,1600]`, qualité 60) ; pour l'image principale, `sizes` plafonnant la largeur demandée à 1 080 px sur mobile et qualité 50, afin de rester sous 120 Ko à densité 3 (analyse P3)
+- [X] T075 [P] [US1] Créer `src/components/ui/StickyActionBar.tsx` (fixe en bas sous `md`, marge `env(safe-area-inset-bottom)`, libellé selon le type de page : séjour « Demander ce séjour », expérience ou hébergement « Ajouter à ma demande », destination « Voir les séjours à {lieu} » ; lien WhatsApp) ; composant serveur sans JS : le clavier virtuel est géré par `interactiveWidget` (T028), pas de hook client (analyse K2)
+- [X] T076 [P] [US1] Créer `src/lib/whatsapp.ts` (lien `wa.me` avec message FR/EN contenant le titre et l'URL de la page) et `tests/unit/whatsapp.test.ts`
+- [X] T077 [P] [US1] Créer `src/components/client/Gallery.tsx` : défilement natif `scroll-snap` (fonctionne sans JS), boutons précédent / suivant de 44 px (WCAG 2.5.1), position « 3 / 12 » annoncée poliment, flèches du clavier, images différées sauf la première, marges latérales de 16 px pour éviter le conflit avec le geste retour ; pas de plein écran dans ce MVP
+- [X] T078 [P] [US1] Créer `src/components/ui/MapIllustration.tsx` et `public/maps/*.svg` (SVG en ligne avec `title` et `desc`, destination mise en évidence)
 
 ### Fiche séjour
 
-- [ ] T079 [US1] Créer `src/lib/seo/jsonld/touristTrip.ts` et `src/lib/seo/jsonld/faq.ts` selon [jsonld.md](./contracts/jsonld.md), avec `tests/unit/jsonld-stay.test.ts`
-- [ ] T080 [US1] Créer `src/components/views/StayView.tsx` : H1, image principale prioritaire, faits clés, prix « à partir de » + base, conditions d'annulation près du prix, programme jour par jour (`ol`), inclus / non inclus, galerie, carte, FAQ (`details`), liens vers destinations, hébergements et expériences, séjours similaires (même destination d'abord, puis le plus d'envies communes, puis `featured`, 3 au maximum : seo CHK039), fil d'Ariane, barre collante
-- [ ] T081 [US1] Créer le résolveur `src/app/(frontend)/[locale]/[...segments]/page.tsx` (route `stay` : `generateStaticParams` FR + EN publiés, `generateMetadata` via `buildMetadata` avec alternates issus des slugs, `notFound()` sinon) et `opengraph-image.tsx` dans le même dossier
-- [ ] T082 [US1] Ajouter les séjours (images, alternates, `lastModified` réel) dans `src/lib/seo/sitemapEntries.ts`
-- [ ] T083 [P] [US1] Écrire `tests/e2e/stay.mobile.spec.ts` : H1 et prix visibles, barre collante présente au défilement et ne masquant jamais le focus, cibles ≥ 44 px, galerie au doigt et aux boutons, pas de défilement horizontal à 360 px, paysage, zoom à 200 % (barre ≤ 25 % de la hauteur), axe page et FAQ ouverte, parcours au clavier jusqu'à la barre
-- [ ] T084 [P] [US1] Écrire `tests/e2e/stay.seo.spec.ts` (projet `nojs`) : title et description uniques et dans les limites, H1 unique, canonical, hreflang réciproques, image OG 1200×630 accessible, JSON-LD TouristTrip + BreadcrumbList (+ FAQPage), fil d'Ariane identique au visible, au moins 300 mots, présence dans le sitemap, index
-- [ ] T085 [US1] Ajouter 1 fiche séjour FR et EN dans `lighthouserc.json`
+- [X] T079 [US1] Créer `src/lib/seo/jsonld/touristTrip.ts` et `src/lib/seo/jsonld/faq.ts` selon [jsonld.md](./contracts/jsonld.md), avec `tests/unit/jsonld-stay.test.ts`
+- [X] T080 [US1] Créer `src/components/views/StayView.tsx` : H1, image principale prioritaire, faits clés, prix « à partir de » + base, conditions d'annulation près du prix, programme jour par jour (`ol`), inclus / non inclus, galerie, carte, FAQ (`details`), liens vers destinations, hébergements et expériences, séjours similaires (même destination d'abord, puis le plus d'envies communes, puis `featured`, 3 au maximum : seo CHK039), fil d'Ariane, barre collante
+- [X] T081 [US1] Créer le résolveur `src/app/(frontend)/[locale]/[...segments]/page.tsx` (route `stay` : `generateStaticParams` FR + EN publiés, `generateMetadata` via `buildMetadata` avec alternates issus des slugs, `notFound()` sinon) et `opengraph-image.tsx` dans le même dossier
+- [X] T082 [US1] Ajouter les séjours (images, alternates, `lastModified` réel) dans `src/lib/seo/sitemapEntries.ts`
+- [X] T083 [P] [US1] Écrire `tests/e2e/stay.mobile.spec.ts` : H1 et prix visibles, barre collante présente au défilement et ne masquant jamais le focus, cibles ≥ 44 px, galerie au doigt et aux boutons, pas de défilement horizontal à 360 px, paysage, zoom à 200 % (barre ≤ 25 % de la hauteur), axe page et FAQ ouverte, parcours au clavier jusqu'à la barre
+- [X] T084 [P] [US1] Écrire `tests/e2e/stay.seo.spec.ts` (projet `nojs`) : title et description uniques et dans les limites, H1 unique, canonical, hreflang réciproques, image OG 1200×630 accessible, JSON-LD TouristTrip + BreadcrumbList (+ FAQPage), fil d'Ariane identique au visible, au moins 300 mots, présence dans le sitemap, index
+- [X] T085 [US1] Ajouter 1 fiche séjour FR et EN dans `lighthouserc.json`
 
 ### Liste des séjours
 
-- [ ] T086 [US1] Créer `src/lib/filters.ts` (lecture et écriture des paramètres `duree`, `envie`, `budget`, application aux séjours)
-- [ ] T087 [P] [US1] Écrire `tests/unit/filters.test.ts`
-- [ ] T088 [P] [US1] Créer `src/components/cards/StayCard.tsx` (un seul lien par carte, image différée, durée, prix « à partir de »)
-- [ ] T089 [US1] Créer `src/components/client/FilterSheet.tsx` : panneau qui monte du bas (hauteur max 85 dvh, défilement interne), puces ≥ 44 px, bouton d'application « Voir N séjours » et « Réinitialiser » (mobile CHK026), fermeture par bouton, glissement vers le bas, fond, Échap et bouton retour d'Android, focus enfermé puis rendu, synchronisation de l'URL ; bouton d'ouverture rendu seulement avec JS (sans JS : tous les séjours affichés)
-- [ ] T090 [US1] Créer `src/components/views/StaysListView.tsx` (H1 et méta depuis `pages.stays_list`, nombre de résultats en `aria-live`, grille 1 → 2 → 3 colonnes, filtrage côté client sur la liste complète rendue au build, état vide avec lien WhatsApp) et la route `stays_list` dans le résolveur (métadonnées, ItemList, canonical sans paramètres)
-- [ ] T091 [P] [US1] Écrire `tests/e2e/stays-list.mobile.spec.ts` : panneau ouvert depuis le bas, application qui met à jour le nombre, bouton retour qui ferme le panneau, état vide, axe panneau ouvert, hauteur du panneau en paysage, zoom à 200 %, clavier
-- [ ] T092 [P] [US1] Écrire `tests/e2e/stays-list.seo.spec.ts` (projet `nojs`) : métadonnées, canonical sans paramètres de filtre, ItemList, fil d'Ariane, sitemap
-- [ ] T093 [US1] Ajouter la liste des séjours FR et EN dans `lighthouserc.json`
+- [X] T086 [US1] Créer `src/lib/filters.ts` (lecture et écriture des paramètres `duree`, `envie`, `budget`, application aux séjours)
+- [X] T087 [P] [US1] Écrire `tests/unit/filters.test.ts`
+- [X] T088 [P] [US1] Créer `src/components/cards/StayCard.tsx` (un seul lien par carte, image différée, durée, prix « à partir de »)
+- [X] T089 [US1] Créer `src/components/client/FilterSheet.tsx` : panneau qui monte du bas (hauteur max 85 dvh, défilement interne), puces ≥ 44 px, bouton d'application « Voir N séjours » et « Réinitialiser » (mobile CHK026), fermeture par bouton, glissement vers le bas, fond, Échap et bouton retour d'Android, focus enfermé puis rendu, synchronisation de l'URL ; bouton d'ouverture rendu seulement avec JS (sans JS : tous les séjours affichés)
+- [X] T090 [US1] Créer `src/components/views/StaysListView.tsx` (H1 et méta depuis `pages.stays_list`, nombre de résultats en `aria-live`, grille 1 → 2 → 3 colonnes, filtrage côté client sur la liste complète rendue au build, état vide avec lien WhatsApp) et la route `stays_list` dans le résolveur (métadonnées, ItemList, canonical sans paramètres)
+- [X] T091 [P] [US1] Écrire `tests/e2e/stays-list.mobile.spec.ts` : panneau ouvert depuis le bas, application qui met à jour le nombre, bouton retour qui ferme le panneau, état vide, axe panneau ouvert, hauteur du panneau en paysage, zoom à 200 %, clavier
+- [X] T092 [P] [US1] Écrire `tests/e2e/stays-list.seo.spec.ts` (projet `nojs`) : métadonnées, canonical sans paramètres de filtre, ItemList, fil d'Ariane, sitemap
+- [X] T093 [US1] Ajouter la liste des séjours FR et EN dans `lighthouserc.json`
 
 ### Accueil
 
-- [ ] T094 [US1] Créer `src/components/views/HomeSearch.tsx` (composant **serveur** : `<form method="get">` dans un `<dialog>` qui monte du bas, ouvert par `DialogOpener` de T030) : sur mobile, bouton « Trouver mon séjour » en bas du héro (zone du pouce : mobile CHK009) ; champs dates (`type="date"`), voyageurs (`type="number"`, `inputmode="numeric"`, boutons de 44 px) et envies (cases à cocher en puces) (mobile CHK021) ; envoie vers `/fr/sejours?duree=&envie=&arrivee=&depart=&adultes=` ; sans JS, le formulaire est affiché en ligne sous le héro (analyse K3)
-- [ ] T095 [US1] Créer `src/components/views/HomeView.tsx` selon FR-001 : héro image prioritaire (élément LCP) et H1 « Le Saloum, vécu de l'intérieur », recherche, garanties, séjours vedettes, 4 univers, aperçu du film (affiche + lien), destinations, étapes de demande, engagement, appel WhatsApp
-- [ ] T096 [US1] Remplacer la page témoin `src/app/(frontend)/[locale]/page.tsx` : contenu de `pages.home`, métadonnées, JSON-LD Organization + WebSite
-- [ ] T097 [P] [US1] Écrire `tests/e2e/home.mobile.spec.ts` : élément LCP = image principale ≤ 120 Ko en AVIF ou WebP, bouton de recherche dans la zone du pouce, page utile si la vidéo est bloquée (requêtes Mux interrompues), axe, 360 px, paysage, zoom à 200 %
-- [ ] T098 [P] [US1] Écrire `tests/e2e/home.seo.spec.ts` (projet `nojs`) : métadonnées, hreflang, Organization + WebSite, H1 unique
-- [ ] T099 [US1] Écrire `tests/e2e/us1-catalogue.mobile.spec.ts` (Android 360, profil `3g`) : accueil → recherche → liste « week-end » → fiche ; durée mesurée et enregistrée (la limite de 120 s porte sur le parcours complet en T152)
+- [X] T094 [US1] Créer `src/components/views/HomeSearch.tsx` (composant **serveur** : `<form method="get">` dans un `<dialog>` qui monte du bas, ouvert par `DialogOpener` de T030) : sur mobile, bouton « Trouver mon séjour » en bas du héro (zone du pouce : mobile CHK009) ; champs dates (`type="date"`), voyageurs (`type="number"`, `inputmode="numeric"`, boutons de 44 px) et envies (cases à cocher en puces) (mobile CHK021) ; envoie vers `/fr/sejours?duree=&envie=&arrivee=&depart=&adultes=` ; sans JS, le formulaire est affiché en ligne sous le héro (analyse K3)
+- [X] T095 [US1] Créer `src/components/views/HomeView.tsx` selon FR-001 : héro image prioritaire (élément LCP) et H1 « Le Saloum, vécu de l'intérieur », recherche, garanties, séjours vedettes, 4 univers, aperçu du film (affiche + lien), destinations, étapes de demande, engagement, appel WhatsApp
+- [X] T096 [US1] Remplacer la page témoin `src/app/(frontend)/[locale]/page.tsx` : contenu de `pages.home`, métadonnées, JSON-LD Organization + WebSite
+- [X] T097 [P] [US1] Écrire `tests/e2e/home.mobile.spec.ts` : élément LCP = image principale ≤ 120 Ko en AVIF ou WebP, bouton de recherche dans la zone du pouce, page utile si la vidéo est bloquée (requêtes Mux interrompues), axe, 360 px, paysage, zoom à 200 %
+- [X] T098 [P] [US1] Écrire `tests/e2e/home.seo.spec.ts` (projet `nojs`) : métadonnées, hreflang, Organization + WebSite, H1 unique
+- [X] T099 [US1] Écrire `tests/e2e/us1-catalogue.mobile.spec.ts` (Android 360, profil `3g`) : accueil → recherche → liste « week-end » → fiche ; durée mesurée et enregistrée (la limite de 120 s porte sur le parcours complet en T152)
+
+> **Écarts d'implémentation phase 4 (2026-11-15)** :
+> - **Dérogation D-LCP-photo** (plan.md) : LCP de laboratoire ≤ 2,7 s pour les pages dont
+>   l'élément LCP est une photo (fiches et listes de séjours), 2,0 s ailleurs ; réévaluation
+>   obligatoire avec les vraies photos et les données terrain avant le lancement.
+> - T074 : images rendues côté serveur par `getImageProps` (pas de composant client
+>   `<Image>` à hydrater), image principale préchargée par `preload()` de React, placeholder
+>   flou réservé aux images différées ; un seul `sharp` (0.34.5) pour Next et Payload (deux
+>   libvips chargés empêchaient l'optimisation).
+> - Polices : `@font-face` latines dans `globals.css` (fichiers `public/fonts`, cache
+>   immuable) au lieu de `next/font/google` (18 sous-ensembles téléchargés), métriques de repli
+>   reprises de next/font ; une seule feuille CSS bloquante.
+> - T075 : barre collante fixée seulement sur téléphone en portrait (hauteur ≥ 500 px), dans
+>   le flux en paysage bas ou à 200 % de zoom ; action principale active dès la livraison de
+>   la page de demande (phase 8), WhatsApp entre-temps.
+> - T078 : carte générée depuis les coordonnées GPS du CMS (pas de fichiers `public/maps`).
+> - T081 : images de partage par la route `/og/[collection]/[id]` (vraie photo recadrée).
+> - T094 : recherche en formulaire intégré sous le héro (bouton du héro = ancre dans la zone
+>   du pouce) plutôt qu'en `<dialog>` : identique avec ou sans JavaScript.
+> - T095 : sections univers et destinations sans lien tant que leurs pages ne sont pas
+>   livrées ; aperçu du film ajouté avec sa page (phase 7).
+> - Seed : numéro WhatsApp FICTIF de démonstration (`+221700000000`, jamais en production) ;
+>   `pnpm seed` et `pnpm migrate` vident le cache de données de Next.
+> - Mesure (T099) : parcours accueil → recherche → liste → fiche en 3G : 6,6 s.
 
 **Checkpoint** : catalogue des séjours consultable et indexable sur mobile.
 

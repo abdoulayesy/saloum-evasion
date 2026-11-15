@@ -32,6 +32,8 @@ const config = [
       // Pas d'assertion de type `as` (les `as const` restent autorisées).
       '@typescript-eslint/consistent-type-assertions': ['error', { assertionStyle: 'never' }],
       '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+      // Une zone défilante (rôle region) doit être focalisable au clavier (WCAG 2.1.1).
+      'jsx-a11y/no-noninteractive-tabindex': ['error', { tags: [], roles: ['tabpanel', 'region'] }],
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },

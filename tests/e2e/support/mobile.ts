@@ -18,7 +18,9 @@ export const expectTouchTargets = async (page: Page, minSize = 44): Promise<void
       if (element.classList.contains('skip-link')) return;
       const style = window.getComputedStyle(element);
       if (style.visibility === 'hidden' || style.display === 'none') return;
-      const rect = element.getBoundingClientRect();
+      // Case à cocher ou bouton radio masqué visuellement : la cible réelle est son étiquette.
+      const label = element instanceof HTMLInputElement ? element.closest('label') : null;
+      const rect = (label ?? element).getBoundingClientRect();
       if (rect.width === 0 && rect.height === 0) return;
       if (rect.width < min || rect.height < min) {
         const id = element.id ? `#${element.id}` : '';

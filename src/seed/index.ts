@@ -96,6 +96,19 @@ const seed = async (): Promise<void> => {
   await ensureAdmin(payload);
 
   if (process.env.SEED_RESET === '1') await reset(payload);
+
+  // Numéro WhatsApp FICTIF de démonstration (barre d'action et tests) ; jamais en production
+  // (seed refusé), remplaçable par SEED_WHATSAPP_NUMBER. Le vrai numéro se saisit dans
+  // « Réglages du site ».
+  const current = await payload.findGlobal({ slug: 'siteSettings', depth: 0 });
+  if (!current.whatsappNumber) {
+    await payload.updateGlobal({
+      slug: 'siteSettings',
+      context,
+      data: { whatsappNumber: process.env.SEED_WHATSAPP_NUMBER ?? '+221700000000' },
+    });
+  }
+
   const existing = await payload.count({ collection: 'stays' });
   if (existing.totalDocs > 0) {
     payload.logger.info(

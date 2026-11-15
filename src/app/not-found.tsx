@@ -1,11 +1,10 @@
 import Link from 'next/link';
-import { fontVariables } from '@/styles/fonts';
 import '@/styles/globals.css';
 
 // 404 des URL hors locale (ex. /es/…) : le layout racine étant transparent, cette page rend
 // son propre document. Langue de référence : français, avec accès à l'anglais.
 const RootNotFound = () => (
-  <html lang="fr-SN" className={fontVariables}>
+  <html lang="fr-SN">
     <head>
       <title>Page introuvable | Saloum Évasion</title>
     </head>

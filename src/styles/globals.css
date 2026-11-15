@@ -32,9 +32,44 @@
   --spacing-action-bar: 4.5rem;
 }
 
+/* Polices auto-hébergées, sous-ensemble latin (voir src/styles/fonts.ts). */
+@font-face {
+  font-family: 'Cormorant';
+  src: url('/fonts/cormorant-garamond-600-latin-v1.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cormorant Fallback';
+  src: local('Times New Roman');
+  ascent-override: 95.47%;
+  descent-override: 29.65%;
+  line-gap-override: 0%;
+  size-adjust: 96.78%;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  src: url('/fonts/manrope-variable-latin-v1.woff2') format('woff2');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Manrope Fallback';
+  src: local('Arial');
+  ascent-override: 106.45%;
+  descent-override: 29.96%;
+  line-gap-override: 0%;
+  size-adjust: 100.14%;
+}
+
 @theme inline {
-  --font-serif: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
-  --font-sans: var(--font-manrope), 'Manrope', system-ui, sans-serif;
+  --font-serif: 'Cormorant', 'Cormorant Fallback', Georgia, serif;
+  --font-sans: 'Manrope', 'Manrope Fallback', system-ui, sans-serif;
 }
 
 @layer base {
@@ -86,6 +121,77 @@
 
     h2 {
       font-size: 2.25rem;
+    }
+  }
+}
+
+/* Texte riche du CMS (corps des fiches, FAQ, conditions) : rythme de lecture sur mobile. */
+@layer components {
+  .rich-text > * + * {
+    margin-top: 1rem;
+  }
+
+  .rich-text h2,
+  .rich-text h3 {
+    margin-top: 1.75rem;
+    color: var(--color-mangrove);
+  }
+
+  .rich-text ul,
+  .rich-text ol {
+    padding-left: 1.25rem;
+  }
+
+  .rich-text ul {
+    list-style: disc;
+  }
+
+  .rich-text ol {
+    list-style: decimal;
+  }
+
+  .rich-text a {
+    color: var(--color-ocre);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+
+/*
+  Barre d'action collante (constitution I, FR-017) : collée en bas d'écran sur téléphone en
+  portrait (hauteur ≥ 500 px), dans le flux sinon (paysage bas, zoom fort) pour ne jamais
+  occuper plus d'un quart de l'écran ; dans le flux à partir de 768 px de large.
+*/
+@layer components {
+  .sticky-action-bar {
+    position: static;
+  }
+
+  .action-bar-spacer {
+    display: none;
+  }
+
+  @media (min-height: 31.25rem) {
+    .sticky-action-bar {
+      position: fixed;
+      inset-inline: 0;
+      bottom: 0;
+      z-index: 40;
+    }
+
+    .action-bar-spacer {
+      display: block;
+      height: var(--spacing-action-bar);
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .sticky-action-bar {
+      position: static;
+    }
+
+    .action-bar-spacer {
+      display: none;
     }
   }
 }

@@ -74,7 +74,6 @@ Les éléments correspondent exactement au fil d'Ariane visible.
   "@id": "{url}#trip",
   "name": "{title}", "description": "{metaDescription}", "url": "{url}",
   "image": ["{heroImage}", "{gallery[0..2]}"],
-  "inLanguage": "fr-SN",
   "touristType": ["{moods → libellés}"],
   "provider": { "@id": "https://{domaine}/#org" },
   "itinerary": {
@@ -99,6 +98,8 @@ Les éléments correspondent exactement au fil d'Ariane visible.
 ```
 
 \+ `FAQPage` (`@id: {url}#faq`) si la fiche a des FAQ affichées.
+
+Pas de `inLanguage` : la propriété n'existe pas sur `TouristTrip` (réservée aux œuvres, `CreativeWork`).
 
 ### Fiche expérience → `TouristAttraction` + `Offer`
 

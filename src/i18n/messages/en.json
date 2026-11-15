@@ -47,5 +47,109 @@
     "retry": "Try again",
     "backHome": "Back to home",
     "explore": "Keep exploring"
+  },
+  "price": {
+    "from": "From",
+    "perPerson": "per person",
+    "perNight": "per night",
+    "indicative": "indicative",
+    "ttc": "incl. taxes"
+  },
+  "moods": {
+    "nature": "Nature",
+    "culture": "Culture",
+    "gastronomie": "Food",
+    "detente": "Relaxation",
+    "aventure": "Adventure",
+    "famille": "Family"
+  },
+  "durations": {
+    "weekend": "Weekend (1 to 2 nights)",
+    "short": "Short stay (3 to 4 nights)",
+    "week": "A week or more"
+  },
+  "budgets": {
+    "lt250k": "Under 250,000 CFA francs",
+    "250k-500k": "250,000 to 500,000 CFA francs",
+    "gt500k": "Over 500,000 CFA francs"
+  },
+  "stay": {
+    "nights": "{count, plural, one {# night} other {# nights}}",
+    "keyFacts": "At a glance",
+    "duration": "Duration",
+    "destinations": "Destinations",
+    "moods": "Moods",
+    "maxTravellers": "Up to {count} travellers",
+    "itinerary": "Day-by-day itinerary",
+    "day": "Day {day}",
+    "included": "Included",
+    "notIncluded": "Not included",
+    "cancellation": "Cancellation terms",
+    "gallery": "Photos",
+    "map": "Where this stay takes place",
+    "faq": "Frequently asked questions",
+    "about": "The stay",
+    "accommodations": "Where you will sleep",
+    "experiences": "Included experiences",
+    "similar": "Similar stays",
+    "basis": "Price basis"
+  },
+  "actions": {
+    "requestStay": "Request this stay",
+    "addToRequest": "Add to my request",
+    "seeStaysAt": "See stays in {place}",
+    "whatsapp": "WhatsApp",
+    "whatsappLabel": "Message a host on WhatsApp",
+    "whatsappMessage": "Hello, I would like information about “{title}”: {url}",
+    "whatsappGeneric": "Hello, I am planning a stay in the Sine-Saloum: {url}",
+    "seeStay": "See the stay",
+    "discoverStays": "Discover the stays",
+    "barLabel": "Quick actions"
+  },
+  "gallery": {
+    "label": "Photo gallery",
+    "previous": "Previous photo",
+    "next": "Next photo",
+    "position": "Photo {current} of {total}"
+  },
+  "list": {
+    "intro": "All-inclusive stays organised by local people: lodging, experiences, food and transfer.",
+    "results": "{count, plural, =0 {No stays} one {# stay} other {# stays}}",
+    "filters": "Filter",
+    "filtersTitle": "Filter stays",
+    "duration": "Duration",
+    "mood": "Mood",
+    "budget": "Budget",
+    "apply": "Show {count, plural, =0 {no stays} one {# stay} other {# stays}}",
+    "reset": "Reset",
+    "close": "Close filters",
+    "empty": "No stay matches these criteria.",
+    "emptyHelp": "Widen the filters or message us: we also design tailor-made stays."
+  },
+  "home": {
+    "title": "Saloum Évasion — immersive stays in Sine-Saloum",
+    "description": "All-inclusive stays in Ndangane and the Sine-Saloum islands: lodging, experiences, local food and transfer in a single request.",
+    "heading": "The Saloum, lived from within",
+    "lead": "Immersive stays in Ndangane and the Sine-Saloum islands, organised by local people.",
+    "findStay": "Find my stay",
+    "searchTitle": "Find my stay",
+    "arrival": "Arrival",
+    "departure": "Departure",
+    "adults": "Adults",
+    "duration": "Duration",
+    "anyDuration": "Any",
+    "moods": "Moods",
+    "search": "See the stays",
+    "guarantees": "Our commitments",
+    "featured": "Signature stays",
+    "universes": "Four ways to live the Saloum",
+    "destinations": "Destinations",
+    "steps": "How it works",
+    "step1": "Pick a stay or design your own.",
+    "step2": "Send your request in two minutes, or message us on WhatsApp.",
+    "step3": "A host from Ndangane replies and fine-tunes the programme with you.",
+    "commitment": "Tourism that keeps the delta alive",
+    "commitmentText": "Our stays are designed with Saloum families, guides and boatmen: what you spend stays here.",
+    "contact": "A question? A host will answer."
   }
 }

@@ -13,7 +13,8 @@ import type { SiteSetting } from '@/payload-types';
 
 export const getPayloadClient = () => getPayload({ config });
 
-type PublicCollection = 'stays' | 'experiences' | 'accommodations' | 'destinations' | 'pages';
+type PublicCollection =
+  'stays' | 'experiences' | 'accommodations' | 'destinations' | 'universes' | 'pages';
 
 const publishedWhere = (locale: Locale, extra: Where[] = []): Where => ({
   and: [
@@ -130,6 +131,14 @@ export const listAccommodations = cached(
   'list-accommodations',
   () => ['accommodations'],
   (locale: Locale) => findMany('accommodations', locale),
+);
+
+// --- Univers -------------------------------------------------------------------------------
+
+export const listUniverses = cached(
+  'list-universes',
+  () => ['universes'],
+  (locale: Locale) => findMany('universes', locale, [], 'order'),
 );
 
 // --- Pages éditoriales ---------------------------------------------------------------------

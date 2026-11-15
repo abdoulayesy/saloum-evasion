@@ -28,7 +28,7 @@ export const Footer = async ({ locale }: FooterProps) => {
 
   return (
     <footer className="mt-16 bg-mangrove text-sable">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-8 md:grid-cols-3">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 py-12 sm:px-8 md:grid-cols-3">
         <div>
           <p className="font-serif text-2xl font-semibold">{settings.brandName}</p>
           <p className="mt-3 text-sable/90">{t('tagline')}</p>

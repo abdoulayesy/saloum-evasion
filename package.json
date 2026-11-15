@@ -23,9 +23,10 @@
     "payload": "payload",
     "generate:types": "payload generate:types",
     "generate:importmap": "payload generate:importmap",
-    "migrate": "payload migrate",
+    "migrate": "payload migrate && pnpm cache:clear",
     "migrate:create": "payload migrate:create",
-    "seed": "payload run src/seed/index.ts"
+    "seed": "payload run src/seed/index.ts && pnpm cache:clear",
+    "cache:clear": "node --experimental-strip-types --no-warnings scripts/clear-data-cache.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.93.0",
@@ -40,7 +41,7 @@
     "react": "19",
     "react-dom": "19",
     "schema-dts": "^1",
-    "sharp": "^0.35.5"
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",

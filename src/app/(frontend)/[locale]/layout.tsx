@@ -6,13 +6,14 @@ import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { htmlLang, isLocale, routing } from '@/i18n/routing';
 import { siteUrl } from '@/lib/site';
-import { fontVariables } from '@/styles/fonts';
+import { preloadFonts } from '@/styles/fonts';
 import '@/styles/globals.css';
 
 // Layout public : aucune métadonnée de page ici (canonical, hreflang et JSON-LD sont posés
 // par chaque page, pour que la 404 n'en hérite pas).
 
-export const dynamicParams = false;
+// Pas de `dynamicParams = false` ici : ce réglage s'appliquerait aussi aux fiches, et un contenu
+// publié après le build n'aurait pas de page. Une langue inconnue est rejetée ci-dessous.
 
 export const generateStaticParams = () => routing.locales.map((locale) => ({ locale }));
 
@@ -36,9 +37,10 @@ const LocaleLayout = async ({ children, params }: LayoutProps) => {
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'common' });
+  preloadFonts();
 
   return (
-    <html lang={htmlLang[locale]} className={fontVariables}>
+    <html lang={htmlLang[locale]}>
       <body className="flex min-h-dvh flex-col">
         <a className="skip-link" href="#contenu">
           {t('skipToContent')}
