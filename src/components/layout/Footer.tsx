@@ -86,9 +86,11 @@ export const Footer = async ({ locale }: FooterProps) => {
               {settings.paymentMethods.map((method) => (
                 <li
                   key={method}
-                  className="flex min-h-touch items-center justify-center rounded-control border border-sable/60 px-2 text-center text-sm font-semibold"
+                  className="flex min-h-touch min-w-0 items-center justify-center rounded-control border border-sable/60 px-2 text-center text-sm font-semibold"
                 >
-                  {method}
+                  {/* Texte agrandi à 200 % sur 320 px : coupure dans la case plutôt que débordement
+                      (WCAG 1.4.4 et 1.4.10), les trois cases restant au même rang. */}
+                  <span className="min-w-0 break-words hyphens-auto">{method}</span>
                 </li>
               ))}
             </ul>
