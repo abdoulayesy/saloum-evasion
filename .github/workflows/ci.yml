@@ -13,7 +13,8 @@ jobs:
   quality:
     name: Qualité, tests, budgets
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Lighthouse CI : 27 URL × 5 passages (médiane) ≈ 22 min à lui seul (phases 9-10).
+    timeout-minutes: 60
     services:
       postgres:
         image: postgres:16-alpine
