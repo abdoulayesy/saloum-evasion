@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useRef, useState, type FormEvent } from 'react';
+import { durationBucket, pageType, track } from '@/lib/analytics';
 import { clearDraft, readDraft, type DraftItem } from '@/lib/request/draft';
 import { submitStayRequest, type FormValues, type SubmitResult } from '@/lib/request/submit';
 
@@ -137,8 +138,24 @@ export const RequestForm = (props: RequestFormProps) => {
   }, [state]);
 
   useEffect(() => {
-    if (state?.status === 'ok') clearDraft();
+    if (!state) return;
+    if (state.status === 'ok') {
+      clearDraft();
+      track('request_submitted', {
+        itemsCount: checked.size,
+        locale: props.locale,
+        sourcePageType: pageType(props.sourcePath),
+        durationBucket: durationBucket(Date.now() - props.startedAt),
+      });
+      return;
+    }
+    track('request_failed', { reason: state.status });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- un évènement par résultat
   }, [state]);
+
+  useEffect(() => {
+    track('request_form_view', { itemsCount: props.initialItems.length });
+  }, [props.initialItems.length]);
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     if (pending) {
@@ -157,6 +174,7 @@ export const RequestForm = (props: RequestFormProps) => {
     return (
       <section
         aria-labelledby="demande-confirmation"
+        data-request-confirmation=""
         className="rounded-card bg-white p-5"
         tabIndex={-1}
       >

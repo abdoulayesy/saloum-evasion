@@ -1,4 +1,6 @@
 import type { CollectionConfig } from 'payload';
+import { bookableFields, bookableGuard, isWholeXof } from '@/fields/bookable';
+import { integerField } from '@/fields/checkout';
 import { previewFor } from '@/lib/cms/preview';
 import { bodyField } from '@/fields/body';
 import {
@@ -29,6 +31,9 @@ const months = [
   'décembre',
 ].map((label, index) => ({ label, value: String(index + 1) }));
 
+const hasExperiencePrices = (data: Record<string, unknown>): boolean =>
+  isWholeXof(data.pricePerPerson) && Array.isArray(data.slots) && data.slots.length > 0;
+
 // Expériences (data-model) : rattachées à un univers d'expériences (qui fait partie de
 // l'URL) et à une destination ; prix par personne en XOF entier.
 export const Experiences: CollectionConfig = {
@@ -47,6 +52,7 @@ export const Experiences: CollectionConfig = {
       hasText(data.meetingPoint) &&
       seoComplete(data) &&
       bodyComplete(data),
+    extraBeforeChange: [bookableGuard(hasExperiencePrices)],
   }),
   fields: [
     titleField(),
@@ -112,6 +118,45 @@ export const Experiences: CollectionConfig = {
           min: 1,
           label: 'Participants minimum',
         },
+        integerField('maxParticipants', 'Participants maximum', {
+          min: 1,
+          defaultValue: 12,
+        }),
+      ],
+    },
+    {
+      name: 'offerKind',
+      type: 'select',
+      required: true,
+      defaultValue: 'activity',
+      label: 'Type d’offre (commissions)',
+      options: [
+        { label: 'Activité', value: 'activity' },
+        { label: 'Table (repas)', value: 'table' },
+      ],
+    },
+    {
+      name: 'slots',
+      type: 'array',
+      label: 'Créneaux proposés',
+      admin: { description: 'Au moins un créneau si l’expérience est vendable.' },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            { name: 'label', type: 'text', localized: true, label: 'Libellé' },
+            {
+              name: 'startTime',
+              type: 'text',
+              required: true,
+              label: 'Heure de début (HH:mm)',
+              validate: (value: unknown) =>
+                typeof value === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(value)
+                  ? true
+                  : 'Heure au format HH:mm.',
+            },
+          ],
+        },
       ],
     },
     {
@@ -121,6 +166,7 @@ export const Experiences: CollectionConfig = {
       required: true,
       label: 'Destination',
     },
+    ...bookableFields({ childPricing: true }),
     { name: 'faq', type: 'relationship', relationTo: 'faqItems', hasMany: true, label: 'FAQ' },
     bodyField,
     seoField(),

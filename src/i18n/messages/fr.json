@@ -9,7 +9,12 @@
     "homeLink": "Saloum Évasion, accueil",
     "menu": "Menu",
     "switchLanguage": "EN",
-    "switchLanguageLabel": "EN, English version"
+    "switchLanguageLabel": "EN, English version",
+    "missingTranslation": "Cette page n’existe pas encore en français : voici la page la plus proche.",
+    "englishBanner": "This page is also available in English.",
+    "englishBannerLink": "View in English",
+    "close": "Fermer",
+    "bannerClose": "Close"
   },
   "menu": {
     "title": "Menu",
@@ -365,5 +370,68 @@
     "inRequest": "Dans ma demande",
     "viewRequest": "Voir ma demande",
     "errorsSummary": "Merci de corriger les points suivants :"
+  },
+  "cart": {
+    "title": "Votre panier",
+    "empty": "Votre panier est vide.",
+    "expired": "Votre panier a expiré : voici quelques séjours pour recommencer.",
+    "total": "Total",
+    "items": "{count, plural, one {# élément} other {# éléments}}",
+    "remove": "Retirer",
+    "edit": "Modifier",
+    "quoteInstead": "Demander un devis à la place",
+    "summary": "Panier · {count} · {total}",
+    "openSummary": "Voir le détail du panier",
+    "priceChanged": "Le prix a changé depuis l’ajout : {before} → {after}.",
+    "unavailable": "Cette prestation n’est plus disponible ; elle est retirée du total.",
+    "browse": "Découvrir nos séjours"
+  },
+  "checkout": {
+    "steps": {
+      "cart": "Panier",
+      "details": "Coordonnées",
+      "payment": "Paiement",
+      "status": "Confirmation"
+    },
+    "stepLabel": "Étape {current} sur {total} : {name}",
+    "indicative": "indicatif",
+    "pendingAvailability": "Disponibilité en cours de confirmation par l’équipe",
+    "whatsappHelp": "Une question ? Écrire sur WhatsApp",
+    "progress": "Progression de la commande",
+    "whatsappMessage": "Bonjour, j’ai une question sur ma commande en cours.",
+    "comingSoon": "Cette étape sera disponible très prochainement."
+  },
+  "payment": {
+    "methods": {
+      "wave": "Wave",
+      "orange_money": "Orange Money",
+      "card": "Carte bancaire (Visa, Mastercard)"
+    },
+    "choose": "Moyen de paiement",
+    "pay": "Payer {amount}",
+    "pending": "Paiement en cours de confirmation…",
+    "failure": {
+      "declined": "Le paiement a été refusé.",
+      "insufficient_funds": "Le solde de votre compte est insuffisant.",
+      "timeout": "Le délai de paiement est dépassé.",
+      "cancelled_by_user": "Le paiement a été annulé.",
+      "technical": "Un problème technique a empêché le paiement."
+    },
+    "retry": "Réessayer",
+    "changeMethod": "Changer de moyen de paiement"
+  },
+  "booking": {
+    "reference": "Référence : {reference}",
+    "voucher": "Télécharger le bon de réservation (PDF)",
+    "invalidLink": "Ce lien n’est plus valide.",
+    "findTitle": "Retrouver ma réservation"
+  },
+  "refund": {
+    "status": {
+      "requested": "Demandé",
+      "approved": "Validé",
+      "paid": "Versé",
+      "rejected": "Refusé"
+    }
   }
 }

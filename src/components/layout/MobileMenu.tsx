@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { buildPath } from '@/i18n/pathnames';
-import type { Locale } from '@/i18n/routing';
+import { htmlLang, type Locale } from '@/i18n/routing';
 import { getSiteSettings } from '@/lib/cms/siteSettings';
 import { isLive, liveMainNavigation } from '@/lib/navigation';
 import { siteWhatsappHref } from '@/lib/pageActions';
@@ -21,6 +21,8 @@ export const MobileMenu = async ({ locale }: MobileMenuProps) => {
   const tRoutes = await getTranslations({ locale, namespace: 'routes' });
   const tCommon = await getTranslations({ locale, namespace: 'common' });
   const tActions = await getTranslations({ locale, namespace: 'actions' });
+  const tHeader = await getTranslations({ locale, namespace: 'header' });
+  const otherLocale: Locale = locale === 'fr' ? 'en' : 'fr';
   const whatsappHref = await siteWhatsappHref(locale, await getSiteSettings(locale));
   const items = [
     { href: buildPath(locale, { type: 'home' }), label: tCommon('home') },
@@ -64,6 +66,15 @@ export const MobileMenu = async ({ locale }: MobileMenuProps) => {
             ))}
           </ul>
         </nav>
+        {/* Langue dans la zone du pouce (T158) : page équivalente calculée par le contrôleur. */}
+        <a
+          href={`/api/locale-switch?to=${otherLocale}`}
+          hrefLang={htmlLang[otherLocale]}
+          lang={htmlLang[otherLocale]}
+          className="mt-4 inline-flex min-h-touch w-full items-center justify-center rounded-control border border-sable/60 px-4 font-semibold"
+        >
+          {tHeader('switchLanguageLabel')}
+        </a>
         {whatsappHref && (
           <a
             href={whatsappHref}

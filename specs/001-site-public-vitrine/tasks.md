@@ -449,13 +449,24 @@ enregistrée et e-mail envoyé ; fonctionne aussi sans JavaScript.
 **Independent Test** : 10 pages FR de types différents mènent à leur équivalent EN ; une page
 sans EN mène à la page parente avec un message.
 
-- [ ] T156 [US5] Créer `src/components/ui/LocaleSwitcher.tsx` (composant serveur : liens calculés depuis les alternates de la page, repli sur la page parente avec `?from=missing`, cible ≥ 44 px) et `src/components/ui/MissingTranslationNotice.tsx` ; les brancher dans l'en-tête de chaque vue
-- [ ] T157 [P] [US5] Créer `src/components/client/EnglishBanner.tsx` : bandeau refermable si la langue du navigateur est l'anglais sur une page FR, choix mémorisé localement, aucune redirection
-- [ ] T158 [P] [US5] Écrire `tests/e2e/us5-locale.mobile.spec.ts` : 10 pages FR de types différents → page EN équivalente, page sans EN → parente + message, brouillon de demande conservé, sélecteur atteignable au pouce
-- [ ] T159 [P] [US5] Écrire `tests/e2e/locale.seo.spec.ts` (projet `nojs`) : réciprocité des hreflang pour toutes les URL du sitemap, `x-default` = FR
-- [ ] T160 [US5] Ajouter dans `src/i18n/messages/en.json` toutes les chaînes d'interface manquantes et un test `tests/unit/messages.test.ts` qui vérifie que FR et EN ont exactement les mêmes clés
+- [X] T156 [US5] Créer `src/components/ui/LocaleSwitcher.tsx` (composant serveur : liens calculés depuis les alternates de la page, repli sur la page parente avec `?from=missing`, cible ≥ 44 px) et `src/components/ui/MissingTranslationNotice.tsx` ; les brancher dans l'en-tête de chaque vue
+- [X] T157 [P] [US5] Créer `src/components/client/EnglishBanner.tsx` : bandeau refermable si la langue du navigateur est l'anglais sur une page FR, choix mémorisé localement, aucune redirection
+- [X] T158 [P] [US5] Écrire `tests/e2e/us5-locale.mobile.spec.ts` : 10 pages FR de types différents → page EN équivalente, page sans EN → parente + message, brouillon de demande conservé, sélecteur atteignable au pouce
+- [X] T159 [P] [US5] Écrire `tests/e2e/locale.seo.spec.ts` (projet `nojs`) : réciprocité des hreflang pour toutes les URL du sitemap, `x-default` = FR
+- [X] T160 [US5] Ajouter dans `src/i18n/messages/en.json` toutes les chaînes d'interface manquantes et un test `tests/unit/messages.test.ts` qui vérifie que FR et EN ont exactement les mêmes clés
 
 **Checkpoint** : les 5 parcours sont livrés.
+
+> **Écarts constatés à l'implémentation (phase 9)** :
+> - T156 : le sélecteur de l'en-tête (et du menu, dans la zone du pouce) mène au contrôleur
+>   `/api/locale-switch?to=…`, qui lit la page d'origine dans le Referer et redirige (307) vers la
+>   page équivalente, ou vers la page parente avec `?from=missing` ; un composant serveur par vue
+>   aurait exigé de lire la page courante dans le layout, ce qui rend toutes les pages dynamiques.
+>   L'avis « traduction absente » et le bandeau anglais (T157) sont un seul îlot
+>   `LocaleNotices`, en surimpression (aucun décalage de mise en page).
+> - T158 : scénario « fiche sans version anglaise » dans `us5-missing.spec.ts` (projet
+>   `desktop-admin`, il crée puis supprime un contenu) ; 12 pages testées au lieu de 10 ; zone du
+>   pouce non vérifiée en paysage (moins de 500 px de haut, comme la barre collante).
 
 ---
 
@@ -465,23 +476,48 @@ sans EN mène à la page parente avec un message.
 > `src/lib/analytics.ts` est créé par sa tâche T064b ; la mesure de la 001 s'y branche au lieu de
 > le recréer.
 
-- [ ] T161 Créer `src/lib/analytics.ts` et `src/components/client/Analytics.tsx` (Plausible chargé en `requestIdleCallback`, file d'attente) et brancher les évènements de [analytics-events.md](./contracts/analytics-events.md)
-- [ ] T162 [P] Créer `src/components/client/WebVitals.tsx` (web-vitals → évènement `web_vital` avec modèle de route et tranche de valeur)
-- [ ] T163 [P] Écrire `tests/e2e/third-party.spec.ts` : aucun script tiers dans le HTML initial, Plausible seulement après inactivité, aucune requête de police vers un domaine externe, 2 familles de polices au plus (perf-a11y CHK023, CHK029)
-- [ ] T164 [P] Écrire `tests/e2e/inp.mobile.spec.ts` : INP mesuré (web-vitals, `reportAllChanges`) sur Android 360 avec processeur ×4 pour : ouvrir le panneau de filtres, appliquer, galerie suivante, ajouter à la demande, envoyer ; chacun ≤ 200 ms (perf-a11y CHK009)
-- [ ] T165 [P] Écrire `tests/e2e/cls-interaction.spec.ts` : CLS cumulé pendant un défilement complet de chaque type de page (images différées, barre collante, compteur) ≤ 0,1 (perf-a11y CHK012)
-- [ ] T166 [P] Écrire `tests/e2e/lcp-image.spec.ts` : pour chaque type de page, l'élément LCP est une image AVIF ou WebP de 120 Ko au plus, avec largeur et hauteur (perf-a11y CHK019, CHK020)
-- [ ] T167 [P] Écrire `tests/e2e/no-hover.spec.ts` (tactile, sans survol) : menus, cartes, galerie et filtres utilisables sans survol (mobile CHK040)
-- [ ] T168 [P] Écrire `tests/e2e/3g.mobile.spec.ts` (Android 360, profil `3g`) : pour chaque type de page publique, H1 et contenu principal lisibles en 5 s au plus, action principale utilisable (spec FR-020 : analyse P1)
-- [ ] T169 [P] Écrire `tests/unit/contrast.test.ts` : contraste de toutes les paires de jetons texte/fond (≥ 4,5:1), du texte sur `scrim` (≥ 4,5:1), de l'anneau de focus, des bordures de champs et des icônes (≥ 3:1) (perf-a11y CHK031, CHK032)
-- [ ] T170 Créer `src/lib/seo/keywords.ts` : les 10 mots-clés FR, leurs équivalents EN et la page principale de chacun (D3 : seo CHK042, CHK043)
-- [ ] T171 Compléter `scripts/seo-check.ts` : couverture des mots-clés de `keywords.ts` (une page principale indexable par mot-clé et par langue, aucune autre page avec le même `targetKeyword`), différence entre sitemap et pages crawlées, chaînes de redirection
-- [ ] T172 Passe de performance : analyser `pnpm bundles` et les rapports LHCI, différer les îlots restants, ne précharger que l'image LCP, retirer le CSS inutilisé, ajuster `deviceSizes` et la qualité, jusqu'à ce que toutes les URL de `lighthouserc.json` passent
-- [ ] T173 Créer `vercel.json` : région `cdg1`, tâches planifiées, en-têtes de sécurité (CSP autorisant Mux et Plausible), cache des ressources statiques, `X-Robots-Tag: noindex` sur `/admin`
-- [ ] T174 [P] Rédiger `specs/001-site-public-vitrine/launch/manual-a11y-audit.md` : protocole TalkBack (Chrome Android) et VoiceOver (iOS) sur les 5 parcours, à exécuter par une personne avant le lancement (perf-a11y CHK052)
-- [ ] T175 [P] Rédiger `specs/001-site-public-vitrine/launch/latency-dakar.md` : mesure du TTFB et du LCP depuis un mobile 4G à Dakar et à Ndangane, seuil de décision du CDN (TTFB p75 > 600 ms) (plan T5)
-- [ ] T176 [P] Rédiger `specs/001-site-public-vitrine/launch/checklist.md` : Rich Results et validateur Schema.org (1 URL par type), propriété de domaine Search Console et sitemap, objectifs Plausible, NAP identique à la fiche Google Business Profile, suivi du LCP terrain (personne désignée, revue hebdomadaire le premier mois : perf-a11y CHK007)
-- [ ] T177 Dérouler [quickstart.md](./quickstart.md) de bout en bout sur un environnement propre et le mettre à jour avec les commandes finales
+- [X] T161 Créer `src/lib/analytics.ts` et `src/components/client/Analytics.tsx` (Plausible chargé en `requestIdleCallback`, file d'attente) et brancher les évènements de [analytics-events.md](./contracts/analytics-events.md)
+- [X] T162 [P] Créer `src/components/client/WebVitals.tsx` (web-vitals → évènement `web_vital` avec modèle de route et tranche de valeur)
+- [X] T163 [P] Écrire `tests/e2e/third-party.spec.ts` : aucun script tiers dans le HTML initial, Plausible seulement après inactivité, aucune requête de police vers un domaine externe, 2 familles de polices au plus (perf-a11y CHK023, CHK029)
+- [X] T164 [P] Écrire `tests/e2e/inp.mobile.spec.ts` : INP mesuré (web-vitals, `reportAllChanges`) sur Android 360 avec processeur ×4 pour : ouvrir le panneau de filtres, appliquer, galerie suivante, ajouter à la demande, envoyer ; chacun ≤ 200 ms (perf-a11y CHK009)
+- [X] T165 [P] Écrire `tests/e2e/cls-interaction.spec.ts` : CLS cumulé pendant un défilement complet de chaque type de page (images différées, barre collante, compteur) ≤ 0,1 (perf-a11y CHK012)
+- [X] T166 [P] Écrire `tests/e2e/lcp-image.spec.ts` : pour chaque type de page, l'élément LCP est une image AVIF ou WebP de 120 Ko au plus, avec largeur et hauteur (perf-a11y CHK019, CHK020)
+- [X] T167 [P] Écrire `tests/e2e/no-hover.spec.ts` (tactile, sans survol) : menus, cartes, galerie et filtres utilisables sans survol (mobile CHK040)
+- [X] T168 [P] Écrire `tests/e2e/3g.mobile.spec.ts` (Android 360, profil `3g`) : pour chaque type de page publique, H1 et contenu principal lisibles en 5 s au plus, action principale utilisable (spec FR-020 : analyse P1)
+- [X] T169 [P] Écrire `tests/unit/contrast.test.ts` : contraste de toutes les paires de jetons texte/fond (≥ 4,5:1), du texte sur `scrim` (≥ 4,5:1), de l'anneau de focus, des bordures de champs et des icônes (≥ 3:1) (perf-a11y CHK031, CHK032)
+- [X] T170 Créer `src/lib/seo/keywords.ts` : les 10 mots-clés FR, leurs équivalents EN et la page principale de chacun (D3 : seo CHK042, CHK043)
+- [X] T171 Compléter `scripts/seo-check.ts` : couverture des mots-clés de `keywords.ts` (une page principale indexable par mot-clé et par langue, aucune autre page avec le même `targetKeyword`), différence entre sitemap et pages crawlées, chaînes de redirection
+- [X] T172 Passe de performance : analyser `pnpm bundles` et les rapports LHCI, différer les îlots restants, ne précharger que l'image LCP, retirer le CSS inutilisé, ajuster `deviceSizes` et la qualité, jusqu'à ce que toutes les URL de `lighthouserc.json` passent
+- [X] T173 Créer `vercel.json` : région `cdg1`, tâches planifiées, en-têtes de sécurité (CSP autorisant Mux et Plausible), cache des ressources statiques, `X-Robots-Tag: noindex` sur `/admin`
+- [X] T174 [P] Rédiger `specs/001-site-public-vitrine/launch/manual-a11y-audit.md` : protocole TalkBack (Chrome Android) et VoiceOver (iOS) sur les 5 parcours, à exécuter par une personne avant le lancement (perf-a11y CHK052)
+- [X] T175 [P] Rédiger `specs/001-site-public-vitrine/launch/latency-dakar.md` : mesure du TTFB et du LCP depuis un mobile 4G à Dakar et à Ndangane, seuil de décision du CDN (TTFB p75 > 600 ms) (plan T5)
+- [X] T176 [P] Rédiger `specs/001-site-public-vitrine/launch/checklist.md` : Rich Results et validateur Schema.org (1 URL par type), propriété de domaine Search Console et sitemap, objectifs Plausible, NAP identique à la fiche Google Business Profile, suivi du LCP terrain (personne désignée, revue hebdomadaire le premier mois : perf-a11y CHK007)
+- [X] T177 Dérouler [quickstart.md](./quickstart.md) de bout en bout sur un environnement propre et le mettre à jour avec les commandes finales
+
+> **Écarts constatés à l'implémentation (phase 10)** :
+> - T161/T162 : `src/lib/analytics.ts` (file d'attente Plausible, modèle de route, type de page),
+>   îlots `Analytics` (script après inactivité, seulement si `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` est défini
+>   au build ; un écouteur délégué pour les clics WhatsApp) et `WebVitals` (bibliothèque chargée à la
+>   demande). `language_switch` est envoyé à l'arrivée sur la page traduite (paramètre `switched`
+>   posé par le contrôleur de langue, puis retiré de l'URL), ce qui donne aussi `fallback`.
+> - T163 : le chargement différé de Plausible n'est vérifiable qu'avec un domaine configuré au build ;
+>   le test vérifie l'absence de tout script et de toute requête tierce au chargement (vérification
+>   du chargement différé ajoutée à la liste de lancement). Familles « … Fallback » (métriques de
+>   repli sur polices système) exclues du compte des familles.
+> - T164 à T168 : aides communes dans `tests/e2e/support/perf.ts` ; LCP vérifié en portrait
+>   seulement (en paysage, un titre peut être l'élément LCP).
+> - T170/T171 : pages principales des mots-clés = contenu de démonstration, à revoir avec le contenu
+>   réel ; `seo-check` contrôle aussi les pages indexables absentes du sitemap et les formes non
+>   canoniques (un seul saut).
+> - T172 : chargement de web-vitals différé à l'inactivité (le temps de blocage avait augmenté de
+>   60 ms avec les îlots de mesure) ; tests d'administration qui régénèrent les pages du sitemap
+>   après suppression de leur contenu de test (sinon un serveur démarré ensuite servait des pages
+>   périmées). Lighthouse CI vert sur les 27 URL.
+> - T173 : en-têtes de sécurité (CSP avec Mux et Plausible, HSTS, Referrer-Policy, X-Frame-Options,
+>   Permissions-Policy) posés dans `next.config.ts` plutôt que `vercel.json`, pour être appliqués et
+>   testés aussi en local ; CSP seulement en production (le rechargement à chaud utilise `eval`).
+> - T176 : la liste de lancement amorcée en phase 7 (`launch/checklist.md` à la racine) est déplacée
+>   dans `specs/001-site-public-vitrine/launch/checklist.md` et complétée.
 
 ---
 

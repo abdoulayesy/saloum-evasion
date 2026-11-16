@@ -44,6 +44,35 @@ interface pour que ce choix ne bloque pas l'implémentation.
   contrats, trois webhooks, trois procédures de remboursement) ; paiement par lien manuel envoyé
   par WhatsApp (statu quo 001, contraire à la spec).
 
+### R2a — Grille de comparaison (T097, à compléter avec les prestataires)
+
+Aucune valeur n'est pré-remplie : les tarifs, délais et conditions se vérifient auprès de chaque
+prestataire (contrat, documentation à jour, compte de test). Une réponse « non » à un critère
+éliminatoire écarte le candidat.
+
+| Critère | Type | PayDunya | PayTech | CinetPay |
+|---|---|---|---|---|
+| Wave, Orange Money et carte Visa/Mastercard sur **une même** intégration | éliminatoire | | | |
+| Page de paiement hébergée, certifiée PCI DSS (aucune donnée de carte chez nous) | éliminatoire | | | |
+| Notification serveur **signée** (HMAC ou équivalent) + interrogation du statut par API | éliminatoire | | | |
+| Mode test complet (les trois moyens, échecs simulables) | éliminatoire | | | |
+| Remboursement par API, sinon procédure documentée et délai | éliminatoire | | | |
+| Reversement en XOF sur compte sénégalais, délai de reversement | éliminatoire | | | |
+| Page hébergée utilisable à 360 px, au clavier et au lecteur d'écran (test manuel, tension T14) | éliminatoire | | | |
+| Frais par transaction : Wave / Orange Money / carte | comparatif | | | |
+| Frais fixes (ouverture, abonnement), plafonds par transaction | comparatif | | | |
+| Retour du moyen choisi et de la cause d'échec dans la notification | comparatif | | | |
+| Délai d'ouverture du compte marchand, pièces demandées | comparatif | | | |
+| Support (langue, canal, horaires) | comparatif | | | |
+
+**Démarche** : 1) demander à chacun la documentation d'API et un compte de test ; 2) vérifier
+les critères éliminatoires sur le compte de test (dont un paiement Wave, Orange Money et carte, un
+échec et un remboursement) ; 3) tester la page hébergée à 360 px, au clavier et au lecteur
+d'écran ; 4) comparer les frais sur un panier type de 150 000 FCFA ; 5) décision du propriétaire
+consignée ici (date, prestataire, raison), puis T098 (implémentation de la passerelle).
+
+**Décision** : en attente du propriétaire. Le développement avance avec la passerelle `fake`.
+
 ## R3 — Parcours de paiement mobile money
 
 - **Décision** : redirection vers la page hébergée de l'agrégateur, qui ouvre l'application

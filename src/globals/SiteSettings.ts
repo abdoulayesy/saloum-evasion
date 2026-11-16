@@ -1,5 +1,6 @@
 import type { GlobalConfig } from 'payload';
 import { anyone, isTeam } from '@/access';
+import { integerField } from '@/fields/checkout';
 import { validateE164 } from '@/fields/validators';
 import { revalidateGlobalAfterChange } from '@/hooks/revalidate';
 
@@ -7,6 +8,11 @@ const MONTH_DAY = /^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 
 const validateMonthDay = (value: unknown): true | string =>
   typeof value === 'string' && MONTH_DAY.test(value) ? true : 'Format MM-JJ, ex. 12-15.';
+
+const validateTime = (value: unknown): true | string =>
+  typeof value === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(value)
+    ? true
+    : 'Heure au format HH:mm.';
 
 // Réglages du site (data-model « siteSettings ») : source unique du NAP (constitution III),
 // du WhatsApp, des saisons, des garanties et des destinataires des notifications.
@@ -156,6 +162,74 @@ export const SiteSettings: GlobalConfig = {
             { label: 'Carte bancaire', value: 'card' },
           ],
         },
+      ],
+    },
+    {
+      name: 'checkout',
+      type: 'group',
+      label: 'Panier et paiement (002)',
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            integerField('depositPercent', 'Acompte (%)', { min: 1, max: 100, defaultValue: 30 }),
+            integerField('depositThresholdDays', 'Acompte possible au-delà de (jours)', {
+              defaultValue: 30,
+            }),
+            integerField('balanceDueDaysBeforeArrival', 'Solde dû (jours avant l’arrivée)', {
+              defaultValue: 14,
+            }),
+          ],
+        },
+        {
+          type: 'row',
+          fields: [
+            integerField('availabilitySlaMinutes', 'Confirmation de disponibilité (minutes)', {
+              min: 1,
+              defaultValue: 120,
+            }),
+            {
+              name: 'businessHoursStart',
+              type: 'text',
+              defaultValue: '08:00',
+              label: 'Ouverture (HH:mm, Dakar)',
+              validate: validateTime,
+            },
+            {
+              name: 'businessHoursEnd',
+              type: 'text',
+              defaultValue: '20:00',
+              label: 'Fermeture (HH:mm, Dakar)',
+              validate: validateTime,
+            },
+          ],
+        },
+        {
+          type: 'row',
+          fields: [
+            integerField('refundDelayDays', 'Délai de remboursement (jours)', { defaultValue: 14 }),
+            integerField('cartTtlDays', 'Durée de vie du panier (jours)', {
+              min: 1,
+              defaultValue: 7,
+            }),
+            integerField('cartPurgeDays', 'Purge des paniers non payés (jours)', {
+              min: 1,
+              defaultValue: 30,
+            }),
+            integerField('minLeadDays', 'Délai minimum de réservation (jours)', {
+              defaultValue: 1,
+            }),
+          ],
+        },
+      ],
+    },
+    {
+      name: 'notifications',
+      type: 'group',
+      label: 'Notifications (002)',
+      fields: [
+        { name: 'whatsappSenderId', type: 'text', label: 'Identifiant d’expéditeur WhatsApp' },
+        { name: 'financeEmail', type: 'email', label: 'E-mail de la finance' },
       ],
     },
   ],

@@ -9,7 +9,12 @@
     "homeLink": "Saloum Évasion, home",
     "menu": "Menu",
     "switchLanguage": "FR",
-    "switchLanguageLabel": "FR, version française"
+    "switchLanguageLabel": "FR, version française",
+    "missingTranslation": "This page is not available in English yet: here is the closest page.",
+    "englishBanner": "This page is also available in English.",
+    "englishBannerLink": "View in English",
+    "close": "Close",
+    "bannerClose": "Close"
   },
   "menu": {
     "title": "Menu",
@@ -365,5 +370,68 @@
     "inRequest": "In my request",
     "viewRequest": "View my request",
     "errorsSummary": "Please fix the following:"
+  },
+  "cart": {
+    "title": "Your cart",
+    "empty": "Your cart is empty.",
+    "expired": "Your cart has expired: here are a few stays to start again.",
+    "total": "Total",
+    "items": "{count, plural, one {# item} other {# items}}",
+    "remove": "Remove",
+    "edit": "Edit",
+    "quoteInstead": "Ask for a quote instead",
+    "summary": "Cart · {count} · {total}",
+    "openSummary": "Show cart details",
+    "priceChanged": "The price has changed since you added it: {before} → {after}.",
+    "unavailable": "This service is no longer available; it has been removed from the total.",
+    "browse": "Explore our stays"
+  },
+  "checkout": {
+    "steps": {
+      "cart": "Cart",
+      "details": "Details",
+      "payment": "Payment",
+      "status": "Confirmation"
+    },
+    "stepLabel": "Step {current} of {total}: {name}",
+    "indicative": "indicative",
+    "pendingAvailability": "Availability being confirmed by the team",
+    "whatsappHelp": "A question? Message us on WhatsApp",
+    "progress": "Checkout progress",
+    "whatsappMessage": "Hello, I have a question about my order in progress.",
+    "comingSoon": "This step will be available very soon."
+  },
+  "payment": {
+    "methods": {
+      "wave": "Wave",
+      "orange_money": "Orange Money",
+      "card": "Bank card (Visa, Mastercard)"
+    },
+    "choose": "Payment method",
+    "pay": "Pay {amount}",
+    "pending": "Payment being confirmed…",
+    "failure": {
+      "declined": "The payment was declined.",
+      "insufficient_funds": "Your account balance is too low.",
+      "timeout": "The payment time limit has passed.",
+      "cancelled_by_user": "The payment was cancelled.",
+      "technical": "A technical problem prevented the payment."
+    },
+    "retry": "Try again",
+    "changeMethod": "Change payment method"
+  },
+  "booking": {
+    "reference": "Reference: {reference}",
+    "voucher": "Download the booking voucher (PDF)",
+    "invalidLink": "This link is no longer valid.",
+    "findTitle": "Find my booking"
+  },
+  "refund": {
+    "status": {
+      "requested": "Requested",
+      "approved": "Approved",
+      "paid": "Paid",
+      "rejected": "Rejected"
+    }
   }
 }

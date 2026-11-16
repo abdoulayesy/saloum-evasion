@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { DialogOpener } from '@/components/client/DialogOpener';
+import { LocaleNotices } from '@/components/client/LocaleNotices';
 import { RequestCounter } from '@/components/client/RequestCounter';
 import { buildPath } from '@/i18n/pathnames';
 import { htmlLang, type Locale } from '@/i18n/routing';
@@ -14,15 +15,20 @@ type HeaderProps = { locale: Locale };
 const controlClass =
   'inline-flex min-h-touch min-w-touch items-center justify-center rounded-control px-3 font-semibold';
 
+/** Contrôleur de bascule de langue (page équivalente calculée côté serveur, US5). */
+export const LOCALE_SWITCH_PATH = '/api/locale-switch';
+
 // En-tête : logo, compteur de la demande en cours (T147, emplacement de 44 px réservé), lien
 // WhatsApp (dès 640 px ; sur mobile il est dans le menu et la barre collante, T149),
-// sélecteur de langue (vers l'accueil de l'autre langue en attendant la bascule sur la page
-// équivalente, US5), bouton menu de 44 px.
+// sélecteur de langue vers la page équivalente (T156 : la page d'origine est lue dans le
+// Referer par le contrôleur, les pages restent statiques), bouton menu de 44 px ; avis de
+// langue en surimpression (T156, T157).
 export const Header = async ({ locale }: HeaderProps) => {
   const t = await getTranslations({ locale, namespace: 'header' });
   const tRequest = await getTranslations({ locale, namespace: 'request' });
   const tActions = await getTranslations({ locale, namespace: 'actions' });
   const otherLocale: Locale = locale === 'fr' ? 'en' : 'fr';
+  const switchHref = `${LOCALE_SWITCH_PATH}?to=${otherLocale}`;
   const whatsappHref = await siteWhatsappHref(locale, await getSiteSettings(locale));
 
   return (
@@ -64,15 +70,16 @@ export const Header = async ({ locale }: HeaderProps) => {
               {tActions('whatsapp')}
             </a>
           )}
-          <Link
-            href={buildPath(otherLocale, { type: 'home' })}
+          {/* Lien ordinaire (pas de préchargement) : le contrôleur calcule la page équivalente. */}
+          <a
+            href={switchHref}
             hrefLang={htmlLang[otherLocale]}
             lang={htmlLang[otherLocale]}
             aria-label={t('switchLanguageLabel')}
             className={`${controlClass} text-mangrove underline underline-offset-4`}
           >
             {t('switchLanguage')}
-          </Link>
+          </a>
           <DialogOpener
             dialogId={MENU_DIALOG_ID}
             fallbackHref={`#${FOOTER_NAV_ID}`}
@@ -83,6 +90,15 @@ export const Header = async ({ locale }: HeaderProps) => {
         </div>
       </div>
       <MobileMenu locale={locale} />
+      <LocaleNotices
+        locale={locale}
+        missingText={t('missingTranslation')}
+        bannerText={t('englishBanner')}
+        bannerLink={t('englishBannerLink')}
+        switchHref={`${LOCALE_SWITCH_PATH}?to=en`}
+        closeLabel={t('close')}
+        bannerCloseLabel={t('bannerClose')}
+      />
     </header>
   );
 };

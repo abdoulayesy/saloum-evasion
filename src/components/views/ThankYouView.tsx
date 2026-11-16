@@ -68,7 +68,7 @@ export const ThankYouView = async ({
       )}
 
       <p className="mt-4 text-ink-muted">{t('datesWish')}</p>
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row" data-request-confirmation="">
         {whatsappHref && (
           <ButtonLink href={whatsappHref} external variant="whatsapp" className="w-full sm:w-auto">
             {t('sendWhatsapp')}

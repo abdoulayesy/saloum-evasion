@@ -13,6 +13,7 @@ import {
   type StayFilters,
 } from '@/lib/filters';
 import type { BudgetBand, DurationCategory } from '@/lib/pricing';
+import { track } from '@/lib/analytics';
 import { readDraft, tripFromSearch, writeDraft } from '@/lib/request/draft';
 
 // Panneau de filtres (T089, FR-018) : monte du bas de l'écran (<dialog> modal : focus enfermé,
@@ -231,6 +232,18 @@ export const FilterSheet = (props: FilterSheetProps) => {
               type="button"
               onClick={() => {
                 apply(draft);
+                track('filter_applied', {
+                  filters: (
+                    [
+                      ['duree', draft.durations.length],
+                      ['envie', draft.moods.length],
+                      ['budget', draft.budgets.length],
+                    ] as const
+                  )
+                    .filter(([, count]) => count > 0)
+                    .map(([name]) => name)
+                    .join(','),
+                });
                 close();
               }}
               className="inline-flex min-h-touch flex-[2] items-center justify-center rounded-control bg-mangrove px-4 font-semibold text-sable"

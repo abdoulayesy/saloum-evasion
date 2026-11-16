@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react';
+import { pageType, track } from '@/lib/analytics';
 import { hlsUrl } from '@/lib/mux';
 
 // Lecteur vidéo (T124, research R4) : avant le clic, seulement l'affiche rendue par le serveur
@@ -114,13 +115,21 @@ export const VideoPlayer = ({
     };
   }, [started, playbackId, startAt]);
 
-  const start = useCallback((at: number) => {
-    setStartAt(at);
-    setStarted(true);
-  }, []);
+  const start = useCallback(
+    (at: number) => {
+      track('video_play', {
+        video: format === 'portrait' ? 'vertical' : 'film',
+        pageType: pageType(window.location.pathname),
+      });
+      setStartAt(at);
+      setStarted(true);
+    },
+    [format],
+  );
 
   const onChapter = (event: MouseEvent<HTMLAnchorElement>, chapter: VideoChapterLink) => {
     event.preventDefault();
+    track('video_chapter', { chapter: chapters.indexOf(chapter) });
     window.history.replaceState(null, '', chapter.href);
     const video = videoRef.current;
     if (!started || !video) {

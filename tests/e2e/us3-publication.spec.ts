@@ -33,6 +33,22 @@ const firstId = async (request: APIRequestContext, jwt: string, query: string): 
   return isJson(doc) && typeof doc.id === 'number' ? doc.id : 0;
 };
 
+/**
+ * Après suppression d'un contenu de test : redemande toutes les pages du sitemap (listes,
+ * destinations, accueil peuvent le citer), pour que ce serveur — le seul à connaître
+ * l'invalidation — les régénère sur disque. Sinon un serveur démarré ensuite (seo:check,
+ * Lighthouse) servirait encore l'ancienne version.
+ */
+const regenerateLists = async (request: APIRequestContext) => {
+  const xml = await (await request.get('/sitemap.xml')).text();
+  const paths = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(
+    (match) => new URL(match[1] ?? '/').pathname,
+  );
+  for (const path of paths) await request.get(path);
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  for (const path of paths) await request.get(path);
+};
+
 const lexical = (text: string) => ({
   root: {
     type: 'root',
@@ -156,6 +172,7 @@ test('publication bilingue : fiche FR et EN, univers, sitemap ; EN incomplète n
     await request.delete(`/api/redirects?where[from][like]=${encodeURIComponent(stamp)}`, {
       headers: auth(jwt),
     });
+    await regenerateLists(request);
   }
 });
 

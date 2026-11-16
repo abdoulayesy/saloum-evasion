@@ -2,8 +2,11 @@
 // liens cassés, unicité et longueurs des title/description, réciprocité hreflang,
 // chaînes de redirection d'au plus 1 saut.
 // Exécution : BASE_URL=http://localhost:3000 node --experimental-strip-types scripts/seo-check.ts
-// (serveur de production démarré). Complété en phase 10 (couverture des mots-clés).
+// (serveur de production démarré). Phase 10 : couverture des mots-clés cibles (une page
+// principale indexable par mot-clé et par langue), pages indexables absentes du sitemap,
+// chaînes de redirection des pages renommées.
 import { LinkChecker } from 'linkinator';
+import { normalizeText, TARGET_KEYWORDS } from '../src/lib/seo/keywords.ts';
 
 const BASE_URL = process.env.BASE_URL ?? 'http://localhost:3000';
 
@@ -92,6 +95,42 @@ const main = async (): Promise<void> => {
 
   const rootHops = await checkRedirectChain(`${BASE_URL}/`);
   if (rootHops > 1) errors.push(`/ : ${rootHops} redirections enchaînées (max 1)`);
+  // Formes non canoniques (barre oblique finale, majuscules) : un seul saut.
+  for (const path of ['/fr/', '/FR/SEJOURS', '/en/stays/']) {
+    const hops = await checkRedirectChain(`${BASE_URL}${path}`);
+    if (hops > 1) errors.push(`${path} : ${hops} redirections enchaînées (max 1)`);
+  }
+
+  // Mots-clés cibles : page principale indexable, présente dans le sitemap, termes présents.
+  const sitemapPaths = new Set(urls.map((url) => new URL(url).pathname));
+  for (const target of TARGET_KEYWORDS.flatMap((entry) => [entry.fr, entry.en])) {
+    const response = await fetch(`${BASE_URL}${target.path}`);
+    const html = await response.text();
+    const label = `Mot-clé « ${target.keyword} » (${target.path})`;
+    if (response.status !== 200) {
+      errors.push(`${label} : page en ${response.status}`);
+      continue;
+    }
+    if (/<meta name="robots" content="[^"]*noindex/.test(html))
+      errors.push(`${label} : page noindex`);
+    if (!sitemapPaths.has(target.path)) errors.push(`${label} : absente du sitemap`);
+    const main = normalizeText(
+      decode(firstMatch(html, /<main[^>]*>([\s\S]*?)<\/main>/).replace(/<[^>]+>/g, ' ')),
+    );
+    const heading = normalizeText(
+      decode(
+        firstMatch(html, /<title>([^<]*)<\/title>/) +
+          ' ' +
+          firstMatch(html, /<h1[^>]*>([\s\S]*?)<\/h1>/).replace(/<[^>]+>/g, ' '),
+      ),
+    );
+    const missing = target.terms.filter((term) => !main.includes(term));
+    if (missing.length > 0)
+      errors.push(`${label} : termes absents du contenu (${missing.join(', ')})`);
+    const [first] = target.terms;
+    if (first && !heading.includes(first))
+      errors.push(`${label} : « ${first} » absent du title et du H1`);
+  }
 
   const checker = new LinkChecker();
   const result = await checker.check({
@@ -102,6 +141,24 @@ const main = async (): Promise<void> => {
   for (const link of result.links) {
     if (link.state === 'BROKEN')
       errors.push(`Lien cassé : ${link.url} (depuis ${link.parent ?? '?'}, ${link.status ?? '?'})`);
+  }
+
+  // Pages crawlées indexables absentes du sitemap (les pages noindex en sont exclues à raison).
+  const crawled = new Set(
+    result.links
+      .filter((link) => link.state === 'OK' && link.url.startsWith(BASE_URL))
+      .map((link) => new URL(link.url))
+      .filter((url) => !url.pathname.startsWith('/api') && !/\.[a-z0-9]+$/.test(url.pathname))
+      .map((url) => url.pathname),
+  );
+  for (const path of crawled) {
+    if (sitemapPaths.has(path)) continue;
+    const response = await fetch(`${BASE_URL}${path}`, { redirect: 'manual' });
+    if (response.status !== 200) continue;
+    const html = await response.text();
+    if (!html.includes('<html')) continue;
+    if (/<meta name="robots" content="[^"]*noindex/.test(html)) continue;
+    errors.push(`${path} : page indexable absente du sitemap`);
   }
 
   console.log(

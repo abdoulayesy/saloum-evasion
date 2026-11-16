@@ -18,6 +18,9 @@ const ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL ?? 'admin@saloum-evasion.test';
 const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'demo-admin-password';
 
 const SEEDED_COLLECTIONS = [
+  // 002 : transferts et prestataires d'abord (ils référencent destinations et politiques).
+  'transfers',
+  'partners',
   'stays',
   'experiences',
   'accommodations',
@@ -230,6 +233,11 @@ const seed = async (): Promise<void> => {
       summary:
         'Annulation gratuite jusqu’à 30 jours avant l’arrivée, 50 % ensuite jusqu’à 14 jours.',
       details: richText(['Conditions de démonstration : à remplacer par les conditions réelles.']),
+      tiers: [
+        { daysBeforeArrivalMin: 30, refundPercent: 100 },
+        { daysBeforeArrivalMin: 14, refundPercent: 50 },
+        { daysBeforeArrivalMin: 0, refundPercent: 0 },
+      ],
     },
   });
   await payload.update({
@@ -448,6 +456,9 @@ const seed = async (): Promise<void> => {
         seasonMonths: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
         meetingPoint: 'Embarcadère de Ndangane',
         pricePerPerson: experience.price,
+        maxParticipants: 12,
+        offerKind: 'activity',
+        childPricePercent: 50,
         destination: destinationId(experience.destination),
         faq: faqIds.slice(0, 1),
         body: demoBody('fr', experience.title.fr),
@@ -534,7 +545,14 @@ const seed = async (): Promise<void> => {
         type: accommodation.type,
         capacity: accommodation.capacity,
         amenities: [...accommodation.amenities],
+        // Haute saison de démonstration : +25 %, arrondie au millier (le « à partir de » reste le
+        // prix de basse saison, inchangé pour les pages de la 001).
+        pricing: {
+          lowSeasonPerNight: accommodation.price,
+          highSeasonPerNight: Math.round((accommodation.price * 1.25) / 1000) * 1000,
+        },
         priceFromPerNight: accommodation.price,
+        minNights: 1,
         destination: destinationId(accommodation.destination),
         geo: { latitude: destination?.lat ?? 14.1, longitude: destination?.lng ?? -16.76 },
         address: destination?.name.fr ?? 'Ndangane',
@@ -611,6 +629,7 @@ const seed = async (): Promise<void> => {
         durationNights: stay.nights,
         moods: ['nature', 'detente'],
         pricing: { lowSeasonPerPerson: stay.low, highSeasonPerPerson: stay.high },
+        childPricePercent: 50,
         itinerary: Array.from({ length: stay.nights + 1 }, (_, day) => ({
           day: day + 1,
           title: `Jour ${day + 1}`,

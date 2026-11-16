@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, type MouseEvent } from 'react';
+import { pageType, track } from '@/lib/analytics';
 import { addItem, readDraft, tripFromSearch, writeDraft } from '@/lib/request/draft';
 import type { RequestItemKind } from '@/lib/request/constants';
 
@@ -66,6 +67,7 @@ export const AddToRequest = ({
       adults: trip.adults ?? draft.adults,
       children: trip.children ?? draft.children,
     });
+    track('request_item_added', { kind, pageType: pageType(window.location.pathname) });
     if (navigate) {
       event.currentTarget.href = withTrip(href);
       return;

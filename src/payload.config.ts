@@ -8,21 +8,34 @@ import { fr } from '@payloadcms/translations/languages/fr';
 import { buildConfig } from 'payload';
 import sharp from 'sharp';
 import { Accommodations } from './collections/Accommodations';
+import { Bookings } from './collections/Bookings';
 import { CancellationPolicies } from './collections/CancellationPolicies';
+import { Carts } from './collections/Carts';
+import { CommissionEntries } from './collections/CommissionEntries';
 import { Destinations } from './collections/Destinations';
 import { Experiences } from './collections/Experiences';
 import { FaqItems } from './collections/FaqItems';
 import { Media } from './collections/Media';
+import { Notifications } from './collections/Notifications';
 import { Pages } from './collections/Pages';
+import { Partners } from './collections/Partners';
+import { PaymentEvents } from './collections/PaymentEvents';
+import { Payments } from './collections/Payments';
+import { Payouts } from './collections/Payouts';
 import { RateLimits } from './collections/RateLimits';
 import { Redirects } from './collections/Redirects';
+import { Refunds } from './collections/Refunds';
+import { Reminders } from './collections/Reminders';
 import { Requests } from './collections/Requests';
 import { Stays } from './collections/Stays';
 import { TeamMembers } from './collections/TeamMembers';
+import { Transfers } from './collections/Transfers';
 import { Universes } from './collections/Universes';
 import { Users } from './collections/Users';
 import { Videos } from './collections/Videos';
+import { CommissionRates } from './globals/CommissionRates';
 import { Navigation } from './globals/Navigation';
+import { sendNotificationTask } from './jobs/sendNotification';
 import { SiteSettings } from './globals/SiteSettings';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -53,6 +66,7 @@ export default buildConfig({
     Stays,
     Experiences,
     Accommodations,
+    Transfers,
     Destinations,
     Universes,
     Videos,
@@ -62,11 +76,32 @@ export default buildConfig({
     CancellationPolicies,
     TeamMembers,
     Requests,
+    Partners,
+    Carts,
+    Bookings,
+    Payments,
+    PaymentEvents,
+    Refunds,
+    CommissionEntries,
+    Payouts,
+    Reminders,
+    Notifications,
     Redirects,
     RateLimits,
     Users,
   ],
-  globals: [SiteSettings, Navigation],
+  globals: [SiteSettings, Navigation, CommissionRates],
+  // File de tâches (002, T028) : exécutée par /api/jobs/run (Vercel Cron chaque minute,
+  // `pnpm jobs:dev` en local). Tâches terminées supprimées ; le journal métier est dans
+  // `notifications`, `reminders` et `paymentEvents`.
+  jobs: {
+    tasks: [sendNotificationTask],
+    deleteJobOnComplete: true,
+    jobsCollectionOverrides: ({ defaultJobsCollection }) => ({
+      ...defaultJobsCollection,
+      admin: { ...defaultJobsCollection.admin, hidden: true },
+    }),
+  },
   editor: lexicalEditor(),
   db: postgresAdapter({
     pool: { connectionString: process.env.DATABASE_URI ?? '' },

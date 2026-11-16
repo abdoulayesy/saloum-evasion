@@ -29,15 +29,31 @@ Application unique à la racine (plan 001 et 002) : `src/`, `tests/unit/`, `test
 
 **Purpose**: préparer le dépôt pour le tunnel, sans logique métier.
 
-- [ ] T001 Vérifier les prérequis 001 (collections `stays`, `experiences`, `accommodations`, `destinations`, `cancellationPolicies`, `siteSettings` ; îlot `AddToRequest` ; résolveur de segments) et consigner le résultat dans specs/002-panier-paiement/tasks.md (note sous cette tâche) ; arrêter si absent
-- [ ] T002 Ajouter les variables d'environnement du quickstart (passerelle, WhatsApp, `CRON_SECRET`, Plausible Events) dans .env.example et un module de lecture typé et validé par Zod dans src/lib/env.ts
-- [ ] T003 [P] Ajouter les segments traduits du tunnel (`panier`/`cart`, `commande`/`checkout`, `coordonnees`/`details`, `paiement`/`payment`, `statut`/`status`, `reservation`/`booking`, `solde`/`balance`, `annulation`/`cancel`, `retrouver`/`find`, `reprendre`/`resume`) dans src/i18n/pathnames.ts, avec leur réécriture vers les routes internes du groupe `(checkout)` dans src/middleware.ts (plan, tension T19)
-- [ ] T004 [P] Créer les espaces de messages `cart`, `checkout`, `booking`, `payment`, `refund` (FR et EN, libellés des étapes, erreurs, causes d'échec, mentions « indicatif » et « en cours de confirmation ») dans src/i18n/messages/fr.json et src/i18n/messages/en.json
+- [X] T001 Vérifier les prérequis 001 (collections `stays`, `experiences`, `accommodations`, `destinations`, `cancellationPolicies`, `siteSettings` ; îlot `AddToRequest` ; résolveur de segments) et consigner le résultat dans specs/002-panier-paiement/tasks.md (note sous cette tâche) ; arrêter si absent
+- [X] T002 Ajouter les variables d'environnement du quickstart (passerelle, WhatsApp, `CRON_SECRET`, Plausible Events) dans .env.example et un module de lecture typé et validé par Zod dans src/lib/env.ts
+- [X] T003 [P] Ajouter les segments traduits du tunnel (`panier`/`cart`, `commande`/`checkout`, `coordonnees`/`details`, `paiement`/`payment`, `statut`/`status`, `reservation`/`booking`, `solde`/`balance`, `annulation`/`cancel`, `retrouver`/`find`, `reprendre`/`resume`) dans src/i18n/pathnames.ts, avec leur réécriture vers les routes internes du groupe `(checkout)` dans src/middleware.ts (plan, tension T19)
+- [X] T004 [P] Créer les espaces de messages `cart`, `checkout`, `booking`, `payment`, `refund` (FR et EN, libellés des étapes, erreurs, causes d'échec, mentions « indicatif » et « en cours de confirmation ») dans src/i18n/messages/fr.json et src/i18n/messages/en.json
 - [ ] T005 [P] Ajouter les URL du tunnel (`/fr/panier`, `/fr/commande/coordonnees`, `/fr/commande/statut?p=demo`) avec le cookie du panier de démonstration et une matrice d'assertions sans catégorie SEO dans lighthouserc.json
 - [ ] T006 [P] Étendre scripts/check-bundles.ts aux routes du groupe `(checkout)` et ajouter un plafond de 3 Ko gzip pour l'ensemble des îlots `src/components/client/CartBadge.tsx` et `PaymentStatusPoller.tsx`
-- [ ] T007 [P] Ajouter le tag `@checkout` et un projet `android-360-3g` (profil `3g` de tests/e2e/support/network.ts) dans playwright.config.ts ; script `e2e:checkout` dans package.json
+- [X] T007 [P] Ajouter le tag `@checkout` et un projet `android-360-3g` (profil `3g` de tests/e2e/support/network.ts) dans playwright.config.ts ; script `e2e:checkout` dans package.json
 - [ ] T097 [P] Comparer PayDunya, PayTech et CinetPay selon les critères éliminatoires de research R2 (dont test manuel de la page hébergée à 360 px, au clavier et au lecteur d'écran — tension T14) ; consigner la décision dans specs/002-panier-paiement/research.md (R2) ; **décision commerciale du propriétaire requise avant T098** (avancée en phase 1 : seul blocage avant l'ouverture au public)
 - [ ] T008 [P] Créer les helpers E2E du tunnel (`seedCheckoutFixtures`, `fillContact`, `payWithFake(outcome)`, `readCartSummary`, `expectNoindex`) dans tests/e2e/support/checkout.ts
+
+> **Avancement de la phase 1 (2026-11-16)** :
+> - T001 : prérequis 001 vérifiés (collections, réglages, îlot `AddToRequest`, résolveur, demande de
+>   séjour de la phase 8) ; tous présents.
+> - T002 : `src/lib/env.ts` ; la passerelle `fake` est refusée en production sauf
+>   `ALLOW_FAKE_GATEWAY=1` (local et tests, où `next start` tourne en mode production).
+> - T003 : segments dans `src/lib/checkout/paths.ts` (et non `pathnames.ts` : le tunnel n'est pas une
+>   route du résolveur) ; réécriture vers `/{langue}/tunnel/...` dans `src/middleware.ts` ; références
+>   de réservation en minuscules dans les URL (le middleware redirige toute majuscule) ; le sélecteur
+>   de langue reste sur la même étape et conserve `p`, `k` et `t`. Pas d'en-tête Referer propre au
+>   tunnel : la politique du site (`strict-origin-when-cross-origin`) ne transmet jamais le chemin à
+>   un tiers.
+> - T005, T006, T008 : reportées au moment où les pages, les îlots et les premiers tests du tunnel
+>   existent (phase 3).
+> - T097 : grille de comparaison prête (research.md R2a) ; **décision commerciale du propriétaire
+>   attendue**, nécessaire seulement avant T098.
 
 ---
 
@@ -48,41 +64,75 @@ layout du tunnel. **Aucune story ne commence avant la fin de cette phase.**
 
 ### Logique métier pure (tests d'abord)
 
-- [ ] T009 [P] Écrire les tests de tarification (FR-041 : nuits multi-saisons, enfants de 4 à 11 ans à 50 % et gratuits sous 4 ans avec pourcentage et âges réglables par offre, transferts par véhicule selon la tranche de passagers 1–3 / 4–7 / 8+, séjour signature par saison d'arrivée, entiers XOF, conversion EUR indicative 655,957) dans tests/unit/checkout/pricing.test.ts
-- [ ] T010 [P] Écrire les tests d'acompte (éligibilité > 30 jours, `requireFullPayment`, arrondi à la centaine supérieure, `acompte + solde = total`, date limite J-14) dans tests/unit/checkout/deposit.test.ts
-- [ ] T011 [P] Écrire les tests de commission (taux en points de base 1000–2500 refusés hors plage, arrondi demi vers le haut, somme commission + part = encaissé, reconnaissance au prorata en acompte, ajustement de remboursement, motif `partner` où la commission reste due) dans tests/unit/checkout/commission.test.ts
-- [ ] T012 [P] Écrire les tests des paliers d'annulation (palier applicable selon les jours restants, montant remboursable sur l'encaissé réel, annulation partielle, motif `company`/`unavailable` = 100 %) dans tests/unit/checkout/cancellation.test.ts
-- [ ] T013 [P] Écrire les tests de cohérence du panier (≤ 1 hébergement ou séjour, séjour exclut hébergement, dates dans les nuits, retour après aller, capacité, délai minimum J+1) et des machines à états `bookings` / `payments` (transitions autorisées, refus des retours en arrière) dans tests/unit/checkout/validateCart.test.ts et tests/unit/checkout/stateMachines.test.ts
-- [ ] T014 Implémenter src/lib/checkout/pricing.ts et src/lib/checkout/deposit.ts (purs, sans dépendance) jusqu'à faire passer T009 et T010
-- [ ] T015 [P] Implémenter src/lib/checkout/commission.ts et src/lib/checkout/cancellation.ts jusqu'à faire passer T011 et T012
-- [ ] T016 [P] Implémenter src/lib/checkout/validateCart.ts, src/lib/checkout/stateMachines.ts et src/lib/checkout/reference.ts (référence `SE-` + 6 caractères sans 0/O/1/I, test d'unicité statistique) jusqu'à faire passer T013
-- [ ] T016b [P] Créer src/lib/checkout/summary.ts (`summaryLines(booking)` : source unique des lignes, dates, voyageurs, prix et total) et tests/unit/checkout/summary.test.ts vérifiant que la page, l'e-mail, le modèle WhatsApp et le bon PDF rendent exactement ces lignes (FR-010) ; T058, T059 et T061 consomment `summaryLines`
+- [X] T009 [P] Écrire les tests de tarification (FR-041 : nuits multi-saisons, enfants de 4 à 11 ans à 50 % et gratuits sous 4 ans avec pourcentage et âges réglables par offre, transferts par véhicule selon la tranche de passagers 1–3 / 4–7 / 8+, séjour signature par saison d'arrivée, entiers XOF, conversion EUR indicative 655,957) dans tests/unit/checkout/pricing.test.ts
+- [X] T010 [P] Écrire les tests d'acompte (éligibilité > 30 jours, `requireFullPayment`, arrondi à la centaine supérieure, `acompte + solde = total`, date limite J-14) dans tests/unit/checkout/deposit.test.ts
+- [X] T011 [P] Écrire les tests de commission (taux en points de base 1000–2500 refusés hors plage, arrondi demi vers le haut, somme commission + part = encaissé, reconnaissance au prorata en acompte, ajustement de remboursement, motif `partner` où la commission reste due) dans tests/unit/checkout/commission.test.ts
+- [X] T012 [P] Écrire les tests des paliers d'annulation (palier applicable selon les jours restants, montant remboursable sur l'encaissé réel, annulation partielle, motif `company`/`unavailable` = 100 %) dans tests/unit/checkout/cancellation.test.ts
+- [X] T013 [P] Écrire les tests de cohérence du panier (≤ 1 hébergement ou séjour, séjour exclut hébergement, dates dans les nuits, retour après aller, capacité, délai minimum J+1) et des machines à états `bookings` / `payments` (transitions autorisées, refus des retours en arrière) dans tests/unit/checkout/validateCart.test.ts et tests/unit/checkout/stateMachines.test.ts
+- [X] T014 Implémenter src/lib/checkout/pricing.ts et src/lib/checkout/deposit.ts (purs, sans dépendance) jusqu'à faire passer T009 et T010
+- [X] T015 [P] Implémenter src/lib/checkout/commission.ts et src/lib/checkout/cancellation.ts jusqu'à faire passer T011 et T012
+- [X] T016 [P] Implémenter src/lib/checkout/validateCart.ts, src/lib/checkout/stateMachines.ts et src/lib/checkout/reference.ts (référence `SE-` + 6 caractères sans 0/O/1/I, test d'unicité statistique) jusqu'à faire passer T013
+- [X] T016b [P] Créer src/lib/checkout/summary.ts (`summaryLines(booking)` : source unique des lignes, dates, voyageurs, prix et total) et tests/unit/checkout/summary.test.ts vérifiant que la page, l'e-mail, le modèle WhatsApp et le bon PDF rendent exactement ces lignes (FR-010) ; T058, T059 et T061 consomment `summaryLines`
 
 ### Modèle de données (data-model.md)
 
-- [ ] T017 [P] Ajouter `tiers` (validation : ≥ 1 palier, délais uniques, pourcentages décroissants) à src/collections/CancellationPolicies.ts
-- [ ] T018 [P] Créer src/collections/Partners.ts (champs, `payoutDetails` visible de `finance`/`admin` seulement)
-- [ ] T019 [P] Créer src/collections/Transfers.ts (trajets AIBD/Dakar, `priceTiers`, `partner`, `cancellationPolicy`, `bookable`)
-- [ ] T020 Ajouter `bookable`, `partner`, `childPricePercent`, `slots`, `offerKind`, prix saisonniers par nuit, `minNights`, `requireFullPayment` et la règle « vendable ⇒ partenaire + politique + prix » via un champ partagé src/fields/bookable.ts appliqué à src/collections/Stays.ts, Experiences.ts et Accommodations.ts ; tarif enfant réglable par offre (FR-041) ; `priceFromPerNight` des hébergements devient calculé (le plus bas des prix saisonniers), en lecture seule ; migration et seed mis à jour ; cartes, listes et JSON-LD de la 001 inchangés (tests 001 verts)
-- [ ] T021 [P] Créer src/globals/CommissionRates.ts (historisé, défauts 1000/1500/1500/2000/2500, validation 1000–2500) et ajouter le groupe `checkout` et `notifications` à src/globals/SiteSettings.ts
-- [ ] T022 [P] Créer src/collections/Carts.ts (CartItem, `version`, `contact`, `remindersConsent`, statuts, `expiresAt`) avec accès API publique interdit
-- [ ] T023 Créer src/collections/Bookings.ts (BookingLine, `policySnapshot`, `availabilityStatus`, `manageTokenHash` masqué, unicité `(cart, cartVersion)`, accès par rôle) — dépend de T022
-- [ ] T024 [P] Créer src/collections/Payments.ts et src/collections/PaymentEvents.ts (immuable : `update`/`delete` refusés à tous) ; migration SQL de l'index unique partiel `(booking, purpose) WHERE status IN ('initiated','pending')` et de l'unicité `gatewayEventId` dans src/migrations/
-- [ ] T025 [P] Créer src/collections/Refunds.ts, src/collections/CommissionEntries.ts (immuable), src/collections/Payouts.ts
-- [ ] T026 [P] Créer src/collections/Reminders.ts et src/collections/Notifications.ts (destinataire partiellement masqué dans l'admin)
-- [ ] T027 Ajouter les rôles `operations` et `finance` à src/collections/Users.ts et appliquer la matrice d'accès du data-model à toutes les nouvelles collections ; test d'accès dans tests/unit/checkout/access.test.ts
+- [X] T017 [P] Ajouter `tiers` (validation : ≥ 1 palier, délais uniques, pourcentages décroissants) à src/collections/CancellationPolicies.ts
+- [X] T018 [P] Créer src/collections/Partners.ts (champs, `payoutDetails` visible de `finance`/`admin` seulement)
+- [X] T019 [P] Créer src/collections/Transfers.ts (trajets AIBD/Dakar, `priceTiers`, `partner`, `cancellationPolicy`, `bookable`)
+- [X] T020 Ajouter `bookable`, `partner`, `childPricePercent`, `slots`, `offerKind`, prix saisonniers par nuit, `minNights`, `requireFullPayment` et la règle « vendable ⇒ partenaire + politique + prix » via un champ partagé src/fields/bookable.ts appliqué à src/collections/Stays.ts, Experiences.ts et Accommodations.ts ; tarif enfant réglable par offre (FR-041) ; `priceFromPerNight` des hébergements devient calculé (le plus bas des prix saisonniers), en lecture seule ; migration et seed mis à jour ; cartes, listes et JSON-LD de la 001 inchangés (tests 001 verts)
+- [X] T021 [P] Créer src/globals/CommissionRates.ts (historisé, défauts 1000/1500/1500/2000/2500, validation 1000–2500) et ajouter le groupe `checkout` et `notifications` à src/globals/SiteSettings.ts
+- [X] T022 [P] Créer src/collections/Carts.ts (CartItem, `version`, `contact`, `remindersConsent`, statuts, `expiresAt`) avec accès API publique interdit
+- [X] T023 Créer src/collections/Bookings.ts (BookingLine, `policySnapshot`, `availabilityStatus`, `manageTokenHash` masqué, unicité `(cart, cartVersion)`, accès par rôle) — dépend de T022
+- [X] T024 [P] Créer src/collections/Payments.ts et src/collections/PaymentEvents.ts (immuable : `update`/`delete` refusés à tous) ; migration SQL de l'index unique partiel `(booking, purpose) WHERE status IN ('initiated','pending')` et de l'unicité `gatewayEventId` dans src/migrations/
+- [X] T025 [P] Créer src/collections/Refunds.ts, src/collections/CommissionEntries.ts (immuable), src/collections/Payouts.ts
+- [X] T026 [P] Créer src/collections/Reminders.ts et src/collections/Notifications.ts (destinataire partiellement masqué dans l'admin)
+- [X] T027 Ajouter les rôles `operations` et `finance` à src/collections/Users.ts et appliquer la matrice d'accès du data-model à toutes les nouvelles collections ; test d'accès dans tests/unit/checkout/access.test.ts
+
+> **Avancement de la phase 2 (logique et modèle)** (2026-11-16) :
+> - Logique pure : 56 tests verts. Le panier stocke des effectifs déjà classés (`adults`,
+>   `children` de 4 à 11 ans, `infants` de moins de 4 ans), comme le data-model ; les bornes d'âge
+>   de l'offre servent aux libellés du formulaire. Remboursement et commission arrondis demi vers
+>   le haut ; en acompte puis solde, la commission du solde est calculée sur le cumul (somme
+>   exacte, sans écart d'arrondi).
+> - Modèle : dates civiles (`startDate`, `balanceDueDate`, périodes de reversement) stockées en
+>   texte AAAA-MM-JJ (aucun décalage de fuseau) ; relances ciblées par `targetType` + `targetId`
+>   (et non par relation polymorphe) pour porter l'index unique de FR-031 ; ajout de
+>   `experiences.maxParticipants` (défaut 12), nécessaire au contrôle de capacité ; fichier du bon
+>   PDF ajouté avec T061 (média privé). Migration `20261116_065551_checkout_model` : index
+>   unique partiel des paiements actifs et reprise des prix saisonniers des hébergements ; descente
+>   testée (contraintes en `IF EXISTS`, l'ordre généré par Payload échouait).
 
 ### Infrastructure transverse
 
-- [ ] T028 Configurer la file `jobs` de Payload dans src/payload.config.ts et créer la route protégée src/app/api/jobs/run/route.ts (secret `CRON_SECRET`, comparaison à temps constant) + script `jobs:dev` dans package.json
-- [ ] T029 [P] Définir le type `PaymentGateway` du contrat dans src/lib/payments/gateway.ts et la sélection par `PAYMENT_GATEWAY` dans src/lib/payments/index.ts
-- [ ] T030 [P] Écrire la suite de contrat commune (trois moyens, montant entier conservé, signature invalide rejetée, notification rejouée sans effet, statuts reconnus) dans tests/unit/payments/gateway.contract.test.ts
-- [ ] T031 Implémenter la passerelle `fake` (notifications signées HMAC `FAKE_GATEWAY_SECRET`, option `delayMs`) dans src/lib/payments/fake.ts et sa page src/app/dev/fake-gateway/page.tsx (404 en production) jusqu'à faire passer T030
-- [ ] T032 [P] Créer les cookies `se_cart` (HttpOnly, Secure, Lax, 7 j) et `se_cart_summary` (nombre + total, sans donnée personnelle) dans src/lib/cart/cookies.ts et le dépôt de paniers (lecture, création, incrément de version) dans src/lib/cart/repository.ts
-- [ ] T033 Créer le groupe src/app/(frontend)/[locale]/(checkout)/ (layout et routes internes `cart`, `checkout/[step]`, `booking/[ref]/[[...action]]`, `resume`, `find`) : `robots: noindex, nofollow`, en-têtes `X-Robots-Tag: noindex`, `Cache-Control: private, no-store`, `Referrer-Policy: no-referrer` (via src/middleware.ts, qui réécrit aussi les segments traduits), indicateur d'étapes, lien WhatsApp contextuel (FR-039) ; **ne pas** modifier le résolveur [...segments] (tension T19) ; test E2E : une fiche séjour reste servie avec `x-nextjs-prerender` après ajout d'un article au panier
-- [ ] T034 [P] Créer le gabarit d'envoi commun (4 tentatives 0/1/5/30 min, puis `escalated` vers `fallbackNotificationEmail`) : tâche src/jobs/sendNotification.ts, adaptateurs src/lib/notifications/email.ts (Resend) et src/lib/notifications/whatsapp.ts (API Cloud en `fetch` ; journalisation seule si `WHATSAPP_CLOUD_TOKEN` vide) ; tests de la politique de relance dans tests/unit/notifications/retry.test.ts
-- [ ] T035 [P] Ajouter les types de page du tunnel à `NOINDEX_TYPES` de src/lib/seo/sitemapEntries.ts (jamais dans `FIXED_ROUTES`) et vérifier que src/app/robots.ts ne les bloque pas ; test unitaire dans tests/unit/seo/sitemap-checkout.test.ts
-- [ ] T036 Créer le script de démonstration scripts/seed-checkout.ts (prestataires, taux, politiques à paliers, écolodge, 3 expériences, 1 table, 2 transferts, 1 séjour signature `bookable`) + script `seed:checkout` dans package.json
+- [X] T028 Configurer la file `jobs` de Payload dans src/payload.config.ts et créer la route protégée src/app/api/jobs/run/route.ts (secret `CRON_SECRET`, comparaison à temps constant) + script `jobs:dev` dans package.json
+- [X] T029 [P] Définir le type `PaymentGateway` du contrat dans src/lib/payments/gateway.ts et la sélection par `PAYMENT_GATEWAY` dans src/lib/payments/index.ts
+- [X] T030 [P] Écrire la suite de contrat commune (trois moyens, montant entier conservé, signature invalide rejetée, notification rejouée sans effet, statuts reconnus) dans tests/unit/payments/gateway.contract.test.ts
+- [X] T031 Implémenter la passerelle `fake` (notifications signées HMAC `FAKE_GATEWAY_SECRET`, option `delayMs`) dans src/lib/payments/fake.ts et sa page src/app/dev/fake-gateway/page.tsx (404 en production) jusqu'à faire passer T030
+- [X] T032 [P] Créer les cookies `se_cart` (HttpOnly, Secure, Lax, 7 j) et `se_cart_summary` (nombre + total, sans donnée personnelle) dans src/lib/cart/cookies.ts et le dépôt de paniers (lecture, création, incrément de version) dans src/lib/cart/repository.ts
+- [X] T033 Créer le groupe src/app/(frontend)/[locale]/(checkout)/ (layout et routes internes `cart`, `checkout/[step]`, `booking/[ref]/[[...action]]`, `resume`, `find`) : `robots: noindex, nofollow`, en-têtes `X-Robots-Tag: noindex`, `Cache-Control: private, no-store`, `Referrer-Policy: no-referrer` (via src/middleware.ts, qui réécrit aussi les segments traduits), indicateur d'étapes, lien WhatsApp contextuel (FR-039) ; **ne pas** modifier le résolveur [...segments] (tension T19) ; test E2E : une fiche séjour reste servie avec `x-nextjs-prerender` après ajout d'un article au panier
+- [X] T034 [P] Créer le gabarit d'envoi commun (4 tentatives 0/1/5/30 min, puis `escalated` vers `fallbackNotificationEmail`) : tâche src/jobs/sendNotification.ts, adaptateurs src/lib/notifications/email.ts (Resend) et src/lib/notifications/whatsapp.ts (API Cloud en `fetch` ; journalisation seule si `WHATSAPP_CLOUD_TOKEN` vide) ; tests de la politique de relance dans tests/unit/notifications/retry.test.ts
+- [X] T035 [P] Ajouter les types de page du tunnel à `NOINDEX_TYPES` de src/lib/seo/sitemapEntries.ts (jamais dans `FIXED_ROUTES`) et vérifier que src/app/robots.ts ne les bloque pas ; test unitaire dans tests/unit/seo/sitemap-checkout.test.ts
+- [X] T036 Créer le script de démonstration scripts/seed-checkout.ts (prestataires, taux, politiques à paliers, écolodge, 3 expériences, 1 table, 2 transferts, 1 séjour signature `bookable`) + script `seed:checkout` dans package.json
+
+> **Avancement de la phase 2 (infrastructure)** (2026-11-16) :
+> - T028 : file Payload (`sendNotification`), route `/api/jobs/run` en GET (Vercel Cron envoie un
+>   GET avec `Authorization: Bearer`), planifiée chaque minute dans vercel.json ; contrôle du secret
+>   factorisé dans `src/lib/cronAuth.ts` et repris par les routes cron de la 001 ; migration
+>   `jobs_queue`.
+> - T031 : `/dev/fake-gateway` exclue du middleware (sinon 404 faute de langue) ; la page et son
+>   action répondent 404 hors passerelle factice et en production (sauf `ALLOW_FAKE_GATEWAY=1`).
+> - T032 : jeton `se_cart` de 128 bits, seule son empreinte SHA-256 est stockée
+>   (`carts.tokenHash`, migration `cart_token`).
+> - T033 : routes internes sous `/{langue}/tunnel/…` (réécriture du middleware, phase 1) plutôt
+>   qu'un groupe `(checkout)` ; `force-dynamic` sur chaque page (le `generateStaticParams` du
+>   layout [locale] l'emporterait), vérifié en E2E (cookie inconnu → « panier expiré ») ; pas de
+>   `Referrer-Policy: no-referrer` : la politique globale `strict-origin-when-cross-origin` suffit
+>   et garde le sélecteur de langue fonctionnel (décision de la phase 1). Formulaires des étapes :
+>   US1.
+> - T035 : les pages du tunnel ne sont pas des `RouteType` de la 001 ; garde explicite dans
+>   `entriesForRoute` (`isTunnelPath`) au lieu de `NOINDEX_TYPES`.
+> - T036 : `pnpm seed:checkout` idempotent, après `pnpm seed` (qui purge aussi transferts et
+>   prestataires).
 
 **Checkpoint** : `pnpm typecheck && pnpm lint && pnpm test` verts ; admin affiche les nouvelles
 collections ; la passerelle `fake` répond.

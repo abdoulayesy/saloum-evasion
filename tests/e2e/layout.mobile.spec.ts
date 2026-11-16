@@ -41,17 +41,20 @@ test.describe('layout public', () => {
     expect(new Set(tops).size).toBe(1);
   });
 
-  test('en-tête : lien vers l’autre langue, pas de débordement à 360 px', async ({ page }) => {
+  test('en-tête : lien vers l’autre langue (page équivalente), pas de débordement à 360 px', async ({
+    page,
+  }) => {
     await page.goto('/fr');
     await expect(page.getByRole('link', { name: 'EN, English version' })).toHaveAttribute(
       'href',
-      '/en',
+      '/api/locale-switch?to=en',
     );
     await expectNoHorizontalScroll(page);
-    await page.goto('/en');
+    await page.getByRole('link', { name: 'EN, English version' }).click();
+    await expect(page).toHaveURL(/\/en$/);
     await expect(page.getByRole('link', { name: 'FR, version française' })).toHaveAttribute(
       'href',
-      '/fr',
+      '/api/locale-switch?to=fr',
     );
   });
 });

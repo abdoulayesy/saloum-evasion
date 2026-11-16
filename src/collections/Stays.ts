@@ -14,6 +14,7 @@ import { bodyComplete, hasText, localeStatusField, seoComplete } from '@/fields/
 import { requiredInFrench } from '@/fields/localized';
 import { seoField } from '@/fields/seo';
 import { budgetBand, durationCategory, priceFrom } from '@/lib/pricing';
+import { bookableFields, bookableGuard, groupValue } from '@/fields/bookable';
 import { contentDefaults } from './shared';
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -52,7 +53,13 @@ export const Stays: CollectionConfig = {
   ...contentDefaults({
     englishCheck: (data) =>
       hasText(data.title) && hasText(data.summary) && seoComplete(data) && bodyComplete(data),
-    extraBeforeChange: [computeStayDerived],
+    extraBeforeChange: [
+      computeStayDerived,
+      bookableGuard((data) => {
+        const pricing = groupValue(data, 'pricing');
+        return isWholeXof(pricing.lowSeasonPerPerson) && isWholeXof(pricing.highSeasonPerPerson);
+      }),
+    ],
   }),
   fields: [
     titleField(),
@@ -168,6 +175,14 @@ export const Stays: CollectionConfig = {
       relationTo: 'cancellationPolicies',
       required: true,
       label: 'Conditions d’annulation (obligatoires)',
+    },
+    ...bookableFields({ childPricing: true, hasCancellationPolicy: true }),
+    {
+      name: 'requireFullPayment',
+      type: 'checkbox',
+      defaultValue: false,
+      label: 'Paiement total exigé (pas d’acompte)',
+      admin: { position: 'sidebar' },
     },
     {
       name: 'destinations',

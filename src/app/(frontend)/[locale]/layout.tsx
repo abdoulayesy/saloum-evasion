@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { Analytics } from '@/components/client/Analytics';
+import { WebVitals } from '@/components/client/WebVitals';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { htmlLang, isLocale, routing } from '@/i18n/routing';
@@ -50,6 +52,12 @@ const LocaleLayout = async ({ children, params }: LayoutProps) => {
           {children}
         </main>
         <Footer locale={locale} />
+        {/* Mesure sans cookie, après inactivité (T161, T162) ; désactivée sans domaine configuré. */}
+        <Analytics
+          domain={process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN || null}
+          scriptSrc="https://plausible.io/js/script.js"
+        />
+        <WebVitals />
       </body>
     </html>
   );
