@@ -1,8 +1,10 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { buildPath } from '@/i18n/pathnames';
-import type { Locale } from '@/i18n/routing';
-import { liveMainNavigation } from '@/lib/navigation';
+import { htmlLang, type Locale } from '@/i18n/routing';
+import { getSiteSettings } from '@/lib/cms/siteSettings';
+import { isLive, liveMainNavigation } from '@/lib/navigation';
+import { siteWhatsappHref } from '@/lib/pageActions';
 
 export const MENU_DIALOG_ID = 'menu-principal';
 
@@ -18,12 +20,19 @@ export const MobileMenu = async ({ locale }: MobileMenuProps) => {
   const t = await getTranslations({ locale, namespace: 'menu' });
   const tRoutes = await getTranslations({ locale, namespace: 'routes' });
   const tCommon = await getTranslations({ locale, namespace: 'common' });
+  const tActions = await getTranslations({ locale, namespace: 'actions' });
+  const tHeader = await getTranslations({ locale, namespace: 'header' });
+  const otherLocale: Locale = locale === 'fr' ? 'en' : 'fr';
+  const whatsappHref = await siteWhatsappHref(locale, await getSiteSettings(locale));
   const items = [
     { href: buildPath(locale, { type: 'home' }), label: tCommon('home') },
     ...liveMainNavigation().map((route) => ({
       href: buildPath(locale, route),
       label: tRoutes(route.type),
     })),
+    ...(isLive('request')
+      ? [{ href: buildPath(locale, { type: 'request' }), label: tRoutes('request') }]
+      : []),
   ];
 
   return (
@@ -57,6 +66,25 @@ export const MobileMenu = async ({ locale }: MobileMenuProps) => {
             ))}
           </ul>
         </nav>
+        {/* Langue dans la zone du pouce (T158) : page équivalente calculée par le contrôleur. */}
+        <a
+          href={`/api/locale-switch?to=${otherLocale}`}
+          hrefLang={htmlLang[otherLocale]}
+          lang={htmlLang[otherLocale]}
+          className="mt-4 inline-flex min-h-touch w-full items-center justify-center rounded-control border border-sable/60 px-4 font-semibold"
+        >
+          {tHeader('switchLanguageLabel')}
+        </a>
+        {whatsappHref && (
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-flex min-h-touch w-full items-center justify-center rounded-control bg-ocre px-4 font-semibold text-white"
+          >
+            {tActions('whatsappLabel')}
+          </a>
+        )}
         <form method="dialog" className="pt-4">
           <button type="submit" className={`${closeButtonClass} w-full`}>
             {t('close')}

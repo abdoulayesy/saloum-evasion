@@ -1,21 +1,65 @@
 import type { Access, FieldAccess, PayloadRequest } from 'payload';
 
-// Droits d'accès communs (data-model « users ») : `admin` (tout), `editor` (contenus +
-// demandes). Aucun compte visiteur.
+// Droits d'accès communs (data-model 001 « users » et matrice des rôles de la 002). Aucun compte
+// visiteur. Rôles :
+// - `admin` : tout ;
+// - `editor` : contenus 001 et demandes ;
+// - `operations` : réservations, disponibilité, demandes de remboursement (lecture des contenus) ;
+// - `finance` : remboursements, commissions, reversements (lecture des contenus et réservations).
 
-type Role = 'admin' | 'editor';
+export const ROLES = ['admin', 'editor', 'operations', 'finance'] as const;
 
-const roleOf = (req: PayloadRequest): Role | null => {
+export type Role = (typeof ROLES)[number];
+
+const isRole = (value: unknown): value is Role => ROLES.some((role) => role === value);
+
+export const roleOf = (req: PayloadRequest): Role | null => {
   const user = req.user;
   if (!user || !('role' in user)) return null;
-  return user.role === 'admin' || user.role === 'editor' ? user.role : null;
+  return isRole(user.role) ? user.role : null;
 };
 
-export const isAdmin: Access = ({ req }) => roleOf(req) === 'admin';
+/** Droit d'accès par rôles ; la liste reste lisible (`roles`) pour le test de la matrice. */
+export type RoleAccess = Access & { roles: readonly Role[] };
 
-export const isTeam: Access = ({ req }) => roleOf(req) !== null;
+const allow = (...roles: Role[]): RoleAccess =>
+  Object.assign<Access, { roles: readonly Role[] }>(
+    ({ req }) => {
+      const role = roleOf(req);
+      return role !== null && roles.includes(role);
+    },
+    { roles },
+  );
 
-export const isAdminField: FieldAccess = ({ req }) => roleOf(req) === 'admin';
+const allowField =
+  (...roles: Role[]): FieldAccess =>
+  ({ req }) => {
+    const role = roleOf(req);
+    return role !== null && roles.includes(role);
+  };
+
+export const isAdmin: RoleAccess = allow('admin');
+
+/** Écriture des contenus éditoriaux 001 (offres, pages, médias, réglages). */
+export const isTeam: RoleAccess = allow('admin', 'editor');
+
+/** Tout membre de l'équipe, quel que soit son rôle (lecture de l'admin). */
+export const isStaff: RoleAccess = allow(...ROLES);
+
+/** Réservations et disponibilité. */
+export const isOperations: RoleAccess = allow('admin', 'operations');
+
+/** Remboursements validés, commissions, reversements. */
+export const isFinance: RoleAccess = allow('admin', 'finance');
+
+/** Lecture des réservations : opérations et finance. */
+export const isBackOffice: RoleAccess = allow('admin', 'operations', 'finance');
+
+export const isAdminField: FieldAccess = allowField('admin');
+
+export const isFinanceField: FieldAccess = allowField('admin', 'finance');
+
+export const isOperationsField: FieldAccess = allowField('admin', 'operations');
 
 /** Public : documents publiés seulement ; équipe : tout, brouillons compris. */
 export const publishedOrTeam: Access = ({ req }) =>
@@ -23,7 +67,8 @@ export const publishedOrTeam: Access = ({ req }) =>
 
 export const anyone: Access = () => true;
 
-export const nobody: Access = () => false;
+/** Personne, pas même un administrateur : écritures réservées au serveur (API locale). */
+export const nobody: RoleAccess = allow();
 
 /** Admin, ou l'utilisateur sur son propre compte. */
 export const adminOrSelf: Access = ({ req }) => {

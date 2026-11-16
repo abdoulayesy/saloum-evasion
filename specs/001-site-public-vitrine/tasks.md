@@ -356,24 +356,33 @@ lit l'engagement et l'équipe, et trouve FAQ, contact et pages légales.
 **Independent Test** : sur mobile, aucune requête vidéo avant le clic ; le chapitre `?t=`
 fonctionne ; sous-titres FR et EN disponibles.
 
-- [ ] T123 [US4] Créer `src/lib/mux.ts` (URL HLS, rendu MP4 statique, URL d'affiche) et un hook dans `src/collections/Videos.ts` qui vérifie le `muxPlaybackId` et renseigne la durée via l'API Mux
-- [ ] T124 [US4] Créer `src/components/client/VideoPlayer.tsx` : affiche via `CmsImage`, bouton lecture de 44 px avec nom accessible, aucun `src` et `preload="none"` avant le clic, puis `import()` de la **version allégée** de hls.js (`hls.js/dist/hls.light.mjs`, pour tenir le budget de 100 Ko du code à la demande : analyse P2 ; HLS natif sur Safari), pistes de sous-titres FR/EN (langue de la page par défaut), commandes natives au clavier, liste de chapitres en boutons, prise en compte de `?t=` après lecture (perf-a11y CHK043)
-- [ ] T125 [US4] Créer `src/components/client/AmbientLoop.tsx` : seulement si `(min-width: 1024px) and (pointer: fine)`, ni mouvement réduit ni `Save-Data`, après `load` ; MP4 ≤ 1,5 Mo ; vidéo décorative `aria-hidden` ; **bouton pause/lecture visible** (WCAG 2.2.2 : perf-a11y CHK042)
-- [ ] T126 [US4] Créer `src/components/views/FilmView.tsx` : H1, lecteur principal, chapitres (liens `?t=`), grille des vidéos verticales 9:16, section « Transcription descriptive » (`descriptiveTranscript`) ; piste d'audiodescription en attente de D4
-- [ ] T127 [US4] Créer `src/lib/seo/jsonld/video.ts` (VideoObject + Clip, `endOffset` = début du chapitre suivant, `contentUrl` = rendu MP4 : seo CHK019) et `tests/unit/jsonld-video.test.ts`
-- [ ] T128 [US4] Ajouter la route `film` au résolveur (métadonnées, OG = affiche) et les entrées vidéo du sitemap dans `src/lib/seo/sitemapEntries.ts`
-- [ ] T129 [P] [US4] Écrire `tests/e2e/film.mobile.spec.ts` : aucune requête vers `stream.mux.com` avant le clic, HLS après le clic, `?t=`, pistes de sous-titres présentes, pas de lecture automatique avec mouvement réduit ou `Save-Data`, orientation non bloquée, axe, lecture au clavier
-- [ ] T130 [P] [US4] Écrire `tests/e2e/film.seo.spec.ts` (projet `nojs`) : VideoObject + Clip, balises vidéo du sitemap, métadonnées
-- [ ] T131 [P] [US4] Écrire `tests/e2e/ambient-loop.desktop.spec.ts` : boucle seulement sur ordinateur, bouton pause opérationnel, aucune boucle avec mouvement réduit ou `Save-Data`
-- [ ] T132 [US4] Intégrer `AmbientLoop` au héro de l'accueil (ordinateur seulement ; l'image reste l'élément LCP) dans `src/components/views/HomeView.tsx`
-- [ ] T133 [P] [US4] Créer le rendu des blocs `src/components/blocks/{Hero,RichText,Team,Figures,Gallery,Steps,Guarantees,Cta}.tsx` (composants serveur)
-- [ ] T134 [US4] Ajouter au résolveur les pages `commitment`, `about` (membres de l'équipe), `faq` (FAQPage par catégorie), `contact` (NAP de `siteSettings`, WhatsApp, carte, ContactPage), `legal` (noindex, hors sitemap) et `privacy`, avec JSON-LD AboutPage, ContactPage ou WebPage
-- [ ] T135 [US4] Ajouter le **registre des traitements** à la page Confidentialité (bloc `src/blocks/ProcessingRegister.ts` et rendu `src/components/blocks/ProcessingRegister.tsx`, contenu FR et EN dans `src/seed/index.ts`) : pour les demandes de séjour, la mesure d'audience, les comptes de l'équipe et la limitation de débit, indiquer la finalité, la base légale, la durée de conservation, les destinataires (hébergeur, Resend, Plausible, Mux) et les transferts hors du Sénégal ; ajouter dans `launch/checklist.md` (T176) la vérification par un juriste de la déclaration à la CDP (loi 2008-12) (analyse C4, constitution IX)
-- [ ] T136 [P] [US4] Écrire `tests/e2e/editorial.mobile.spec.ts` (les 6 pages : 360 px, cibles, axe, zoom, FAQ au clavier)
-- [ ] T137 [P] [US4] Écrire `tests/e2e/editorial.seo.spec.ts` (projet `nojs`) : métadonnées, FAQPage sur la FAQ, mentions légales en noindex et hors sitemap, NAP identique dans le pied de page, la page contact et le JSON-LD
-- [ ] T138 [US4] Ajouter film, FAQ, engagement et à propos FR et EN dans `lighthouserc.json`
+- [X] T123 [US4] Créer `src/lib/mux.ts` (URL HLS, rendu MP4 statique, URL d'affiche) et un hook dans `src/collections/Videos.ts` qui vérifie le `muxPlaybackId` et renseigne la durée via l'API Mux
+- [X] T124 [US4] Créer `src/components/client/VideoPlayer.tsx` : affiche via `CmsImage`, bouton lecture de 44 px avec nom accessible, aucun `src` et `preload="none"` avant le clic, puis `import()` de la **version allégée** de hls.js (`hls.js/dist/hls.light.mjs`, pour tenir le budget de 100 Ko du code à la demande : analyse P2 ; HLS natif sur Safari), pistes de sous-titres FR/EN (langue de la page par défaut), commandes natives au clavier, liste de chapitres en boutons, prise en compte de `?t=` après lecture (perf-a11y CHK043)
+- [X] T125 [US4] Créer `src/components/client/AmbientLoop.tsx` : seulement si `(min-width: 1024px) and (pointer: fine)`, ni mouvement réduit ni `Save-Data`, après `load` ; MP4 ≤ 1,5 Mo ; vidéo décorative `aria-hidden` ; **bouton pause/lecture visible** (WCAG 2.2.2 : perf-a11y CHK042)
+- [X] T126 [US4] Créer `src/components/views/FilmView.tsx` : H1, lecteur principal, chapitres (liens `?t=`), grille des vidéos verticales 9:16, section « Transcription descriptive » (`descriptiveTranscript`) ; piste d'audiodescription en attente de D4
+- [X] T127 [US4] Créer `src/lib/seo/jsonld/video.ts` (VideoObject + Clip, `endOffset` = début du chapitre suivant, `contentUrl` = rendu MP4 : seo CHK019) et `tests/unit/jsonld-video.test.ts`
+- [X] T128 [US4] Ajouter la route `film` au résolveur (métadonnées, OG = affiche) et les entrées vidéo du sitemap dans `src/lib/seo/sitemapEntries.ts`
+- [X] T129 [P] [US4] Écrire `tests/e2e/film.mobile.spec.ts` : aucune requête vers `stream.mux.com` avant le clic, HLS après le clic, `?t=`, pistes de sous-titres présentes, pas de lecture automatique avec mouvement réduit ou `Save-Data`, orientation non bloquée, axe, lecture au clavier
+- [X] T130 [P] [US4] Écrire `tests/e2e/film.seo.spec.ts` (projet `nojs`) : VideoObject + Clip, balises vidéo du sitemap, métadonnées
+- [X] T131 [P] [US4] Écrire `tests/e2e/ambient-loop.desktop.spec.ts` : boucle seulement sur ordinateur, bouton pause opérationnel, aucune boucle avec mouvement réduit ou `Save-Data`
+- [X] T132 [US4] Intégrer `AmbientLoop` au héro de l'accueil (ordinateur seulement ; l'image reste l'élément LCP) dans `src/components/views/HomeView.tsx`
+- [X] T133 [P] [US4] Créer le rendu des blocs `src/components/blocks/{Hero,RichText,Team,Figures,Gallery,Steps,Guarantees,Cta}.tsx` (composants serveur)
+- [X] T134 [US4] Ajouter au résolveur les pages `commitment`, `about` (membres de l'équipe), `faq` (FAQPage par catégorie), `contact` (NAP de `siteSettings`, WhatsApp, carte, ContactPage), `legal` (noindex, hors sitemap) et `privacy`, avec JSON-LD AboutPage, ContactPage ou WebPage
+- [X] T135 [US4] Ajouter le **registre des traitements** à la page Confidentialité (bloc `src/blocks/ProcessingRegister.ts` et rendu `src/components/blocks/ProcessingRegister.tsx`, contenu FR et EN dans `src/seed/index.ts`) : pour les demandes de séjour, la mesure d'audience, les comptes de l'équipe et la limitation de débit, indiquer la finalité, la base légale, la durée de conservation, les destinataires (hébergeur, Resend, Plausible, Mux) et les transferts hors du Sénégal ; ajouter dans `launch/checklist.md` (T176) la vérification par un juriste de la déclaration à la CDP (loi 2008-12) (analyse C4, constitution IX)
+- [X] T136 [P] [US4] Écrire `tests/e2e/editorial.mobile.spec.ts` (les 6 pages : 360 px, cibles, axe, zoom, FAQ au clavier)
+- [X] T137 [P] [US4] Écrire `tests/e2e/editorial.seo.spec.ts` (projet `nojs`) : métadonnées, FAQPage sur la FAQ, mentions légales en noindex et hors sitemap, NAP identique dans le pied de page, la page contact et le JSON-LD
+- [X] T138 [US4] Ajouter film, FAQ, engagement et à propos FR et EN dans `lighthouserc.json`
 
 **Checkpoint** : film et contenus de confiance en ligne.
+
+> **Écarts constatés à l'implémentation (phase 7)** :
+> - T124 : hls.js figé à 1.5.20 (version allégée ≈ 90 Ko compressés ; 1.7.x ≈ 115 Ko, hors budget de 100 Ko) ; import `hls.js/dist/hls.light.mjs`. HLS natif d'abord (Safari, Chrome récent) : `play()` appelé tout de suite (avec `preload="none"`, attendre les métadonnées bloquait la lecture).
+> - T125/T132 : boucle d'ambiance servie par un MP4 hébergé (`staticMp4Url`, nouveau champ et migration) ou, à défaut, par le rendu `low` de Mux ; démonstration tirée de la vidéo fournie par l'équipe.
+> - T126/T134 : pages institutionnelles réunies dans `EditorialView.tsx` ; blocs dans `src/components/blocks/` (dont `Blocks.tsx`).
+> - T135 : `launch/checklist.md` amorcée (CDP, droits des photos, contenus de démonstration).
+> - Seed : photos et vidéo de l'équipe (dossier `public/activites illustration/`, non versionné), HEIC converti par ffmpeg, photos < 1600 px agrandies avec provenance « original HD à fournir » (décision du propriétaire).
+> - Performance (tout le site) : `Critical-CH` de Payload limité à `/admin`, plus de `preload()` d'image, vignettes plafonnées à 360 px en qualité 50, seule la police du texte préchargée.
+> - T138 : dérogation D-LCP-photo étendue à toute page à photo principale (accueil, film, engagement, à propos) et portée à 3,0 s (plan.md).
 
 ---
 
@@ -385,25 +394,51 @@ une fiche (US2) et le contact WhatsApp contextuel partout (US4).
 **Independent Test** : parcours US1 complet en 3G sur 360 px en moins de 120 s, demande
 enregistrée et e-mail envoyé ; fonctionne aussi sans JavaScript.
 
-- [ ] T139 [P] [US1] Créer `src/lib/request/schema.ts` selon [request-form.md](./contracts/request-form.md#3-schéma-de-validation-serveur-zod) et `tests/unit/request-schema.test.ts` (dates passées, départ avant arrivée, E.164, consentement, honeypot)
-- [ ] T140 [P] [US1] Créer `src/lib/request/rateLimit.ts` (SHA-256 salé, 5 par heure, table `rateLimits`) et `tests/unit/rateLimit.test.ts`
-- [ ] T141 [US1] Créer la Server Action `src/lib/request/submit.ts` selon la séquence du contrat : honeypot ou envoi trop rapide → `ok` factice, limitation, idempotence `submissionId`, résolution des éléments, création de la demande, e-mail Resend, `notifiedAt`, `whatsappUrl`, redirection 303 sans JS (D2)
-- [ ] T142 [P] [US1] Créer `src/lib/request/email.tsx` (version texte et HTML : tous les champs, langue, page d'origine, référence)
-- [ ] T143 [P] [US1] Créer `src/lib/request/draft.ts` (stockage local `se.request.v1` dans `try/catch`, expiration à 30 jours, 10 éléments au maximum, sans doublon, repli par paramètre d'URL) et `tests/unit/draft.test.ts`
-- [ ] T144 [US1] Créer `src/components/client/RequestForm.tsx` (`useActionState`) : champs, types de clavier, `autocomplete` et `inputmode` du contrat, indicatif +221 par défaut, steppers de 44 px, conditions d'annulation au-dessus du bouton, consentement, honeypot, `startedAt`, `submissionId` ; en cas d'erreur, focus sur le premier champ fautif, `aria-describedby` et résumé en `aria-live` (mobile CHK023) ; bouton d'envoi collant en bas du formulaire sur mobile (mobile CHK010) ; hors ligne, saisies conservées, message et lien WhatsApp ; double envoi bloqué
-- [ ] T145 [US1] Créer `src/components/views/RequestView.tsx` (formulaire puis confirmation : référence, récapitulatif, `responseTimeText`, mention « les dates sont des souhaits », bouton principal « Envoyer aussi sur WhatsApp ») et `src/components/views/ThankYouView.tsx` ; routes `request` et `thank_you` en noindex, sans JSON-LD, hors sitemap ; titres des éléments résolus côté serveur dans la langue courante
-- [ ] T146 [US1] Créer `src/jobs/retryNotifications.ts` : toutes les 10 min, relance des demandes dont `notifiedAt` est vide (3 essais au plus, compteur `notifyAttempts`), puis alerte à `siteSettings.fallbackNotificationEmail` ; `tests/unit/retryNotifications.test.ts` ; tâche planifiée dans `vercel.json` (spec FR-013, SC-009 : analyse G1)
-- [ ] T147 [P] [US2] Créer `src/components/client/AddToRequest.tsx` et `src/components/client/RequestCounter.tsx` (en-tête, moins de 3 Ko, annonce « ajouté à votre demande ») et les brancher sur `StickyActionBar` (expérience et hébergement : ajout ; séjour : ajout puis ouverture du formulaire)
-- [ ] T148 [US1] Transmettre dates et voyageurs par l'URL (accueil → liste → fiche → formulaire) et pré-remplir le formulaire depuis ces paramètres, le brouillon local ne servant qu'en complément quand JavaScript est disponible (analyse K3)
-- [ ] T149 [P] [US4] Brancher `src/lib/whatsapp.ts` sur l'en-tête, le menu, le pied de page, la barre collante et la page contact (message contextuel avec titre et URL, `rel="noopener"`)
-- [ ] T150 [P] [US1] Écrire `tests/e2e/request.mobile.spec.ts` (Android 360, profil `3g`) : attributs de clavier de chaque champ, focus sur la première erreur, double tap sans doublon, coupure réseau pendant l'envoi (saisies conservées + repli WhatsApp), confirmation, axe sur les états formulaire, erreur et confirmation, envoi **au clavier seul** (perf-a11y CHK045), zoom à 200 %, paysage
-- [ ] T151 [P] [US1] Écrire `tests/e2e/request.nojs.spec.ts` (projet `nojs`) : envoi sans JS → 303 vers la confirmation, noindex des deux pages, absence du sitemap
-- [ ] T152 [US1] Écrire `tests/e2e/us1-journey.mobile.spec.ts` (Android 360, `3g`) : accueil → demande envoyée en **120 s au plus**, ligne `requests` créée, e-mail capturé (Resend en mode test) (SC-003)
-- [ ] T153 [P] [US2] Écrire `tests/e2e/us2-journey.mobile.spec.ts` : arrivée directe sur une fiche expérience → ajout → l'expérience figure dans le formulaire
-- [ ] T154 [P] [US4] Écrire `tests/e2e/us4-whatsapp.mobile.spec.ts` : chaque route publique du sitemap contient un lien `wa.me` avec le titre de la page, dans sa langue
-- [ ] T155 [US1] Ajouter `/fr/demande` et `/en/request` dans `lighthouserc.json` avec Perf, A11y et BP vérifiés, mais pas la catégorie SEO (constitution v1.0.1, pages noindex)
+- [X] T139 [P] [US1] Créer `src/lib/request/schema.ts` selon [request-form.md](./contracts/request-form.md#3-schéma-de-validation-serveur-zod) et `tests/unit/request-schema.test.ts` (dates passées, départ avant arrivée, E.164, consentement, honeypot)
+- [X] T140 [P] [US1] Créer `src/lib/request/rateLimit.ts` (SHA-256 salé, 5 par heure, table `rateLimits`) et `tests/unit/rateLimit.test.ts`
+- [X] T141 [US1] Créer la Server Action `src/lib/request/submit.ts` selon la séquence du contrat : honeypot ou envoi trop rapide → `ok` factice, limitation, idempotence `submissionId`, résolution des éléments, création de la demande, e-mail Resend, `notifiedAt`, `whatsappUrl`, redirection 303 sans JS (D2)
+- [X] T142 [P] [US1] Créer `src/lib/request/email.tsx` (version texte et HTML : tous les champs, langue, page d'origine, référence)
+- [X] T143 [P] [US1] Créer `src/lib/request/draft.ts` (stockage local `se.request.v1` dans `try/catch`, expiration à 30 jours, 10 éléments au maximum, sans doublon, repli par paramètre d'URL) et `tests/unit/draft.test.ts`
+- [X] T144 [US1] Créer `src/components/client/RequestForm.tsx` (`useActionState`) : champs, types de clavier, `autocomplete` et `inputmode` du contrat, indicatif +221 par défaut, steppers de 44 px, conditions d'annulation au-dessus du bouton, consentement, honeypot, `startedAt`, `submissionId` ; en cas d'erreur, focus sur le premier champ fautif, `aria-describedby` et résumé en `aria-live` (mobile CHK023) ; bouton d'envoi collant en bas du formulaire sur mobile (mobile CHK010) ; hors ligne, saisies conservées, message et lien WhatsApp ; double envoi bloqué
+- [X] T145 [US1] Créer `src/components/views/RequestView.tsx` (formulaire puis confirmation : référence, récapitulatif, `responseTimeText`, mention « les dates sont des souhaits », bouton principal « Envoyer aussi sur WhatsApp ») et `src/components/views/ThankYouView.tsx` ; routes `request` et `thank_you` en noindex, sans JSON-LD, hors sitemap ; titres des éléments résolus côté serveur dans la langue courante
+- [X] T146 [US1] Créer `src/jobs/retryNotifications.ts` : toutes les 10 min, relance des demandes dont `notifiedAt` est vide (3 essais au plus, compteur `notifyAttempts`), puis alerte à `siteSettings.fallbackNotificationEmail` ; `tests/unit/retryNotifications.test.ts` ; tâche planifiée dans `vercel.json` (spec FR-013, SC-009 : analyse G1)
+- [X] T147 [P] [US2] Créer `src/components/client/AddToRequest.tsx` et `src/components/client/RequestCounter.tsx` (en-tête, moins de 3 Ko, annonce « ajouté à votre demande ») et les brancher sur `StickyActionBar` (expérience et hébergement : ajout ; séjour : ajout puis ouverture du formulaire)
+- [X] T148 [US1] Transmettre dates et voyageurs par l'URL (accueil → liste → fiche → formulaire) et pré-remplir le formulaire depuis ces paramètres, le brouillon local ne servant qu'en complément quand JavaScript est disponible (analyse K3)
+- [X] T149 [P] [US4] Brancher `src/lib/whatsapp.ts` sur l'en-tête, le menu, le pied de page, la barre collante et la page contact (message contextuel avec titre et URL, `rel="noopener"`)
+- [X] T150 [P] [US1] Écrire `tests/e2e/request.mobile.spec.ts` (Android 360, profil `3g`) : attributs de clavier de chaque champ, focus sur la première erreur, double tap sans doublon, coupure réseau pendant l'envoi (saisies conservées + repli WhatsApp), confirmation, axe sur les états formulaire, erreur et confirmation, envoi **au clavier seul** (perf-a11y CHK045), zoom à 200 %, paysage
+- [X] T151 [P] [US1] Écrire `tests/e2e/request.nojs.spec.ts` (projet `nojs`) : envoi sans JS → 303 vers la confirmation, noindex des deux pages, absence du sitemap
+- [X] T152 [US1] Écrire `tests/e2e/us1-journey.mobile.spec.ts` (Android 360, `3g`) : accueil → demande envoyée en **120 s au plus**, ligne `requests` créée, e-mail capturé (Resend en mode test) (SC-003)
+- [X] T153 [P] [US2] Écrire `tests/e2e/us2-journey.mobile.spec.ts` : arrivée directe sur une fiche expérience → ajout → l'expérience figure dans le formulaire
+- [X] T154 [P] [US4] Écrire `tests/e2e/us4-whatsapp.mobile.spec.ts` : chaque route publique du sitemap contient un lien `wa.me` avec le titre de la page, dans sa langue
+- [X] T155 [US1] Ajouter `/fr/demande` et `/en/request` dans `lighthouserc.json` avec Perf, A11y et BP vérifiés, mais pas la catégorie SEO (constitution v1.0.1, pages noindex)
 
 **Checkpoint** : US1, US2 et US4 complets ; le site génère des demandes.
+
+> **Écarts constatés à l'implémentation (phase 8)** :
+> - Pages de demande et de confirmation servies par des **routes dédiées**
+>   (`src/app/(frontend)/[locale]/request-form/`), vers lesquelles `src/middleware.ts` réécrit
+>   `/fr/demande`, `/en/request` et leurs confirmations ; l'accès direct aux routes internes
+>   donne la 404. Raison : ces pages lisent l'URL (pré-remplissage, référence) et sont dynamiques ;
+>   servies par le résolveur `[...segments]`, elles auraient rendu dynamiques toutes les pages
+>   publiques (même principe que la tension T19 de la 002).
+> - Éléments de la demande identifiés par leur **slug** (`?stay=week-end-bolong-ndangane`) et non
+>   par leur identifiant interne, dans l'URL comme dans le brouillon local.
+> - Zod 4 et Resend 6 installés (dépendances prévues au plan) ; e-mails écrits dans une boîte
+>   d'envoi de test (`EMAIL_OUTBOX_DIR`) quand elle est définie ; destinataire de démonstration
+>   fictif (`.test`) posé par le seed si aucun n'est saisi ; limite de débit réglable
+>   (`REQUEST_RATE_LIMIT`) pour les tests de bout en bout.
+> - T146 : relance par la route `/api/cron/notify` (toutes les 10 min, `vercel.json`, offre Vercel
+>   Pro décidée le 2026-11-15) ; alerte unique vers l'adresse de secours après 3 essais.
+> - T148 : dates et voyageurs de la recherche de l'accueil mémorisés dans la « demande en cours »
+>   par l'îlot de la liste des séjours, puis repris par le formulaire (avec JavaScript) ; sans
+>   JavaScript, le formulaire reprend seulement ce qui est dans son URL.
+> - T149 : WhatsApp dans l'en-tête dès 640 px ; sur mobile, dans le menu, le pied de page et la
+>   barre collante (l'en-tête à 360 px n'a pas la place d'un bouton de plus).
+> - Sans JavaScript, un envoi incomplet est bloqué par le navigateur (attributs `required`) ; les
+>   autres erreurs serveur s'affichent avec JavaScript.
+> - Corrections transverses : texte des puces sécable et indicatif / numéro repliables à 320 px et
+>   200 % ; groupe de commandes de l'en-tête repliable (zoom) ; contrôle des cibles tactiles qui
+>   ignore les éléments `aria-hidden` (pot de miel).
 
 ---
 
@@ -414,35 +449,75 @@ enregistrée et e-mail envoyé ; fonctionne aussi sans JavaScript.
 **Independent Test** : 10 pages FR de types différents mènent à leur équivalent EN ; une page
 sans EN mène à la page parente avec un message.
 
-- [ ] T156 [US5] Créer `src/components/ui/LocaleSwitcher.tsx` (composant serveur : liens calculés depuis les alternates de la page, repli sur la page parente avec `?from=missing`, cible ≥ 44 px) et `src/components/ui/MissingTranslationNotice.tsx` ; les brancher dans l'en-tête de chaque vue
-- [ ] T157 [P] [US5] Créer `src/components/client/EnglishBanner.tsx` : bandeau refermable si la langue du navigateur est l'anglais sur une page FR, choix mémorisé localement, aucune redirection
-- [ ] T158 [P] [US5] Écrire `tests/e2e/us5-locale.mobile.spec.ts` : 10 pages FR de types différents → page EN équivalente, page sans EN → parente + message, brouillon de demande conservé, sélecteur atteignable au pouce
-- [ ] T159 [P] [US5] Écrire `tests/e2e/locale.seo.spec.ts` (projet `nojs`) : réciprocité des hreflang pour toutes les URL du sitemap, `x-default` = FR
-- [ ] T160 [US5] Ajouter dans `src/i18n/messages/en.json` toutes les chaînes d'interface manquantes et un test `tests/unit/messages.test.ts` qui vérifie que FR et EN ont exactement les mêmes clés
+- [X] T156 [US5] Créer `src/components/ui/LocaleSwitcher.tsx` (composant serveur : liens calculés depuis les alternates de la page, repli sur la page parente avec `?from=missing`, cible ≥ 44 px) et `src/components/ui/MissingTranslationNotice.tsx` ; les brancher dans l'en-tête de chaque vue
+- [X] T157 [P] [US5] Créer `src/components/client/EnglishBanner.tsx` : bandeau refermable si la langue du navigateur est l'anglais sur une page FR, choix mémorisé localement, aucune redirection
+- [X] T158 [P] [US5] Écrire `tests/e2e/us5-locale.mobile.spec.ts` : 10 pages FR de types différents → page EN équivalente, page sans EN → parente + message, brouillon de demande conservé, sélecteur atteignable au pouce
+- [X] T159 [P] [US5] Écrire `tests/e2e/locale.seo.spec.ts` (projet `nojs`) : réciprocité des hreflang pour toutes les URL du sitemap, `x-default` = FR
+- [X] T160 [US5] Ajouter dans `src/i18n/messages/en.json` toutes les chaînes d'interface manquantes et un test `tests/unit/messages.test.ts` qui vérifie que FR et EN ont exactement les mêmes clés
 
 **Checkpoint** : les 5 parcours sont livrés.
+
+> **Écarts constatés à l'implémentation (phase 9)** :
+> - T156 : le sélecteur de l'en-tête (et du menu, dans la zone du pouce) mène au contrôleur
+>   `/api/locale-switch?to=…`, qui lit la page d'origine dans le Referer et redirige (307) vers la
+>   page équivalente, ou vers la page parente avec `?from=missing` ; un composant serveur par vue
+>   aurait exigé de lire la page courante dans le layout, ce qui rend toutes les pages dynamiques.
+>   L'avis « traduction absente » et le bandeau anglais (T157) sont un seul îlot
+>   `LocaleNotices`, en surimpression (aucun décalage de mise en page).
+> - T158 : scénario « fiche sans version anglaise » dans `us5-missing.spec.ts` (projet
+>   `desktop-admin`, il crée puis supprime un contenu) ; 12 pages testées au lieu de 10 ; zone du
+>   pouce non vérifiée en paysage (moins de 500 px de haut, comme la barre collante).
 
 ---
 
 ## Phase 10 : Polish — optimisation finale et vérification des budgets
 
-- [ ] T161 Créer `src/lib/analytics.ts` et `src/components/client/Analytics.tsx` (Plausible chargé en `requestIdleCallback`, file d'attente) et brancher les évènements de [analytics-events.md](./contracts/analytics-events.md)
-- [ ] T162 [P] Créer `src/components/client/WebVitals.tsx` (web-vitals → évènement `web_vital` avec modèle de route et tranche de valeur)
-- [ ] T163 [P] Écrire `tests/e2e/third-party.spec.ts` : aucun script tiers dans le HTML initial, Plausible seulement après inactivité, aucune requête de police vers un domaine externe, 2 familles de polices au plus (perf-a11y CHK023, CHK029)
-- [ ] T164 [P] Écrire `tests/e2e/inp.mobile.spec.ts` : INP mesuré (web-vitals, `reportAllChanges`) sur Android 360 avec processeur ×4 pour : ouvrir le panneau de filtres, appliquer, galerie suivante, ajouter à la demande, envoyer ; chacun ≤ 200 ms (perf-a11y CHK009)
-- [ ] T165 [P] Écrire `tests/e2e/cls-interaction.spec.ts` : CLS cumulé pendant un défilement complet de chaque type de page (images différées, barre collante, compteur) ≤ 0,1 (perf-a11y CHK012)
-- [ ] T166 [P] Écrire `tests/e2e/lcp-image.spec.ts` : pour chaque type de page, l'élément LCP est une image AVIF ou WebP de 120 Ko au plus, avec largeur et hauteur (perf-a11y CHK019, CHK020)
-- [ ] T167 [P] Écrire `tests/e2e/no-hover.spec.ts` (tactile, sans survol) : menus, cartes, galerie et filtres utilisables sans survol (mobile CHK040)
-- [ ] T168 [P] Écrire `tests/e2e/3g.mobile.spec.ts` (Android 360, profil `3g`) : pour chaque type de page publique, H1 et contenu principal lisibles en 5 s au plus, action principale utilisable (spec FR-020 : analyse P1)
-- [ ] T169 [P] Écrire `tests/unit/contrast.test.ts` : contraste de toutes les paires de jetons texte/fond (≥ 4,5:1), du texte sur `scrim` (≥ 4,5:1), de l'anneau de focus, des bordures de champs et des icônes (≥ 3:1) (perf-a11y CHK031, CHK032)
-- [ ] T170 Créer `src/lib/seo/keywords.ts` : les 10 mots-clés FR, leurs équivalents EN et la page principale de chacun (D3 : seo CHK042, CHK043)
-- [ ] T171 Compléter `scripts/seo-check.ts` : couverture des mots-clés de `keywords.ts` (une page principale indexable par mot-clé et par langue, aucune autre page avec le même `targetKeyword`), différence entre sitemap et pages crawlées, chaînes de redirection
-- [ ] T172 Passe de performance : analyser `pnpm bundles` et les rapports LHCI, différer les îlots restants, ne précharger que l'image LCP, retirer le CSS inutilisé, ajuster `deviceSizes` et la qualité, jusqu'à ce que toutes les URL de `lighthouserc.json` passent
-- [ ] T173 Créer `vercel.json` : région `cdg1`, tâches planifiées, en-têtes de sécurité (CSP autorisant Mux et Plausible), cache des ressources statiques, `X-Robots-Tag: noindex` sur `/admin`
-- [ ] T174 [P] Rédiger `specs/001-site-public-vitrine/launch/manual-a11y-audit.md` : protocole TalkBack (Chrome Android) et VoiceOver (iOS) sur les 5 parcours, à exécuter par une personne avant le lancement (perf-a11y CHK052)
-- [ ] T175 [P] Rédiger `specs/001-site-public-vitrine/launch/latency-dakar.md` : mesure du TTFB et du LCP depuis un mobile 4G à Dakar et à Ndangane, seuil de décision du CDN (TTFB p75 > 600 ms) (plan T5)
-- [ ] T176 [P] Rédiger `specs/001-site-public-vitrine/launch/checklist.md` : Rich Results et validateur Schema.org (1 URL par type), propriété de domaine Search Console et sitemap, objectifs Plausible, NAP identique à la fiche Google Business Profile, suivi du LCP terrain (personne désignée, revue hebdomadaire le premier mois : perf-a11y CHK007)
-- [ ] T177 Dérouler [quickstart.md](./quickstart.md) de bout en bout sur un environnement propre et le mettre à jour avec les commandes finales
+> **Renvoi 002** : si la 002 démarre avant cette phase, le module de mesure d'audience
+> `src/lib/analytics.ts` est créé par sa tâche T064b ; la mesure de la 001 s'y branche au lieu de
+> le recréer.
+
+- [X] T161 Créer `src/lib/analytics.ts` et `src/components/client/Analytics.tsx` (Plausible chargé en `requestIdleCallback`, file d'attente) et brancher les évènements de [analytics-events.md](./contracts/analytics-events.md)
+- [X] T162 [P] Créer `src/components/client/WebVitals.tsx` (web-vitals → évènement `web_vital` avec modèle de route et tranche de valeur)
+- [X] T163 [P] Écrire `tests/e2e/third-party.spec.ts` : aucun script tiers dans le HTML initial, Plausible seulement après inactivité, aucune requête de police vers un domaine externe, 2 familles de polices au plus (perf-a11y CHK023, CHK029)
+- [X] T164 [P] Écrire `tests/e2e/inp.mobile.spec.ts` : INP mesuré (web-vitals, `reportAllChanges`) sur Android 360 avec processeur ×4 pour : ouvrir le panneau de filtres, appliquer, galerie suivante, ajouter à la demande, envoyer ; chacun ≤ 200 ms (perf-a11y CHK009)
+- [X] T165 [P] Écrire `tests/e2e/cls-interaction.spec.ts` : CLS cumulé pendant un défilement complet de chaque type de page (images différées, barre collante, compteur) ≤ 0,1 (perf-a11y CHK012)
+- [X] T166 [P] Écrire `tests/e2e/lcp-image.spec.ts` : pour chaque type de page, l'élément LCP est une image AVIF ou WebP de 120 Ko au plus, avec largeur et hauteur (perf-a11y CHK019, CHK020)
+- [X] T167 [P] Écrire `tests/e2e/no-hover.spec.ts` (tactile, sans survol) : menus, cartes, galerie et filtres utilisables sans survol (mobile CHK040)
+- [X] T168 [P] Écrire `tests/e2e/3g.mobile.spec.ts` (Android 360, profil `3g`) : pour chaque type de page publique, H1 et contenu principal lisibles en 5 s au plus, action principale utilisable (spec FR-020 : analyse P1)
+- [X] T169 [P] Écrire `tests/unit/contrast.test.ts` : contraste de toutes les paires de jetons texte/fond (≥ 4,5:1), du texte sur `scrim` (≥ 4,5:1), de l'anneau de focus, des bordures de champs et des icônes (≥ 3:1) (perf-a11y CHK031, CHK032)
+- [X] T170 Créer `src/lib/seo/keywords.ts` : les 10 mots-clés FR, leurs équivalents EN et la page principale de chacun (D3 : seo CHK042, CHK043)
+- [X] T171 Compléter `scripts/seo-check.ts` : couverture des mots-clés de `keywords.ts` (une page principale indexable par mot-clé et par langue, aucune autre page avec le même `targetKeyword`), différence entre sitemap et pages crawlées, chaînes de redirection
+- [X] T172 Passe de performance : analyser `pnpm bundles` et les rapports LHCI, différer les îlots restants, ne précharger que l'image LCP, retirer le CSS inutilisé, ajuster `deviceSizes` et la qualité, jusqu'à ce que toutes les URL de `lighthouserc.json` passent
+- [X] T173 Créer `vercel.json` : région `cdg1`, tâches planifiées, en-têtes de sécurité (CSP autorisant Mux et Plausible), cache des ressources statiques, `X-Robots-Tag: noindex` sur `/admin`
+- [X] T174 [P] Rédiger `specs/001-site-public-vitrine/launch/manual-a11y-audit.md` : protocole TalkBack (Chrome Android) et VoiceOver (iOS) sur les 5 parcours, à exécuter par une personne avant le lancement (perf-a11y CHK052)
+- [X] T175 [P] Rédiger `specs/001-site-public-vitrine/launch/latency-dakar.md` : mesure du TTFB et du LCP depuis un mobile 4G à Dakar et à Ndangane, seuil de décision du CDN (TTFB p75 > 600 ms) (plan T5)
+- [X] T176 [P] Rédiger `specs/001-site-public-vitrine/launch/checklist.md` : Rich Results et validateur Schema.org (1 URL par type), propriété de domaine Search Console et sitemap, objectifs Plausible, NAP identique à la fiche Google Business Profile, suivi du LCP terrain (personne désignée, revue hebdomadaire le premier mois : perf-a11y CHK007)
+- [X] T177 Dérouler [quickstart.md](./quickstart.md) de bout en bout sur un environnement propre et le mettre à jour avec les commandes finales
+
+> **Écarts constatés à l'implémentation (phase 10)** :
+> - T161/T162 : `src/lib/analytics.ts` (file d'attente Plausible, modèle de route, type de page),
+>   îlots `Analytics` (script après inactivité, seulement si `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` est défini
+>   au build ; un écouteur délégué pour les clics WhatsApp) et `WebVitals` (bibliothèque chargée à la
+>   demande). `language_switch` est envoyé à l'arrivée sur la page traduite (paramètre `switched`
+>   posé par le contrôleur de langue, puis retiré de l'URL), ce qui donne aussi `fallback`.
+> - T163 : le chargement différé de Plausible n'est vérifiable qu'avec un domaine configuré au build ;
+>   le test vérifie l'absence de tout script et de toute requête tierce au chargement (vérification
+>   du chargement différé ajoutée à la liste de lancement). Familles « … Fallback » (métriques de
+>   repli sur polices système) exclues du compte des familles.
+> - T164 à T168 : aides communes dans `tests/e2e/support/perf.ts` ; LCP vérifié en portrait
+>   seulement (en paysage, un titre peut être l'élément LCP).
+> - T170/T171 : pages principales des mots-clés = contenu de démonstration, à revoir avec le contenu
+>   réel ; `seo-check` contrôle aussi les pages indexables absentes du sitemap et les formes non
+>   canoniques (un seul saut).
+> - T172 : chargement de web-vitals différé à l'inactivité (le temps de blocage avait augmenté de
+>   60 ms avec les îlots de mesure) ; tests d'administration qui régénèrent les pages du sitemap
+>   après suppression de leur contenu de test (sinon un serveur démarré ensuite servait des pages
+>   périmées). Lighthouse CI vert sur les 27 URL.
+> - T173 : en-têtes de sécurité (CSP avec Mux et Plausible, HSTS, Referrer-Policy, X-Frame-Options,
+>   Permissions-Policy) posés dans `next.config.ts` plutôt que `vercel.json`, pour être appliqués et
+>   testés aussi en local ; CSP seulement en production (le rechargement à chaud utilise `eval`).
+> - T176 : la liste de lancement amorcée en phase 7 (`launch/checklist.md` à la racine) est déplacée
+>   dans `specs/001-site-public-vitrine/launch/checklist.md` et complétée.
 
 ---
 

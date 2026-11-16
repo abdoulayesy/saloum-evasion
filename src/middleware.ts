@@ -1,5 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { buildPath } from '@/i18n/pathnames';
 import { isLocale, routing } from '@/i18n/routing';
+import {
+  INTERNAL_TUNNEL_SEGMENT,
+  internalCheckoutPath,
+  parseCheckoutPath,
+} from '@/lib/checkout/paths';
 
 // Contrat routes.md « Redirections » : une seule redirection 301 au plus.
 // - `/` → `/fr` (fixe, sans détection de langue, research R1) ;
@@ -51,6 +57,43 @@ const loadRedirectTable = async (origin: string): Promise<ReadonlyMap<string, st
 
 const isLocaleRoot = (pathname: string): boolean => isLocale(pathname.slice(1));
 
+// --- Demande de séjour (phase 8) ---------------------------------------------------------
+// Pages dynamiques servies par des routes internes (`request-form`), isolées du résolveur
+// des pages publiques (qui restent statiques). Les URL publiques traduites y sont réécrites ;
+// l'accès direct aux routes internes reçoit la 404.
+
+export const INTERNAL_REQUEST_SEGMENT = 'request-form';
+
+// --- Tunnel de commande (002) ------------------------------------------------------------
+// Même principe : URL traduites réécrites vers `/{langue}/tunnel/...` ; pages jamais indexées,
+// jamais mises en cache partagé. Le Referer suit la politique du site
+// (`strict-origin-when-cross-origin`, next.config.ts) : le chemin et le jeton de gestion ne
+// partent jamais vers un tiers, mais le sélecteur de langue les lit sur notre domaine.
+
+export const TUNNEL_HEADERS: Readonly<Record<string, string>> = {
+  'X-Robots-Tag': 'noindex, nofollow',
+  'Cache-Control': 'private, no-store',
+};
+
+export const tunnelRewrite = (pathname: string): string | 'blocked' | null => {
+  const [, locale = '', section = ''] = pathname.split('/');
+  if (!isLocale(locale)) return null;
+  if (section === INTERNAL_TUNNEL_SEGMENT) return 'blocked';
+  const parsed = parseCheckoutPath(pathname);
+  return parsed ? internalCheckoutPath(parsed.locale, parsed.route.step, parsed.route.ref) : null;
+};
+
+export const requestRewrite = (pathname: string): string | 'blocked' | null => {
+  const [, locale = '', section = ''] = pathname.split('/');
+  if (!isLocale(locale)) return null;
+  if (section === INTERNAL_REQUEST_SEGMENT) return 'blocked';
+  if (pathname === buildPath(locale, { type: 'request' }))
+    return `/${locale}/${INTERNAL_REQUEST_SEGMENT}`;
+  if (pathname === buildPath(locale, { type: 'requestThanks' }))
+    return `/${locale}/${INTERNAL_REQUEST_SEGMENT}/thanks`;
+  return null;
+};
+
 export const middleware = async (request: NextRequest) => {
   const { pathname, search } = request.nextUrl;
   const canonical = canonicalPathname(pathname);
@@ -66,10 +109,21 @@ export const middleware = async (request: NextRequest) => {
   if (!hasLocalePrefix(pathname)) {
     return NextResponse.rewrite(new URL(NOT_FOUND_REWRITE, request.url));
   }
+  const internal = requestRewrite(pathname);
+  if (internal === 'blocked') return NextResponse.rewrite(new URL(NOT_FOUND_REWRITE, request.url));
+  if (internal) return NextResponse.rewrite(new URL(`${internal}${search}`, request.url));
+  const tunnel = tunnelRewrite(pathname);
+  if (tunnel === 'blocked') return NextResponse.rewrite(new URL(NOT_FOUND_REWRITE, request.url));
+  if (tunnel) {
+    const response = NextResponse.rewrite(new URL(`${tunnel}${search}`, request.url));
+    for (const [key, value] of Object.entries(TUNNEL_HEADERS)) response.headers.set(key, value);
+    return response;
+  }
   return NextResponse.next();
 };
 
 export const config = {
-  // Exclut les ressources techniques et tout fichier avec extension (sitemap.xml, robots.txt…).
-  matcher: ['/((?!_next/|api/|og/|admin|.*\\.[a-z0-9]+$).*)'],
+  // Exclut les ressources techniques, la passerelle de test (/dev, 404 en production) et tout
+  // fichier avec extension (sitemap.xml, robots.txt…).
+  matcher: ['/((?!_next/|api/|og/|admin|dev/|.*\\.[a-z0-9]+$).*)'],
 };

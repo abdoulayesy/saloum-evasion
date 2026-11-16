@@ -132,7 +132,7 @@ export const StayView = async ({
   ]);
 
   const [primary, whatsapp] = await Promise.all([
-    primaryAction(locale, 'stay', slug),
+    primaryAction(locale, 'stay', slug, stay.title ?? slug),
     whatsappAction(locale, settings, { title: stay.title ?? undefined, path }),
   ]);
 

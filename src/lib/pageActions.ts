@@ -26,13 +26,41 @@ export const whatsappAction = async (
   return href ? { href, label: t('whatsapp'), ariaLabel: t('whatsappLabel') } : null;
 };
 
+/** Lien WhatsApp général (en-tête, menu, pied de page), avec l'adresse de l'accueil. */
+export const siteWhatsappHref = async (
+  locale: Locale,
+  settings: SiteSettings,
+): Promise<string | null> => {
+  const t = await getTranslations({ locale, namespace: 'actions' });
+  return buildWhatsAppLink({
+    number: settings.whatsapp,
+    message: t('whatsappGeneric', { url: absoluteUrl(buildPath(locale, { type: 'home' })) }),
+  });
+};
+
 export const primaryAction = async (
   locale: Locale,
   kind: PageKind,
   slug: string,
+  title: string,
 ): Promise<ActionLink | null> => {
-  if (!isLive('request')) return null;
+  if (!isLive('request') || !slug) return null;
   const t = await getTranslations({ locale, namespace: 'actions' });
-  const href = `${buildPath(locale, { type: 'request' })}?${kind}=${encodeURIComponent(slug)}`;
-  return { href, label: kind === 'stay' ? t('requestStay') : t('addToRequest') };
+  const tRequest = await getTranslations({ locale, namespace: 'request' });
+  const formHref = buildPath(locale, { type: 'request' });
+  const href = `${formHref}?${kind}=${encodeURIComponent(slug)}`;
+  return {
+    href,
+    label: kind === 'stay' ? t('requestStay') : t('addToRequest'),
+    // Avec JavaScript, l'ajout passe par la « demande en cours » (T147).
+    add: {
+      kind,
+      slug,
+      title,
+      formHref,
+      addedMessage: tRequest('added', { title }),
+      viewLabel: tRequest('viewRequest'),
+      navigate: kind === 'stay',
+    },
+  };
 };

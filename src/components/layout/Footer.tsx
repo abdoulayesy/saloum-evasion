@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { buildPath } from '@/i18n/pathnames';
 import type { Locale } from '@/i18n/routing';
 import { liveLegalNavigation, liveMainNavigation } from '@/lib/navigation';
+import { siteWhatsappHref } from '@/lib/pageActions';
 import { getSiteSettings } from '@/lib/cms/siteSettings';
 
 export const FOOTER_NAV_ID = 'navigation-pied';
@@ -18,6 +19,8 @@ export const Footer = async ({ locale }: FooterProps) => {
   const tRoutes = await getTranslations({ locale, namespace: 'routes' });
   const tCommon = await getTranslations({ locale, namespace: 'common' });
   const settings = await getSiteSettings(locale);
+  const tActions = await getTranslations({ locale, namespace: 'actions' });
+  const whatsappHref = await siteWhatsappHref(locale, settings);
   const links = [
     { href: buildPath(locale, { type: 'home' }), label: tCommon('home') },
     ...[...liveMainNavigation(), ...liveLegalNavigation()].map((route) => ({
@@ -63,6 +66,16 @@ export const Footer = async ({ locale }: FooterProps) => {
               {settings.phone && <span className="block">{settings.phone}</span>}
               {settings.email && <span className="block">{settings.email}</span>}
             </address>
+            {whatsappHref && (
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex min-h-touch items-center rounded-control bg-ocre px-4 font-semibold text-white"
+              >
+                {tActions('whatsappLabel')}
+              </a>
+            )}
           </section>
 
           <section aria-labelledby="pied-paiement">
@@ -73,9 +86,11 @@ export const Footer = async ({ locale }: FooterProps) => {
               {settings.paymentMethods.map((method) => (
                 <li
                   key={method}
-                  className="flex min-h-touch items-center justify-center rounded-control border border-sable/60 px-2 text-center text-sm font-semibold"
+                  className="flex min-h-touch min-w-0 items-center justify-center rounded-control border border-sable/60 px-2 text-center text-sm font-semibold"
                 >
-                  {method}
+                  {/* Texte agrandi à 200 % sur 320 px : coupure dans la case plutôt que débordement
+                      (WCAG 1.4.4 et 1.4.10), les trois cases restant au même rang. */}
+                  <span className="min-w-0 break-words hyphens-auto">{method}</span>
                 </li>
               ))}
             </ul>

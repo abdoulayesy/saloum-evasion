@@ -46,6 +46,8 @@ export const Users: CollectionConfig = {
       options: [
         { label: 'Administrateur', value: 'admin' },
         { label: 'Éditeur (contenus et demandes)', value: 'editor' },
+        { label: 'Opérations (réservations et disponibilité)', value: 'operations' },
+        { label: 'Finance (remboursements, commissions, reversements)', value: 'finance' },
       ],
       access: { update: isAdminField, create: isAdminField },
     },

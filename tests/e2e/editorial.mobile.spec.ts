@@ -29,7 +29,9 @@ test.describe('pages institutionnelles', () => {
   test('FAQ : questions par catégorie, ouverture au clavier', async ({ page }) => {
     await page.goto('/fr/faq');
     for (const category of ['Réservation', 'Paiement', 'Transport']) {
-      await expect(page.getByRole('heading', { name: category, level: 2, exact: true })).toBeVisible();
+      await expect(
+        page.getByRole('heading', { name: category, level: 2, exact: true }),
+      ).toBeVisible();
     }
     const summary = page.locator('summary').first();
     await summary.focus();

@@ -9,7 +9,12 @@
     "homeLink": "Saloum Évasion, home",
     "menu": "Menu",
     "switchLanguage": "FR",
-    "switchLanguageLabel": "FR, version française"
+    "switchLanguageLabel": "FR, version française",
+    "missingTranslation": "This page is not available in English yet: here is the closest page.",
+    "englishBanner": "This page is also available in English.",
+    "englishBannerLink": "View in English",
+    "close": "Close",
+    "bannerClose": "Close"
   },
   "menu": {
     "title": "Menu",
@@ -285,5 +290,148 @@
     "map": "Where to find Saloum Évasion",
     "reach": "Get in touch",
     "country": "Senegal"
+  },
+  "request": {
+    "title": "Request a stay",
+    "metaTitle": "Request a stay | Saloum Évasion",
+    "metaDescription": "Tell us your dates and wishes: a member of our Ndangane team will reply quickly on WhatsApp.",
+    "intro": "Tell us your dates and wishes. A member of the team will reply: {responseTime}.",
+    "introFallback": "Tell us your dates and wishes. A member of the team will reply quickly.",
+    "itemsLegend": "What you are interested in",
+    "itemsHint": "Untick anything you no longer want.",
+    "noItemsSelected": "No stay chosen yet: describe your plans and we will put them together with you.",
+    "kinds": {
+      "stay": "Stay",
+      "experience": "Experience",
+      "accommodation": "Accommodation"
+    },
+    "datesLegend": "Your dates",
+    "arrival": "Arrival",
+    "departure": "Departure (optional)",
+    "travellersLegend": "Travellers",
+    "adults": "Adults",
+    "children": "Children (under 12)",
+    "fewerAdults": "One adult fewer",
+    "moreAdults": "One more adult",
+    "fewerChildren": "One child fewer",
+    "moreChildren": "One more child",
+    "moodsLegend": "What you feel like (optional)",
+    "budgetLegend": "Budget per person (optional)",
+    "budgetAny": "No preference",
+    "contactLegend": "Your details",
+    "firstName": "First name",
+    "dialCode": "Country code",
+    "whatsapp": "WhatsApp number",
+    "whatsappHint": "We reply on WhatsApp.",
+    "email": "Email (optional)",
+    "emailHint": "To also receive the summary by email.",
+    "message": "Your message (optional)",
+    "consent": "I agree that Saloum Évasion may use this information to answer my request.",
+    "privacyLink": "Read the privacy policy",
+    "cancellationTitle": "Cancellation terms",
+    "submit": "Send my request",
+    "submitting": "Sending…",
+    "errorsTitle": "{count, plural, one {One thing to fix} other {# things to fix}}:",
+    "errors": {
+      "arrival_in_past": "The arrival date has already passed.",
+      "date_invalid": "Please enter a valid date.",
+      "departure_before_arrival": "Departure must be after arrival.",
+      "adults_invalid": "Please enter at least 1 adult (30 at most).",
+      "first_name_required": "Please enter your first name.",
+      "whatsapp_invalid": "This WhatsApp number is not valid.",
+      "email_invalid": "This email address is not valid.",
+      "consent_required": "We need your agreement to handle the request.",
+      "too_long": "This text is too long.",
+      "too_many_items": "10 items at most.",
+      "default": "This value is not valid."
+    },
+    "rateLimited": "Too many requests from this connection. Please try again in an hour or message us on WhatsApp.",
+    "error": "Sending failed. Your answers are kept: please try again, or message us on WhatsApp.",
+    "offline": "You seem to be offline. Your answers are kept: try again once connected, or message us on WhatsApp.",
+    "whatsappFallback": "Message us on WhatsApp",
+    "confirmationTitle": "Request sent",
+    "reference": "Reference: {reference}",
+    "datesWish": "Dates are wishes: the team confirms availability.",
+    "sendWhatsapp": "Also send on WhatsApp",
+    "backHome": "Back to the home page",
+    "recapTitle": "Your request",
+    "recapDates": "Arriving on {arrival}",
+    "recapDatesRange": "From {arrival} to {departure}",
+    "recapTravellers": "{adults, plural, one {# adult} other {# adults}}{children, plural, =0 {} one { and # child} other { and # children}}",
+    "whatsappRecap": "Hello Saloum Évasion, I have just sent request {reference}: {items}, arriving on {arrival}, {adults} adult(s) and {children} child(ren). {firstName}",
+    "noItems": "tailor-made stay",
+    "thanksTitle": "Thank you, request received",
+    "thanksMetaTitle": "Request sent | Saloum Évasion",
+    "thanksMetaDescription": "Your stay request has arrived: the Saloum Évasion team will reply on WhatsApp.",
+    "thanksBody": "Your request has arrived. A member of the team will reply on WhatsApp.",
+    "counter": "My request",
+    "counterLabel": "My request: {count, plural, one {# item} other {# items}}",
+    "added": "“{title}” has been added to your request.",
+    "inRequest": "In my request",
+    "viewRequest": "View my request",
+    "errorsSummary": "Please fix the following:"
+  },
+  "cart": {
+    "title": "Your cart",
+    "empty": "Your cart is empty.",
+    "expired": "Your cart has expired: here are a few stays to start again.",
+    "total": "Total",
+    "items": "{count, plural, one {# item} other {# items}}",
+    "remove": "Remove",
+    "edit": "Edit",
+    "quoteInstead": "Ask for a quote instead",
+    "summary": "Cart · {count} · {total}",
+    "openSummary": "Show cart details",
+    "priceChanged": "The price has changed since you added it: {before} → {after}.",
+    "unavailable": "This service is no longer available; it has been removed from the total.",
+    "browse": "Explore our stays"
+  },
+  "checkout": {
+    "steps": {
+      "cart": "Cart",
+      "details": "Details",
+      "payment": "Payment",
+      "status": "Confirmation"
+    },
+    "stepLabel": "Step {current} of {total}: {name}",
+    "indicative": "indicative",
+    "pendingAvailability": "Availability being confirmed by the team",
+    "whatsappHelp": "A question? Message us on WhatsApp",
+    "progress": "Checkout progress",
+    "whatsappMessage": "Hello, I have a question about my order in progress.",
+    "comingSoon": "This step will be available very soon."
+  },
+  "payment": {
+    "methods": {
+      "wave": "Wave",
+      "orange_money": "Orange Money",
+      "card": "Bank card (Visa, Mastercard)"
+    },
+    "choose": "Payment method",
+    "pay": "Pay {amount}",
+    "pending": "Payment being confirmed…",
+    "failure": {
+      "declined": "The payment was declined.",
+      "insufficient_funds": "Your account balance is too low.",
+      "timeout": "The payment time limit has passed.",
+      "cancelled_by_user": "The payment was cancelled.",
+      "technical": "A technical problem prevented the payment."
+    },
+    "retry": "Try again",
+    "changeMethod": "Change payment method"
+  },
+  "booking": {
+    "reference": "Reference: {reference}",
+    "voucher": "Download the booking voucher (PDF)",
+    "invalidLink": "This link is no longer valid.",
+    "findTitle": "Find my booking"
+  },
+  "refund": {
+    "status": {
+      "requested": "Requested",
+      "approved": "Approved",
+      "paid": "Paid",
+      "rejected": "Rejected"
+    }
   }
 }

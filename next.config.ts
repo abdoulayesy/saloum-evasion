@@ -6,6 +6,37 @@ import { renamedSegments } from './src/i18n/renamedSegments';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
+// Politique de sécurité du contenu (T173) : ressources du site seulement, plus Mux (vidéo HLS,
+// vignettes) et Plausible (mesure). `unsafe-inline` reste nécessaire aux scripts et styles
+// intégrés de Next sur des pages statiques (un nonce imposerait un rendu dynamique). En
+// développement, pas de CSP : le rechargement à chaud utilise `eval`.
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://plausible.io",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https://image.mux.com",
+  "font-src 'self'",
+  "connect-src 'self' https://plausible.io https://*.mux.com",
+  "media-src 'self' blob: https://*.mux.com",
+  "worker-src 'self' blob:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+].join('; ');
+
+const securityHeaders = [
+  ...(process.env.NODE_ENV === 'production'
+    ? [{ key: 'Content-Security-Policy', value: contentSecurityPolicy }]
+    : []),
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  // Referer limité au domaine pour les tiers ; complet en interne (bascule de langue).
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'X-Frame-Options', value: 'DENY' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
+  { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
+];
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -38,6 +69,8 @@ const nextConfig: NextConfig = {
     { source: '/admin/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
     { source: '/admin', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
     { source: '/api/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
+    // En-têtes de sécurité du site public (T173), hors admin et API.
+    { source: '/((?!admin|api).*)', headers: securityHeaders },
   ],
 };
 

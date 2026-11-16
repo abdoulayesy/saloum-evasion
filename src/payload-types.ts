@@ -70,6 +70,7 @@ export interface Config {
     stays: Stay;
     experiences: Experience;
     accommodations: Accommodation;
+    transfers: Transfer;
     destinations: Destination;
     universes: Universe;
     videos: Video;
@@ -79,10 +80,21 @@ export interface Config {
     cancellationPolicies: CancellationPolicy;
     teamMembers: TeamMember;
     requests: Request;
+    partners: Partner;
+    carts: Cart;
+    bookings: Booking;
+    payments: Payment;
+    paymentEvents: PaymentEvent;
+    refunds: Refund;
+    commissionEntries: CommissionEntry;
+    payouts: Payout;
+    reminders: Reminder;
+    notifications: Notification;
     redirects: Redirect;
     rateLimits: RateLimit;
     users: User;
     'payload-kv': PayloadKv;
+    'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -92,6 +104,7 @@ export interface Config {
     stays: StaysSelect<false> | StaysSelect<true>;
     experiences: ExperiencesSelect<false> | ExperiencesSelect<true>;
     accommodations: AccommodationsSelect<false> | AccommodationsSelect<true>;
+    transfers: TransfersSelect<false> | TransfersSelect<true>;
     destinations: DestinationsSelect<false> | DestinationsSelect<true>;
     universes: UniversesSelect<false> | UniversesSelect<true>;
     videos: VideosSelect<false> | VideosSelect<true>;
@@ -101,10 +114,21 @@ export interface Config {
     cancellationPolicies: CancellationPoliciesSelect<false> | CancellationPoliciesSelect<true>;
     teamMembers: TeamMembersSelect<false> | TeamMembersSelect<true>;
     requests: RequestsSelect<false> | RequestsSelect<true>;
+    partners: PartnersSelect<false> | PartnersSelect<true>;
+    carts: CartsSelect<false> | CartsSelect<true>;
+    bookings: BookingsSelect<false> | BookingsSelect<true>;
+    payments: PaymentsSelect<false> | PaymentsSelect<true>;
+    paymentEvents: PaymentEventsSelect<false> | PaymentEventsSelect<true>;
+    refunds: RefundsSelect<false> | RefundsSelect<true>;
+    commissionEntries: CommissionEntriesSelect<false> | CommissionEntriesSelect<true>;
+    payouts: PayoutsSelect<false> | PayoutsSelect<true>;
+    reminders: RemindersSelect<false> | RemindersSelect<true>;
+    notifications: NotificationsSelect<false> | NotificationsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     rateLimits: RateLimitsSelect<false> | RateLimitsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
+    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -116,10 +140,12 @@ export interface Config {
   globals: {
     siteSettings: SiteSetting;
     navigation: Navigation;
+    commissionRates: CommissionRate;
   };
   globalsSelect: {
     siteSettings: SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     navigation: NavigationSelect<false> | NavigationSelect<true>;
+    commissionRates: CommissionRatesSelect<false> | CommissionRatesSelect<true>;
   };
   locale: 'fr' | 'en';
   widgets: {
@@ -127,7 +153,13 @@ export interface Config {
   };
   user: User;
   jobs: {
-    tasks: unknown;
+    tasks: {
+      sendNotification: TaskSendNotification;
+      inline: {
+        input: unknown;
+        output: unknown;
+      };
+    };
     workflows: unknown;
   };
 }
@@ -189,6 +221,16 @@ export interface Stay {
       }[]
     | null;
   cancellationPolicy: number | CancellationPolicy;
+  /**
+   * Ajout au panier et paiement en ligne. Exige un prestataire, des conditions d’annulation et des prix.
+   */
+  bookable?: boolean | null;
+  partner?: (number | null) | Partner;
+  /**
+   * Gratuit sous 4 ans ; au-delà de 11 ans, tarif adulte.
+   */
+  childPricePercent: number;
+  requireFullPayment?: boolean | null;
   destinations: (number | Destination)[];
   accommodations?: (number | Accommodation)[] | null;
   experiences?: (number | Experience)[] | null;
@@ -291,6 +333,16 @@ export interface CancellationPolicy {
   id: number;
   name: string;
   summary?: string | null;
+  /**
+   * Palier appliqué = le plus grand délai inférieur ou égal aux jours restants avant la prestation. Ex. 30 j → 100 %, 14 j → 50 %, 0 j → 0 %.
+   */
+  tiers?:
+    | {
+        daysBeforeArrivalMin: number;
+        refundPercent: number;
+        id?: string | null;
+      }[]
+    | null;
   details?: {
     root: {
       type: string;
@@ -306,6 +358,24 @@ export interface CancellationPolicy {
     };
     [k: string]: unknown;
   } | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "partners".
+ */
+export interface Partner {
+  id: number;
+  name: string;
+  kind: 'lodging' | 'guide' | 'restaurant' | 'transport' | 'other';
+  contactName?: string | null;
+  phone?: string | null;
+  whatsapp?: string | null;
+  email?: string | null;
+  payoutMethod: 'bank_transfer' | 'wave' | 'orange_money' | 'cash';
+  payoutDetails?: string | null;
+  active?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -388,8 +458,22 @@ export interface Accommodation {
   bedrooms?: number | null;
   amenities?:
     ('piscine' | 'climatisation' | 'wifi' | 'vue-bolong' | 'acces-plage' | 'cuisine' | 'parking' | 'pmr')[] | null;
+  pricing: {
+    lowSeasonPerNight: number;
+    highSeasonPerNight: number;
+  };
+  /**
+   * Calculé : le plus bas des deux prix saisonniers.
+   */
   priceFromPerNight: number;
+  minNights: number;
   destination: number | Destination;
+  /**
+   * Ajout au panier et paiement en ligne. Exige un prestataire, des conditions d’annulation et des prix.
+   */
+  bookable?: boolean | null;
+  partner?: (number | null) | Partner;
+  cancellationPolicy?: (number | null) | CancellationPolicy;
   geo: {
     latitude: number;
     longitude: number;
@@ -468,7 +552,29 @@ export interface Experience {
   meetingPoint?: string | null;
   pricePerPerson: number;
   minParticipants?: number | null;
+  maxParticipants: number;
+  offerKind: 'activity' | 'table';
+  /**
+   * Au moins un créneau si l’expérience est vendable.
+   */
+  slots?:
+    | {
+        label?: string | null;
+        startTime: string;
+        id?: string | null;
+      }[]
+    | null;
   destination: number | Destination;
+  /**
+   * Ajout au panier et paiement en ligne. Exige un prestataire, des conditions d’annulation et des prix.
+   */
+  bookable?: boolean | null;
+  partner?: (number | null) | Partner;
+  cancellationPolicy?: (number | null) | CancellationPolicy;
+  /**
+   * Gratuit sous 4 ans ; au-delà de 11 ans, tarif adulte.
+   */
+  childPricePercent: number;
   faq?: (number | FaqItem)[] | null;
   /**
    * Au moins 300 mots (hors titres) pour publier dans une langue.
@@ -578,6 +684,35 @@ export interface FaqItem {
   } | null;
   category: 'general' | 'reservation' | 'paiement' | 'transport' | 'sejour';
   order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "transfers".
+ */
+export interface Transfer {
+  id: number;
+  /**
+   * Ex. « Aéroport AIBD → Ndangane ».
+   */
+  title?: string | null;
+  origin: 'aibd' | 'dakar';
+  destination: number | Destination;
+  durationMinutes?: number | null;
+  priceTiers?:
+    | {
+        maxPassengers: number;
+        pricePerVehicle: number;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Ajout au panier et paiement en ligne. Exige un prestataire, des conditions d’annulation et des prix.
+   */
+  bookable?: boolean | null;
+  partner?: (number | null) | Partner;
+  cancellationPolicy?: (number | null) | CancellationPolicy;
   updatedAt: string;
   createdAt: string;
 }
@@ -862,6 +997,346 @@ export interface Request {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "carts".
+ */
+export interface Cart {
+  id: number;
+  tokenHash: string;
+  locale: 'fr' | 'en';
+  items?:
+    | {
+        lineId: string;
+        offerType: 'stay' | 'accommodation' | 'experience' | 'table' | 'transfer';
+        offer:
+          | {
+              relationTo: 'stays';
+              value: number | Stay;
+            }
+          | {
+              relationTo: 'accommodations';
+              value: number | Accommodation;
+            }
+          | {
+              relationTo: 'experiences';
+              value: number | Experience;
+            }
+          | {
+              relationTo: 'transfers';
+              value: number | Transfer;
+            };
+        startDate: string;
+        endDate?: string | null;
+        slot?: string | null;
+        transferDirection?: ('outbound' | 'return') | null;
+        transferTime?: string | null;
+        adults: number;
+        children: number;
+        infants: number;
+        quotedUnitPrice: number;
+        quotedTotal: number;
+        id?: string | null;
+      }[]
+    | null;
+  version: number;
+  contact?: {
+    firstName?: string | null;
+    lastName?: string | null;
+    whatsapp?: string | null;
+    email?: string | null;
+  };
+  remindersConsent?: boolean | null;
+  remindersSent: number;
+  status: 'open' | 'checked_out' | 'abandoned' | 'expired';
+  expiresAt: string;
+  migratedFromRequest?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bookings".
+ */
+export interface Booking {
+  id: number;
+  reference: string;
+  cart: number | Cart;
+  cartVersion: number;
+  locale: 'fr' | 'en';
+  traveller: {
+    firstName: string;
+    lastName: string;
+    whatsapp: string;
+    email: string;
+  };
+  specialRequest?: string | null;
+  lines?:
+    | {
+        lineId: string;
+        offerType: 'stay' | 'accommodation' | 'experience' | 'table' | 'transfer';
+        offer:
+          | {
+              relationTo: 'stays';
+              value: number | Stay;
+            }
+          | {
+              relationTo: 'accommodations';
+              value: number | Accommodation;
+            }
+          | {
+              relationTo: 'experiences';
+              value: number | Experience;
+            }
+          | {
+              relationTo: 'transfers';
+              value: number | Transfer;
+            };
+        startDate: string;
+        endDate?: string | null;
+        slot?: string | null;
+        transferDirection?: ('outbound' | 'return') | null;
+        transferTime?: string | null;
+        adults: number;
+        children: number;
+        infants: number;
+        quotedUnitPrice: number;
+        quotedTotal: number;
+        title: string;
+        partner?: (number | null) | Partner;
+        unitPrice: number;
+        lineTotal: number;
+        commissionRateBp?: number | null;
+        commissionAmount?: number | null;
+        partnerAmount?: number | null;
+        policySnapshot?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        availabilityStatus: 'pending' | 'confirmed' | 'unavailable' | 'replaced';
+        availabilityNote?: string | null;
+        cancelled?: boolean | null;
+        partnerNotifiedAt?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  total: number;
+  amountPaid: number;
+  paymentPlan: 'full' | 'deposit';
+  depositAmount: number;
+  balanceAmount: number;
+  balanceDueDate?: string | null;
+  status:
+    | 'awaiting_payment'
+    | 'deposit_paid'
+    | 'paid'
+    | 'expired'
+    | 'cancellation_requested'
+    | 'cancelled'
+    | 'partially_cancelled'
+    | 'completed';
+  firstArrivalDate: string;
+  availabilityDeadline?: string | null;
+  manageTokenHash?: string | null;
+  voucher: {
+    version: number;
+    generatedAt?: string | null;
+  };
+  consentProcessingAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payments".
+ */
+export interface Payment {
+  id: number;
+  booking: number | Booking;
+  purpose: 'full' | 'deposit' | 'balance';
+  method: 'wave' | 'orange_money' | 'card';
+  amount: number;
+  currency: string;
+  gateway: string;
+  idempotencyKey: string;
+  gatewayReference?: string | null;
+  status: 'initiated' | 'pending' | 'succeeded' | 'failed' | 'abandoned' | 'expired';
+  failureReason?: ('declined' | 'insufficient_funds' | 'timeout' | 'cancelled_by_user' | 'technical') | null;
+  redirectUrl?: string | null;
+  expiresAt: string;
+  confirmedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "paymentEvents".
+ */
+export interface PaymentEvent {
+  id: number;
+  payment?: (number | null) | Payment;
+  gatewayEventId: string;
+  type: string;
+  payload?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  signatureValid?: boolean | null;
+  receivedAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "refunds".
+ */
+export interface Refund {
+  id: number;
+  booking: number | Booking;
+  lines?:
+    | {
+        lineId: string;
+        amount: number;
+        id?: string | null;
+      }[]
+    | null;
+  amount: number;
+  calculatedAmount: number;
+  adjustmentReason?: string | null;
+  reason: 'traveller' | 'company' | 'partner' | 'unavailable';
+  method: 'original' | 'wave' | 'orange_money' | 'bank_transfer';
+  methodJustification?: string | null;
+  status: 'requested' | 'approved' | 'paid' | 'rejected';
+  rejectionReason?: string | null;
+  gatewayRefundReference?: string | null;
+  requestedBy?: (number | null) | User;
+  approvedBy?: (number | null) | User;
+  approvedAt?: string | null;
+  paidAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  name?: string | null;
+  role: 'admin' | 'editor' | 'operations' | 'finance';
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "commissionEntries".
+ */
+export interface CommissionEntry {
+  id: number;
+  booking: number | Booking;
+  lineId: string;
+  partner: number | Partner;
+  kind: 'collected' | 'refund_adjustment';
+  payment?: (number | null) | Payment;
+  refund?: (number | null) | Refund;
+  grossAmount: number;
+  commissionAmount: number;
+  partnerAmount: number;
+  rateBp: number;
+  occurredAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payouts".
+ */
+export interface Payout {
+  id: number;
+  partner: number | Partner;
+  periodStart: string;
+  periodEnd: string;
+  amount: number;
+  method: 'bank_transfer' | 'wave' | 'orange_money' | 'cash';
+  reference?: string | null;
+  paidAt: string;
+  recordedBy?: (number | null) | User;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reminders".
+ */
+export interface Reminder {
+  id: number;
+  targetType: 'carts' | 'bookings';
+  targetId: number;
+  kind: 'abandoned_cart' | 'failed_payment' | 'balance_due' | 'balance_overdue';
+  channel: 'email' | 'whatsapp';
+  rank: number;
+  scheduledFor: string;
+  sentAt?: string | null;
+  status: 'scheduled' | 'sent' | 'failed' | 'cancelled';
+  linkOpenedAt?: string | null;
+  unsubscribed?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notifications".
+ */
+export interface Notification {
+  id: number;
+  booking?: (number | null) | Booking;
+  template: string;
+  channel: 'email' | 'whatsapp';
+  recipient: string;
+  locale: 'fr' | 'en';
+  payload?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  attempts: number;
+  status: 'queued' | 'sent' | 'failed' | 'escalated';
+  providerMessageId?: string | null;
+  lastError?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -887,34 +1362,6 @@ export interface RateLimit {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: number;
-  name?: string | null;
-  role: 'admin' | 'editor';
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  resetPasswordRequestedAt?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -929,6 +1376,98 @@ export interface PayloadKv {
     | number
     | boolean
     | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs".
+ */
+export interface PayloadJob {
+  id: number;
+  /**
+   * Input data provided to the job
+   */
+  input?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  taskStatus?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  completedAt?: string | null;
+  totalTried?: number | null;
+  /**
+   * If hasError is true this job will not be retried
+   */
+  hasError?: boolean | null;
+  /**
+   * If hasError is true, this is the error that caused it
+   */
+  error?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Task execution log
+   */
+  log?:
+    | {
+        executedAt: string;
+        completedAt: string;
+        taskSlug: 'inline' | 'sendNotification';
+        taskID: string;
+        input?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        output?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        state: 'failed' | 'succeeded';
+        error?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  taskSlug?: ('inline' | 'sendNotification') | null;
+  queue?: string | null;
+  waitUntil?: string | null;
+  processing?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -948,6 +1487,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'accommodations';
         value: number | Accommodation;
+      } | null)
+    | ({
+        relationTo: 'transfers';
+        value: number | Transfer;
       } | null)
     | ({
         relationTo: 'destinations';
@@ -984,6 +1527,46 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'requests';
         value: number | Request;
+      } | null)
+    | ({
+        relationTo: 'partners';
+        value: number | Partner;
+      } | null)
+    | ({
+        relationTo: 'carts';
+        value: number | Cart;
+      } | null)
+    | ({
+        relationTo: 'bookings';
+        value: number | Booking;
+      } | null)
+    | ({
+        relationTo: 'payments';
+        value: number | Payment;
+      } | null)
+    | ({
+        relationTo: 'paymentEvents';
+        value: number | PaymentEvent;
+      } | null)
+    | ({
+        relationTo: 'refunds';
+        value: number | Refund;
+      } | null)
+    | ({
+        relationTo: 'commissionEntries';
+        value: number | CommissionEntry;
+      } | null)
+    | ({
+        relationTo: 'payouts';
+        value: number | Payout;
+      } | null)
+    | ({
+        relationTo: 'reminders';
+        value: number | Reminder;
+      } | null)
+    | ({
+        relationTo: 'notifications';
+        value: number | Notification;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1080,6 +1663,10 @@ export interface StaysSelect<T extends boolean = true> {
         id?: T;
       };
   cancellationPolicy?: T;
+  bookable?: T;
+  partner?: T;
+  childPricePercent?: T;
+  requireFullPayment?: T;
   destinations?: T;
   accommodations?: T;
   experiences?: T;
@@ -1125,7 +1712,20 @@ export interface ExperiencesSelect<T extends boolean = true> {
   meetingPoint?: T;
   pricePerPerson?: T;
   minParticipants?: T;
+  maxParticipants?: T;
+  offerKind?: T;
+  slots?:
+    | T
+    | {
+        label?: T;
+        startTime?: T;
+        id?: T;
+      };
   destination?: T;
+  bookable?: T;
+  partner?: T;
+  cancellationPolicy?: T;
+  childPricePercent?: T;
   faq?: T;
   body?: T;
   seo?:
@@ -1161,8 +1761,18 @@ export interface AccommodationsSelect<T extends boolean = true> {
   capacity?: T;
   bedrooms?: T;
   amenities?: T;
+  pricing?:
+    | T
+    | {
+        lowSeasonPerNight?: T;
+        highSeasonPerNight?: T;
+      };
   priceFromPerNight?: T;
+  minNights?: T;
   destination?: T;
+  bookable?: T;
+  partner?: T;
+  cancellationPolicy?: T;
   geo?:
     | T
     | {
@@ -1191,6 +1801,28 @@ export interface AccommodationsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "transfers_select".
+ */
+export interface TransfersSelect<T extends boolean = true> {
+  title?: T;
+  origin?: T;
+  destination?: T;
+  durationMinutes?: T;
+  priceTiers?:
+    | T
+    | {
+        maxPassengers?: T;
+        pricePerVehicle?: T;
+        id?: T;
+      };
+  bookable?: T;
+  partner?: T;
+  cancellationPolicy?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1470,6 +2102,13 @@ export interface FaqItemsSelect<T extends boolean = true> {
 export interface CancellationPoliciesSelect<T extends boolean = true> {
   name?: T;
   summary?: T;
+  tiers?:
+    | T
+    | {
+        daysBeforeArrivalMin?: T;
+        refundPercent?: T;
+        id?: T;
+      };
   details?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1520,6 +2159,268 @@ export interface RequestsSelect<T extends boolean = true> {
   consentAt?: T;
   notifiedAt?: T;
   notifyAttempts?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "partners_select".
+ */
+export interface PartnersSelect<T extends boolean = true> {
+  name?: T;
+  kind?: T;
+  contactName?: T;
+  phone?: T;
+  whatsapp?: T;
+  email?: T;
+  payoutMethod?: T;
+  payoutDetails?: T;
+  active?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "carts_select".
+ */
+export interface CartsSelect<T extends boolean = true> {
+  tokenHash?: T;
+  locale?: T;
+  items?:
+    | T
+    | {
+        lineId?: T;
+        offerType?: T;
+        offer?: T;
+        startDate?: T;
+        endDate?: T;
+        slot?: T;
+        transferDirection?: T;
+        transferTime?: T;
+        adults?: T;
+        children?: T;
+        infants?: T;
+        quotedUnitPrice?: T;
+        quotedTotal?: T;
+        id?: T;
+      };
+  version?: T;
+  contact?:
+    | T
+    | {
+        firstName?: T;
+        lastName?: T;
+        whatsapp?: T;
+        email?: T;
+      };
+  remindersConsent?: T;
+  remindersSent?: T;
+  status?: T;
+  expiresAt?: T;
+  migratedFromRequest?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bookings_select".
+ */
+export interface BookingsSelect<T extends boolean = true> {
+  reference?: T;
+  cart?: T;
+  cartVersion?: T;
+  locale?: T;
+  traveller?:
+    | T
+    | {
+        firstName?: T;
+        lastName?: T;
+        whatsapp?: T;
+        email?: T;
+      };
+  specialRequest?: T;
+  lines?:
+    | T
+    | {
+        lineId?: T;
+        offerType?: T;
+        offer?: T;
+        startDate?: T;
+        endDate?: T;
+        slot?: T;
+        transferDirection?: T;
+        transferTime?: T;
+        adults?: T;
+        children?: T;
+        infants?: T;
+        quotedUnitPrice?: T;
+        quotedTotal?: T;
+        title?: T;
+        partner?: T;
+        unitPrice?: T;
+        lineTotal?: T;
+        commissionRateBp?: T;
+        commissionAmount?: T;
+        partnerAmount?: T;
+        policySnapshot?: T;
+        availabilityStatus?: T;
+        availabilityNote?: T;
+        cancelled?: T;
+        partnerNotifiedAt?: T;
+        id?: T;
+      };
+  total?: T;
+  amountPaid?: T;
+  paymentPlan?: T;
+  depositAmount?: T;
+  balanceAmount?: T;
+  balanceDueDate?: T;
+  status?: T;
+  firstArrivalDate?: T;
+  availabilityDeadline?: T;
+  manageTokenHash?: T;
+  voucher?:
+    | T
+    | {
+        version?: T;
+        generatedAt?: T;
+      };
+  consentProcessingAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payments_select".
+ */
+export interface PaymentsSelect<T extends boolean = true> {
+  booking?: T;
+  purpose?: T;
+  method?: T;
+  amount?: T;
+  currency?: T;
+  gateway?: T;
+  idempotencyKey?: T;
+  gatewayReference?: T;
+  status?: T;
+  failureReason?: T;
+  redirectUrl?: T;
+  expiresAt?: T;
+  confirmedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "paymentEvents_select".
+ */
+export interface PaymentEventsSelect<T extends boolean = true> {
+  payment?: T;
+  gatewayEventId?: T;
+  type?: T;
+  payload?: T;
+  signatureValid?: T;
+  receivedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "refunds_select".
+ */
+export interface RefundsSelect<T extends boolean = true> {
+  booking?: T;
+  lines?:
+    | T
+    | {
+        lineId?: T;
+        amount?: T;
+        id?: T;
+      };
+  amount?: T;
+  calculatedAmount?: T;
+  adjustmentReason?: T;
+  reason?: T;
+  method?: T;
+  methodJustification?: T;
+  status?: T;
+  rejectionReason?: T;
+  gatewayRefundReference?: T;
+  requestedBy?: T;
+  approvedBy?: T;
+  approvedAt?: T;
+  paidAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "commissionEntries_select".
+ */
+export interface CommissionEntriesSelect<T extends boolean = true> {
+  booking?: T;
+  lineId?: T;
+  partner?: T;
+  kind?: T;
+  payment?: T;
+  refund?: T;
+  grossAmount?: T;
+  commissionAmount?: T;
+  partnerAmount?: T;
+  rateBp?: T;
+  occurredAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payouts_select".
+ */
+export interface PayoutsSelect<T extends boolean = true> {
+  partner?: T;
+  periodStart?: T;
+  periodEnd?: T;
+  amount?: T;
+  method?: T;
+  reference?: T;
+  paidAt?: T;
+  recordedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reminders_select".
+ */
+export interface RemindersSelect<T extends boolean = true> {
+  targetType?: T;
+  targetId?: T;
+  kind?: T;
+  channel?: T;
+  rank?: T;
+  scheduledFor?: T;
+  sentAt?: T;
+  status?: T;
+  linkOpenedAt?: T;
+  unsubscribed?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notifications_select".
+ */
+export interface NotificationsSelect<T extends boolean = true> {
+  booking?: T;
+  template?: T;
+  channel?: T;
+  recipient?: T;
+  locale?: T;
+  payload?: T;
+  attempts?: T;
+  status?: T;
+  providerMessageId?: T;
+  lastError?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1578,6 +2479,37 @@ export interface UsersSelect<T extends boolean = true> {
 export interface PayloadKvSelect<T extends boolean = true> {
   key?: T;
   data?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs_select".
+ */
+export interface PayloadJobsSelect<T extends boolean = true> {
+  input?: T;
+  taskStatus?: T;
+  completedAt?: T;
+  totalTried?: T;
+  hasError?: T;
+  error?: T;
+  log?:
+    | T
+    | {
+        executedAt?: T;
+        completedAt?: T;
+        taskSlug?: T;
+        taskID?: T;
+        input?: T;
+        output?: T;
+        state?: T;
+        error?: T;
+        id?: T;
+      };
+  taskSlug?: T;
+  queue?: T;
+  waitUntil?: T;
+  processing?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1664,6 +2596,22 @@ export interface SiteSetting {
    * Wave, Orange Money et carte bancaire au même rang (constitution VI).
    */
   paymentMethods?: ('wave' | 'orange_money' | 'card')[] | null;
+  checkout: {
+    depositPercent: number;
+    depositThresholdDays: number;
+    balanceDueDaysBeforeArrival: number;
+    availabilitySlaMinutes: number;
+    businessHoursStart?: string | null;
+    businessHoursEnd?: string | null;
+    refundDelayDays: number;
+    cartTtlDays: number;
+    cartPurgeDays: number;
+    minLeadDays: number;
+  };
+  notifications?: {
+    whatsappSenderId?: string | null;
+    financeEmail?: string | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1708,6 +2656,26 @@ export interface Navigation {
           | 'contact'
           | 'legal'
           | 'privacy';
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "commissionRates".
+ */
+export interface CommissionRate {
+  id: number;
+  /**
+   * Taux en points de base, entre 1000 (10 %) et 2500 (25 %). Le taux appliqué est le plus récent dont la date d’effet est passée.
+   */
+  rates?:
+    | {
+        offerType: 'stay' | 'accommodation' | 'experience' | 'table' | 'transfer';
+        rateBp: number;
+        effectiveFrom: string;
         id?: string | null;
       }[]
     | null;
@@ -1764,6 +2732,26 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         id?: T;
       };
   paymentMethods?: T;
+  checkout?:
+    | T
+    | {
+        depositPercent?: T;
+        depositThresholdDays?: T;
+        balanceDueDaysBeforeArrival?: T;
+        availabilitySlaMinutes?: T;
+        businessHoursStart?: T;
+        businessHoursEnd?: T;
+        refundDelayDays?: T;
+        cartTtlDays?: T;
+        cartPurgeDays?: T;
+        minLeadDays?: T;
+      };
+  notifications?:
+    | T
+    | {
+        whatsappSenderId?: T;
+        financeEmail?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1793,6 +2781,23 @@ export interface NavigationSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "commissionRates_select".
+ */
+export interface CommissionRatesSelect<T extends boolean = true> {
+  rates?:
+    | T
+    | {
+        offerType?: T;
+        rateBp?: T;
+        effectiveFrom?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections_widget".
  */
 export interface CollectionsWidget {
@@ -1800,6 +2805,16 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSendNotification".
+ */
+export interface TaskSendNotification {
+  input: {
+    notificationId: number;
+  };
+  output?: unknown;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

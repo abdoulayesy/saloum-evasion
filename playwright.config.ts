@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 const PORT = 3000;
 const SEO_SPECS = /.*\.(seo|nojs)\.spec\.ts/;
 // Admin Payload : testé sur ordinateur seulement (dérogation D-T6b).
-const ADMIN_SPECS = /(cms\.smoke|us3-editor|us3-publication)\.spec\.ts/;
+const ADMIN_SPECS = /(cms\.smoke|us3-editor|us3-publication|us5-missing)\.spec\.ts/;
 const baseURL = process.env.BASE_URL ?? `http://localhost:${PORT}`;
 
 // Appareil de référence de la constitution : Android milieu de gamme, 360 px de large.
@@ -38,6 +38,14 @@ export default defineConfig({
     {
       name: 'android-360-landscape',
       use: { ...devices['Desktop Chrome'], ...android360, viewport: { width: 800, height: 360 } },
+      testIgnore: [SEO_SPECS, ADMIN_SPECS],
+    },
+    {
+      // Tunnel de commande (002) en 3G : les tests appliquent le profil 3g sur ce projet
+      // (tests/e2e/support/checkout.ts). Seulement les tests étiquetés @checkout.
+      name: 'android-360-3g',
+      use: { ...devices['Desktop Chrome'], ...android360 },
+      grep: /@checkout/,
       testIgnore: [SEO_SPECS, ADMIN_SPECS],
     },
     { name: 'pixel-7', use: { ...devices['Pixel 7'] }, testIgnore: [SEO_SPECS, ADMIN_SPECS] },
@@ -76,6 +84,13 @@ export default defineConfig({
     reuseExistingServer: false,
     timeout: 120_000,
     // Table des redirections relue à chaque requête pendant les tests (us3-editor).
-    env: { REDIRECTS_TTL_MS: '0' },
+    // E-mails des demandes écrits dans une boîte d'envoi de test ; limitation de débit relevée
+    // (tous les envois des tests viennent de la même adresse locale).
+    env: {
+      REDIRECTS_TTL_MS: '0',
+      EMAIL_OUTBOX_DIR: 'test-results/outbox',
+      REQUEST_RATE_LIMIT: '1000',
+      RATE_LIMIT_SALT: 'sel-de-test',
+    },
   },
 });

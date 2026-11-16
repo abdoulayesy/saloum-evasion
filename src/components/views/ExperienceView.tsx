@@ -134,7 +134,7 @@ export const ExperienceView = async ({
   ]);
 
   const [primary, whatsapp] = await Promise.all([
-    primaryAction(locale, 'experience', experience.seo?.slug ?? ''),
+    primaryAction(locale, 'experience', experience.seo?.slug ?? '', experience.title ?? ''),
     whatsappAction(locale, settings, { title: experience.title ?? undefined, path }),
   ]);
 

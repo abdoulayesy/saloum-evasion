@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { buildPath, type Route, type RouteType } from '@/i18n/pathnames';
 import { routing, type Locale } from '@/i18n/routing';
+import { isTunnelPath } from '@/lib/checkout/paths';
 import { isLive } from '@/lib/navigation';
 import { absoluteUrl } from '@/lib/site';
 
@@ -52,6 +53,8 @@ export const entriesForRoute = (
     videos?: SitemapVideo[];
   } = {},
 ): SitemapEntry[] => {
+  // Tunnel de commande (002, T035) : jamais dans le sitemap, quelle que soit l'origine du chemin.
+  if (Object.values(paths).some((path) => path !== undefined && isTunnelPath(path))) return [];
   const languages: Record<string, string> = {};
   for (const locale of routing.locales) {
     const path = paths[locale];

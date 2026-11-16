@@ -9,18 +9,23 @@ import { revalidateHooks } from '@/hooks/revalidate';
 // (data-model), lecture publique des seuls documents publiés, écriture réservée à l'équipe,
 // revalidation à la publication, calcul de la complétude anglaise.
 
+type Hooks = NonNullable<CollectionConfig['hooks']>;
+
 type ContentOptions = {
   englishCheck: EnglishCheck;
-  extraBeforeChange?: NonNullable<NonNullable<CollectionConfig['hooks']>['beforeChange']>;
+  extraBeforeChange?: NonNullable<Hooks['beforeChange']>;
+  beforeValidate?: NonNullable<Hooks['beforeValidate']>;
 };
 
 export const contentDefaults = ({
   englishCheck,
   extraBeforeChange = [],
+  beforeValidate = [],
 }: ContentOptions): Pick<CollectionConfig, 'access' | 'versions' | 'hooks'> => ({
   access: { read: publishedOrTeam, create: isTeam, update: isTeam, delete: isTeam },
   versions: { drafts: true, maxPerDoc: 25 },
   hooks: {
+    beforeValidate,
     beforeChange: [
       ...extraBeforeChange,
       computeEnPublished(englishCheck),

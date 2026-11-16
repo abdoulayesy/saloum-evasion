@@ -1,12 +1,13 @@
 # Quickstart — 001 Site public Saloum Évasion
 
 Guide pour lancer le projet en local et vérifier les portes qualité de la constitution.
-Le code n'existe pas encore : ce guide décrit l'état attendu à la fin de l'implémentation.
+Mis à jour en phase 10 (T177) avec les commandes réelles.
 
 ## Prérequis
 
-- Node.js 22 LTS, pnpm 9
+- Node.js 22 LTS ; pnpm 9 (ou `corepack pnpm` si pnpm n'est pas installé globalement)
 - Docker (PostgreSQL local) ou une base Postgres 16 accessible
+- Facultatif : **ffmpeg** (conversion des photos HEIC et de la boucle d'ambiance par le seed)
 - Comptes (clés de test) : Mux, Resend, Plausible ; stockage S3-compatible (facultatif en
   local : stockage disque)
 
@@ -14,11 +15,14 @@ Le code n'existe pas encore : ce guide décrit l'état attendu à la fin de l'im
 
 ```bash
 pnpm install
-cp .env.example .env.local
-docker compose up -d db          # Postgres 16 sur localhost:5432
-pnpm payload migrate             # schéma Payload
-pnpm seed                        # 6 destinations, 4 univers, contenus d'exemple FR/EN, réglages du site
+cp .env.example .env
+docker compose up -d             # Postgres 16 sur localhost:5432
+pnpm migrate                     # migrations Payload, puis vidage du cache de données
+SEED_RESET=1 pnpm seed           # démonstration : 6 destinations, 4 univers, séjours, expériences,
+                                 # hébergements, pages, vidéos, équipe (FR/EN) ; photos de
+                                 # public/activites illustration/ si le dossier est présent
 pnpm dev                         # http://localhost:3000 → 301 vers /fr ; admin : /admin
+                                 # (compte de démonstration : SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD)
 ```
 
 ### Variables d'environnement (`.env.example`)
@@ -32,7 +36,11 @@ pnpm dev                         # http://localhost:3000 → 301 vers /fr ; admi
 | `MUX_TOKEN_ID` / `MUX_TOKEN_SECRET` | import des vidéos depuis l'admin |
 | `RESEND_API_KEY` / `REQUEST_FROM_EMAIL` | notification des demandes |
 | `RATE_LIMIT_SALT` | sel du hachage d'IP |
-| `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` | mesure d'audience (vide = désactivée en local) |
+| `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` | mesure d'audience, lue au build (vide = désactivée) |
+| `CRON_SECRET` | protège les tâches planifiées (`/api/cron/purge`, `/api/cron/notify`) |
+| `EMAIL_OUTBOX_DIR` | tests : e-mails écrits dans ce dossier au lieu d'être envoyés |
+| `REQUEST_RATE_LIMIT` | tests : demandes par heure et par IP (5 par défaut) |
+| `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` | compte administrateur créé par le seed (hors production) |
 | `S3_*` | stockage des médias (facultatif en local) |
 
 ## Scripts
@@ -44,10 +52,12 @@ pnpm dev                         # http://localhost:3000 → 301 vers /fr ; admi
 | `pnpm typecheck` | `tsc --noEmit` (strict) |
 | `pnpm lint` | ESLint (`no-explicit-any` en erreur) + Stylelint (interdit `max-width` dans `@media`) |
 | `pnpm test` | Vitest (prix, conversion, validation, métadonnées, JSON-LD, redirections) |
-| `pnpm e2e` | Playwright : iPhone SE, Pixel 7, Android 360×800 en 4G lente + axe |
+| `pnpm e2e` | Playwright : Android 360 (portrait et paysage), Pixel 7, iPhone SE, ordinateur, admin + axe (serveur de production démarré par Playwright : lancer `pnpm build` avant) |
 | `pnpm e2e:nojs` | Playwright sans JavaScript : contenu, métadonnées, JSON-LD dans le HTML servi |
-| `pnpm lhci` | Lighthouse CI mobile avec les budgets de [lighthouserc.json](../../lighthouserc.json) |
-| `pnpm seo:check` | crawl du build : liens cassés, hreflang réciproques, unicité et longueurs title/description, couverture des 10 mots-clés |
+| `pnpm lhci` | Lighthouse CI mobile avec les budgets de [lighthouserc.json](../../lighthouserc.json) (dérogation D-LCP-photo : 3,0 s sur les pages à photo principale) |
+| `pnpm bundles` | budgets JavaScript par route (après `pnpm build`) |
+| `pnpm cache:clear` | vide le cache de données de Next (après une modification directe de la base) |
+| `pnpm seo:check` | crawl du build (serveur démarré) : liens cassés, hreflang réciproques, unicité et longueurs title/description, couverture des 10 mots-clés (`src/lib/seo/keywords.ts`), pages indexables absentes du sitemap, chaînes de redirection |
 
 ## Scénarios de validation (correspondance avec la spec)
 

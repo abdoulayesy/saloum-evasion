@@ -202,3 +202,12 @@
     }
   }
 }
+
+/* Pot de miel du formulaire de demande : hors écran, jamais visible ni annoncé. */
+.honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

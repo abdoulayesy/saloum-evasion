@@ -1,4 +1,6 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionBeforeValidateHook, CollectionConfig } from 'payload';
+import { bookableFields, bookableGuard, groupValue, isWholeXof } from '@/fields/bookable';
+import { integerField } from '@/fields/checkout';
 import { previewFor } from '@/lib/cms/preview';
 import { bodyField } from '@/fields/body';
 import {
@@ -14,6 +16,21 @@ import { bodyComplete, hasText, localeStatusField, seoComplete } from '@/fields/
 import { requiredInFrench } from '@/fields/localized';
 import { seoField } from '@/fields/seo';
 import { contentDefaults } from './shared';
+
+const hasNightPrices = (data: Record<string, unknown>): boolean => {
+  const pricing = groupValue(data, 'pricing');
+  return isWholeXof(pricing.lowSeasonPerNight) && isWholeXof(pricing.highSeasonPerNight);
+};
+
+/** « À partir de » calculé : le plus bas des deux prix saisonniers (002, T020). */
+export const computePriceFrom: CollectionBeforeValidateHook = ({ data }) => {
+  if (!data) return data;
+  const pricing = groupValue(data, 'pricing');
+  const { lowSeasonPerNight: low, highSeasonPerNight: high } = pricing;
+  if (isWholeXof(low) && isWholeXof(high))
+    return { ...data, priceFromPerNight: Math.min(low, high) };
+  return data;
+};
 
 // Hébergements (data-model) : villa, écolodge ou campement ; galerie d'au moins 5 photos ;
 // coordonnées GPS pour le JSON-LD (aucune carte interactive) ; identifiant de location
@@ -34,6 +51,8 @@ export const Accommodations: CollectionConfig = {
       hasText(data.address) &&
       seoComplete(data) &&
       bodyComplete(data),
+    beforeValidate: [computePriceFrom],
+    extraBeforeChange: [bookableGuard(hasNightPrices)],
   }),
   fields: [
     titleField(),
@@ -74,7 +93,33 @@ export const Accommodations: CollectionConfig = {
         { label: 'Accessible PMR', value: 'pmr' },
       ],
     },
-    xofField('priceFromPerNight', 'Prix à partir de, par nuit'),
+    {
+      name: 'pricing',
+      type: 'group',
+      label: 'Prix TTC par nuit (logement entier)',
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            xofField('lowSeasonPerNight', 'Basse saison'),
+            xofField('highSeasonPerNight', 'Haute saison'),
+          ],
+        },
+      ],
+    },
+    {
+      type: 'row',
+      fields: [
+        {
+          ...xofField('priceFromPerNight', 'Prix à partir de, par nuit'),
+          admin: {
+            readOnly: true,
+            description: 'Calculé : le plus bas des deux prix saisonniers.',
+          },
+        },
+        integerField('minNights', 'Nuits minimum', { min: 1, defaultValue: 1 }),
+      ],
+    },
     {
       name: 'destination',
       type: 'relationship',
@@ -82,6 +127,7 @@ export const Accommodations: CollectionConfig = {
       required: true,
       label: 'Destination',
     },
+    ...bookableFields(),
     geoField,
     {
       name: 'address',

@@ -1,5 +1,5 @@
 import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload';
-import { isAdmin, isTeam, nobody } from '@/access';
+import { isAdmin, isStaff, isTeam, nobody } from '@/access';
 import { moodOptions } from '@/fields/common';
 import { validateE164 } from '@/fields/validators';
 
@@ -42,7 +42,7 @@ export const Requests: CollectionConfig = {
     description:
       'Demandes reçues par le formulaire. « Non notifiée » : l’e-mail à l’équipe n’est pas parti, traitez la demande directement.',
   },
-  access: { create: nobody, read: isTeam, update: isTeam, delete: isAdmin },
+  access: { create: nobody, read: isStaff, update: isTeam, delete: isAdmin },
   hooks: { beforeChange: [assignReference] },
   fields: [
     {
