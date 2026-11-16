@@ -68,9 +68,7 @@ const FIELD_INPUT: Record<string, string> = { whatsapp: 'whatsappLocal' };
 // Base sans largeur (une seule classe de largeur par champ : pas de conflit d'utilitaires).
 const fieldBase =
   'mt-1 block min-h-touch rounded-control border border-line bg-white px-3 text-base text-ink';
-// `min-w-0` : WebKit donne aux champs date une largeur minimale tirée de leur contenu interne (police
-// système) ; sans elle, à 200 % sur 320 px, le champ dépasse `w-full` et la page défile (CI Linux).
-const field = `${fieldBase} w-full min-w-0`;
+const field = `${fieldBase} w-full`;
 const stepperButton =
   'inline-flex h-touch w-touch shrink-0 items-center justify-center rounded-control border border-line bg-white text-xl font-semibold text-mangrove';
 
@@ -447,7 +445,9 @@ export const RequestForm = (props: RequestFormProps) => {
                 onChange={(event) => setValue(clamp(Number(event.target.value), min, max))}
                 aria-invalid={name in fieldErrors || undefined}
                 aria-describedby={describedBy(name)}
-                className={`${fieldBase} mt-0 w-20 text-center`}
+                // min-w-0 : à 200 % sur 320 px, le champ rétrécit plutôt que pousser le bouton +
+                // hors de l'écran ; les boutons gardent leur cible tactile de 44 px.
+                className={`${fieldBase} mt-0 w-20 min-w-0 text-center`}
               />
               {enhanced && (
                 <button

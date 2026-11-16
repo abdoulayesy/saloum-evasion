@@ -100,6 +100,9 @@ test.describe('demande de séjour', () => {
 
   test('zoom 200 % et paysage sans défilement horizontal', async ({ page }) => {
     await page.goto(FORM);
+    // Après hydratation : les boutons − / + des voyageurs n'existent qu'avec JavaScript, et
+    // élargissent la ligne (mesurer avant eux masquait le débordement).
+    await expect(page.getByRole('button', { name: 'Un adulte de plus' })).toBeVisible();
     await expectNoHorizontalScroll(page);
     await setTextZoom(page, 2);
     await expectNoHorizontalScroll(page);
