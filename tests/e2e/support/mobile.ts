@@ -41,10 +41,24 @@ export const expectTouchTargets = async (page: Page, minSize = 44): Promise<void
 
 /** Aucun défilement horizontal (WCAG 1.4.10, 360 px). */
 export const expectNoHorizontalScroll = async (page: Page): Promise<void> => {
-  const overflow = await page.evaluate(
-    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-  );
-  expect(overflow, 'Défilement horizontal en px').toBeLessThanOrEqual(0);
+  const { overflow, culprits } = await page.evaluate(() => {
+    const width = document.documentElement.clientWidth;
+    // Éléments qui dépassent à droite : nommés dans le message d'échec (diagnostic en CI).
+    const offenders = [...document.querySelectorAll('body *')]
+      .map((el) => ({ el, right: Math.round(el.getBoundingClientRect().right) }))
+      .filter(({ right }) => right > width)
+      .sort((a, b) => b.right - a.right)
+      .slice(0, 5)
+      .map(
+        ({ el, right }) =>
+          `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''}.${String(el.className).slice(0, 60)} → ${right}px`,
+      );
+    return { overflow: document.documentElement.scrollWidth - width, culprits: offenders };
+  });
+  expect(
+    overflow,
+    `Défilement horizontal en px (${culprits.join(' ; ') || 'aucun élément'})`,
+  ).toBeLessThanOrEqual(0);
 };
 
 /** Agrandit le texte (taille racine) : 2 = 200 % (WCAG 1.4.4). Les tailles sont en rem (Stylelint). */

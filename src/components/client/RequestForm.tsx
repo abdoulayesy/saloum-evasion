@@ -68,7 +68,9 @@ const FIELD_INPUT: Record<string, string> = { whatsapp: 'whatsappLocal' };
 // Base sans largeur (une seule classe de largeur par champ : pas de conflit d'utilitaires).
 const fieldBase =
   'mt-1 block min-h-touch rounded-control border border-line bg-white px-3 text-base text-ink';
-const field = `${fieldBase} w-full`;
+// `min-w-0` : WebKit donne aux champs date une largeur minimale tirée de leur contenu interne (police
+// système) ; sans elle, à 200 % sur 320 px, le champ dépasse `w-full` et la page défile (CI Linux).
+const field = `${fieldBase} w-full min-w-0`;
 const stepperButton =
   'inline-flex h-touch w-touch shrink-0 items-center justify-center rounded-control border border-line bg-white text-xl font-semibold text-mangrove';
 
