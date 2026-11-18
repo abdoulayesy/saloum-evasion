@@ -91,6 +91,12 @@ export default defineConfig({
       EMAIL_OUTBOX_DIR: 'test-results/outbox',
       REQUEST_RATE_LIMIT: '1000',
       RATE_LIMIT_SALT: 'sel-de-test',
+      // Tunnel 002 : passerelle factice (serveur en mode production, d'où ALLOW_FAKE_GATEWAY) et
+      // secret de la file de tâches, déclenchée par les tests pour envoyer les notifications.
+      PAYMENT_GATEWAY: 'fake',
+      FAKE_GATEWAY_SECRET: 'secret-de-test',
+      ALLOW_FAKE_GATEWAY: '1',
+      CRON_SECRET: 'cron-de-test',
     },
   },
 });

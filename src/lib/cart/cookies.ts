@@ -32,10 +32,12 @@ export const parseCartSummary = (value: string | undefined): CartSummary | null 
   return count > 0 ? { count, total } : null;
 };
 
+// `Secure` dès que le site est servi en HTTPS (production). Pas sur http://localhost : WebKit
+// refuse un cookie `Secure` en HTTP, même en local (tests iPhone SE sur `next start`).
 const baseOptions = {
   path: '/',
   sameSite: 'lax',
-  secure: process.env.NODE_ENV === 'production',
+  secure: (process.env.NEXT_PUBLIC_SITE_URL ?? '').startsWith('https://'),
   maxAge: CART_COOKIE_MAX_AGE,
 } as const;
 

@@ -1,3 +1,4 @@
+import { BookOnline } from '@/components/checkout/BookOnline';
 import { RichText } from '@payloadcms/richtext-lexical/react';
 import { getTranslations } from 'next-intl/server';
 import { StayCard } from '@/components/cards/StayCard';
@@ -16,7 +17,7 @@ import type { Locale } from '@/i18n/routing';
 import { accommodationPath, destinationPath } from '@/lib/catalogPaths';
 import { populated, populatedList } from '@/lib/cms/populated';
 import { experiencePath } from '@/lib/experiencePaths';
-import { primaryAction, whatsappAction } from '@/lib/pageActions';
+import { bookAction, primaryAction, whatsappAction } from '@/lib/pageActions';
 import { priceFrom } from '@/lib/pricing';
 import { lexicalToPlainText } from '@/lib/richText';
 import { buildBreadcrumbs } from '@/lib/seo/breadcrumbs';
@@ -131,8 +132,9 @@ export const StayView = async ({
       : []),
   ]);
 
+  const bookable = stay.bookable === true;
   const [primary, whatsapp] = await Promise.all([
-    primaryAction(locale, 'stay', slug, stay.title ?? slug),
+    bookable ? bookAction(locale) : primaryAction(locale, 'stay', slug, stay.title ?? slug),
     whatsappAction(locale, settings, { title: stay.title ?? undefined, path }),
   ]);
 
@@ -202,6 +204,12 @@ export const StayView = async ({
               )}
             </div>
           </section>
+          {bookable && (
+            <BookOnline
+              locale={locale}
+              offer={{ offerType: 'stay', id: stay.id, maxGuests: stay.maxTravellers ?? 12 }}
+            />
+          )}
 
           {stay.body && (
             <section aria-labelledby="le-sejour">

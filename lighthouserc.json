@@ -31,12 +31,16 @@
         "http://localhost:3000/fr/a-propos",
         "http://localhost:3000/en/about",
         "http://localhost:3000/fr/demande",
-        "http://localhost:3000/en/request"
+        "http://localhost:3000/en/request",
+        "http://localhost:3000/fr/panier",
+        "http://localhost:3000/en/cart",
+        "http://localhost:3000/fr/commande/coordonnees"
       ],
       "settings": {
         "formFactor": "mobile",
         "throttlingMethod": "simulate",
-        "chromeFlags": "--headless=new --no-sandbox"
+        "chromeFlags": "--headless=new --no-sandbox",
+        "extraHeaders": "{\"Cookie\":\"se_cart=LhciDemoCartToken00000\"}"
       }
     },
     "assert": {
@@ -96,7 +100,7 @@
           }
         },
         {
-          "matchingUrlPattern": "^(?!.*(/(fr/demande|en/request)$|/(fr|en)$|/(fr/sejours|en/stays|fr/experiences|en/experiences|fr/destinations|en/destinations|fr/hebergements|en/accommodation|fr/film-immersion|en/immersion-film|fr/notre-engagement|en/our-commitment|fr/a-propos|en/about)(/|$))).*",
+          "matchingUrlPattern": "^(?!.*(/(fr/demande|en/request|fr/panier|en/cart|fr/commande/coordonnees)$|/(fr|en)$|/(fr/sejours|en/stays|fr/experiences|en/experiences|fr/destinations|en/destinations|fr/hebergements|en/accommodation|fr/film-immersion|en/immersion-film|fr/notre-engagement|en/our-commitment|fr/a-propos|en/about)(/|$))).*",
           "aggregationMethod": "median",
           "assertions": {
             "categories:performance": [
@@ -150,7 +154,7 @@
           }
         },
         {
-          "matchingUrlPattern": "/(fr/demande|en/request)$",
+          "matchingUrlPattern": "/(fr/demande|en/request|fr/panier|en/cart|fr/commande/coordonnees)$",
           "aggregationMethod": "median",
           "assertions": {
             "categories:performance": [

@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { runAvailabilitySlaCheck } from '@/jobs/availabilitySlaAlert';
 import { getPayloadClient } from '@/lib/cms/queries';
 import { isCronAuthorized } from '@/lib/cronAuth';
 
@@ -14,6 +15,8 @@ export const GET = async (request: NextRequest) => {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
   const payload = await getPayloadClient();
+  // Contrôles périodiques légers avant la file (échéance de confirmation de disponibilité, T063).
+  await runAvailabilitySlaCheck(payload);
   const result = await payload.jobs.run({ limit: BATCH_SIZE });
   return NextResponse.json(
     { ran: Object.keys(result.jobStatus ?? {}).length, remaining: result.remainingJobsFromQueried },

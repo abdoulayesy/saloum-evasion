@@ -39,6 +39,17 @@ export const findOpenCart = async (payload: Payload, token: string): Promise<Car
   return docs[0] ?? null;
 };
 
+/** Panier du cookie quel que soit son statut (accès à la réservation après le paiement). */
+export const findCartByToken = async (payload: Payload, token: string): Promise<Cart | null> => {
+  const { docs } = await payload.find({
+    collection: 'carts',
+    where: { tokenHash: { equals: hashCartToken(token) } },
+    limit: 1,
+    depth: 0,
+  });
+  return docs[0] ?? null;
+};
+
 export const createCart = async (
   payload: Payload,
   locale: Locale,
