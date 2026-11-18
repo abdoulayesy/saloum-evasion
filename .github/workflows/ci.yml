@@ -82,6 +82,10 @@ jobs:
       - name: Lighthouse CI (mobile, budgets de la constitution)
         run: pnpm lhci
 
+      - name: Annotations des assertions Lighthouse en échec
+        if: failure()
+        run: node scripts/lhci-annotate.mjs
+
       - name: Contrôle SEO (liens, hreflang, unicité)
         run: |
           pnpm start &
