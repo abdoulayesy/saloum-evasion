@@ -8,6 +8,9 @@ import { track } from '@/lib/analytics';
 //   que l'on est sur la page la plus proche ;
 // - sur une page française, si le navigateur est réglé en anglais, bandeau refermable proposant
 //   la version anglaise ; choix mémorisé localement, jamais de redirection automatique.
+//   Affiché à la première interaction (défilement, toucher, touche) et non au chargement : un
+//   bloc de texte peint après l'hydratation deviendrait l'élément LCP de la page (constitution :
+//   LCP ≤ 2 s), alors que le LCP n'est plus mesuré après la première interaction.
 
 type LocaleNoticesProps = {
   locale: 'fr' | 'en';
@@ -21,6 +24,7 @@ type LocaleNoticesProps = {
 };
 
 const DISMISS_KEY = 'se.english-banner.dismissed';
+const FIRST_INTERACTION_EVENTS = ['scroll', 'pointerdown', 'keydown'] as const;
 
 const prefersEnglish = (): boolean => {
   const [first] = navigator.languages.length > 0 ? navigator.languages : [navigator.language];
@@ -63,7 +67,18 @@ export const LocaleNotices = ({
         `${window.location.pathname}${query ? `?${query}` : ''}`,
       );
     }
-    if (locale === 'fr' && prefersEnglish() && !wasDismissed()) setBanner(true);
+    if (locale !== 'fr' || !prefersEnglish() || wasDismissed()) return;
+    const show = () => {
+      setBanner(true);
+      stopListening();
+    };
+    const stopListening = () => {
+      for (const type of FIRST_INTERACTION_EVENTS) window.removeEventListener(type, show);
+    };
+    for (const type of FIRST_INTERACTION_EVENTS) {
+      window.addEventListener(type, show, { passive: true });
+    }
+    return stopListening;
   }, [locale]);
 
   const dismissBanner = () => {
