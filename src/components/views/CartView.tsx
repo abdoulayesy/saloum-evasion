@@ -280,7 +280,7 @@ export const CartSuggestionsSection = async ({
   const t = await getTranslations({ locale, namespace: 'cart' });
   return (
     <section aria-labelledby="suggestions" className="mt-10">
-      <h2 id="suggestions" className="text-mangrove">
+      <h2 id="suggestions" className="text-xl text-mangrove">
         {t('suggestions')}
       </h2>
       <p className="mt-2 text-ink-muted">{t('suggestionsIntro')}</p>
