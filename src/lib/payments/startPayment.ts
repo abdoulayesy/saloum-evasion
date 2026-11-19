@@ -46,6 +46,10 @@ const localeOf = (formData: FormData): Locale => {
   return typeof value === 'string' && isLocale(value) ? value : 'fr';
 };
 
+const isUniqueViolation = (error: unknown): boolean =>
+  error instanceof Error &&
+  /unique|duplicate/i.test(`${error.message} ${String(error.cause ?? '')}`);
+
 const tokenQuery = (token: string | undefined): string =>
   token ? `&k=${encodeURIComponent(token)}` : '';
 
@@ -97,20 +101,28 @@ const redirectToGateway = async ({
   back,
 }: Attempt): Promise<never> => {
   const gateway = getPaymentGateway();
-  const payment = await payload.create({
-    collection: 'payments',
-    data: {
-      booking: booking.id,
-      purpose,
-      method,
-      amount,
-      currency: 'XOF',
-      gateway: gateway.id,
-      idempotencyKey: randomUUID(),
-      status: 'initiated',
-      expiresAt: new Date(Date.now() + PAYMENT_TTL_MS).toISOString(),
-    },
-  });
+  const payment = await payload
+    .create({
+      collection: 'payments',
+      data: {
+        booking: booking.id,
+        purpose,
+        method,
+        amount,
+        currency: 'XOF',
+        gateway: gateway.id,
+        idempotencyKey: randomUUID(),
+        status: 'initiated',
+        expiresAt: new Date(Date.now() + PAYMENT_TTL_MS).toISOString(),
+      },
+    })
+    .catch(async (error: unknown) => {
+      // Double appui simultané : l'index unique partiel refuse la seconde tentative active
+      // (FR-019) ; le visiteur rejoint la page de statut de la première.
+      if (!isUniqueViolation(error)) throw error;
+      await settleActivePayment(payload, booking, locale, manageToken);
+      return back('passerelle');
+    });
 
   const origin = siteUrl();
   const statusUrl = `${origin}${checkoutPath(locale, 'status')}?p=${payment.id}${tokenQuery(manageToken)}`;

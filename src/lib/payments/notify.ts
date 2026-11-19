@@ -4,7 +4,7 @@ import {
   isPaymentFinal,
   type PaymentStatus,
 } from '@/lib/checkout/stateMachines';
-import type { FailureReason, PaymentGateway } from './gateway';
+import type { FailureReason, GatewayPaymentStatus, PaymentGateway } from './gateway';
 
 // Traitement d'une notification de passerelle (002, T056 ; contrat payment-gateway). Logique
 // indépendante du stockage (`NotifyStore`) pour être testée en mémoire (T044) :
@@ -58,7 +58,7 @@ export type NotifyOutcome = { httpStatus: 200 | 401; result: NotifyResult };
 
 /** Applique `target`, en passant par `pending` si la tentative est encore `initiated`. */
 const moveTo = async (
-  store: NotifyStore,
+  store: Pick<NotifyStore, 'updatePayment'>,
   payment: NotifyPayment,
   target: PaymentStatus,
   extra: { failureReason?: FailureReason; confirmedAt?: string } = {},
@@ -104,13 +104,26 @@ export const processNotification = async (
   });
   if (recorded === 'duplicate') return { httpStatus: 200, result: 'duplicate' };
   if (!payment) return { httpStatus: 200, result: 'unknown_payment' };
-  if (isPaymentFinal(payment.status)) return { httpStatus: 200, result: 'ignored' };
+  return { httpStatus: 200, result: await applyGatewayStatus(store, payment, verified.result) };
+};
 
-  const { result } = verified;
+/** Partie du stockage nécessaire pour appliquer un statut (notification ou réconciliation). */
+export type StatusStore = Pick<NotifyStore, 'updatePayment' | 'onSucceeded' | 'alertAnomaly'>;
+
+/**
+ * Applique le statut annoncé par la passerelle (machine à états, montant revérifié, effets du
+ * succès une seule fois). Partagé par les notifications et la réconciliation (T077).
+ */
+export const applyGatewayStatus = async (
+  store: StatusStore,
+  payment: NotifyPayment,
+  result: GatewayPaymentStatus,
+): Promise<NotifyResult> => {
+  if (isPaymentFinal(payment.status)) return 'ignored';
   switch (result.status) {
     case 'pending': {
       const moved = await moveTo(store, payment, 'pending');
-      return { httpStatus: 200, result: moved ? 'pending' : 'ignored' };
+      return moved ? 'pending' : 'ignored';
     }
     case 'succeeded': {
       if (result.amountXof !== payment.amount || payment.currency !== 'XOF') {
@@ -119,22 +132,22 @@ export const processNotification = async (
           payment,
           `Montant notifié ${result.amountXof} XOF ≠ montant attendu ${payment.amount} ${payment.currency}.`,
         );
-        return { httpStatus: 200, result: 'anomaly' };
+        return 'anomaly';
       }
       const moved = await moveTo(store, payment, 'succeeded', {
         confirmedAt: result.paidAt.toISOString(),
       });
-      if (!moved) return { httpStatus: 200, result: 'ignored' };
+      if (!moved) return 'ignored';
       await store.onSucceeded(payment, result.paidAt);
-      return { httpStatus: 200, result: 'succeeded' };
+      return 'succeeded';
     }
     case 'failed': {
       const moved = await moveTo(store, payment, 'failed', { failureReason: result.reason });
-      return { httpStatus: 200, result: moved ? 'failed' : 'ignored' };
+      return moved ? 'failed' : 'ignored';
     }
     case 'expired': {
       const moved = await moveTo(store, payment, 'expired');
-      return { httpStatus: 200, result: moved ? 'expired' : 'ignored' };
+      return moved ? 'expired' : 'ignored';
     }
     default: {
       const unreachable: never = result;

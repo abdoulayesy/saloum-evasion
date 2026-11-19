@@ -6,7 +6,11 @@ import { siteUrl } from '@/lib/site';
 // sans domaine configuré ; un échec n'interrompt jamais le parcours.
 
 export type ServerEvent =
-  'payment_started' | 'payment_succeeded' | 'payment_failed' | 'checkout_completed';
+  | 'payment_started'
+  | 'payment_succeeded'
+  | 'payment_failed'
+  | 'checkout_completed'
+  | 'payment_recovered';
 
 export const trackServer = async (
   event: ServerEvent,

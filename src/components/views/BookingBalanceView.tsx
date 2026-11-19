@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { BookingSummary } from '@/components/checkout/BookingSummary';
 import { primaryButtonClass } from '@/components/checkout/fieldStyles';
 import { PaymentMethods } from '@/components/checkout/PaymentMethods';
+import { PayButton } from '@/components/client/PayButton';
 import { StripQueryParam } from '@/components/client/StripQueryParam';
 import type { Locale } from '@/i18n/routing';
 import { checkoutPath } from '@/lib/checkout/paths';
@@ -71,9 +72,11 @@ export const BookingBalanceView = async ({
           <input type="hidden" name="bookingRef" value={booking.reference} />
           {manageToken && <input type="hidden" name="k" value={manageToken} />}
           <PaymentMethods locale={locale} />
-          <button type="submit" className={primaryButtonClass}>
-            {t('pay', { amount })}
-          </button>
+          <PayButton
+            className={primaryButtonClass}
+            label={t('pay', { amount })}
+            pendingLabel={tPayment('processing')}
+          />
           <p className="text-sm text-ink-muted">{tPayment('secure')}</p>
         </form>
         <BookingSummary locale={locale} booking={booking} titleId="recapitulatif-solde" />

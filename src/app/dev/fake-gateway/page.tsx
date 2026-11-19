@@ -23,6 +23,8 @@ const OUTCOMES = [
   { outcome: 'insufficient_funds', label: 'Solde insuffisant', primary: false },
   { outcome: 'declined', label: 'Refuser', primary: false },
   { outcome: 'cancelled_by_user', label: 'Annuler', primary: false },
+  { outcome: 'timeout', label: 'Délai dépassé', primary: false },
+  { outcome: 'technical', label: 'Erreur technique', primary: false },
 ] as const;
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };

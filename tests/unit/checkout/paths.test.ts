@@ -10,6 +10,7 @@ import {
 const STEPS: readonly [CheckoutStep, string | undefined, string, string][] = [
   ['cart', undefined, '/fr/panier', '/en/cart'],
   ['resume', undefined, '/fr/panier/reprendre', '/en/cart/resume'],
+  ['unsubscribe', undefined, '/fr/panier/desinscription', '/en/cart/unsubscribe'],
   ['details', undefined, '/fr/commande/coordonnees', '/en/checkout/details'],
   ['payment', undefined, '/fr/commande/paiement', '/en/checkout/payment'],
   ['status', undefined, '/fr/commande/statut', '/en/checkout/status'],

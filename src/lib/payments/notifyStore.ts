@@ -84,6 +84,27 @@ export const payloadNotifyStore = (payload: Payload): NotifyStore => ({
       Math.round((paidAt.getTime() - new Date(cart.createdAt).getTime()) / 1000),
     );
     await trackServer('checkout_completed', { method, durationSeconds });
+    // Paiement après une relance dont le lien a été ouvert (US3, T081, SC-005).
+    const { docs: opened } = await payload.find({
+      collection: 'reminders',
+      where: {
+        and: [
+          { targetType: { equals: 'carts' } },
+          { targetId: { equals: cartId } },
+          { linkOpenedAt: { exists: true } },
+        ],
+      },
+      sort: '-linkOpenedAt',
+      limit: 1,
+      depth: 0,
+    });
+    const recovered = opened[0];
+    if (recovered) {
+      await trackServer('payment_recovered', {
+        channel: recovered.channel,
+        rank: recovered.rank,
+      });
+    }
   },
   alertAnomaly: async (payment, detail) => {
     const settings = await payload.findGlobal({ slug: 'siteSettings', depth: 0 });
