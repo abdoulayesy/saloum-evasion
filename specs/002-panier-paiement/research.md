@@ -71,7 +71,32 @@ les critères éliminatoires sur le compte de test (dont un paiement Wave, Orang
 d'écran ; 4) comparer les frais sur un panier type de 150 000 FCFA ; 5) décision du propriétaire
 consignée ici (date, prestataire, raison), puis T098 (implémentation de la passerelle).
 
-**Décision** : en attente du propriétaire. Le développement avance avec la passerelle `fake`.
+**Décision** : comparer d'abord (choix du propriétaire du 2026-11-19). La demande ci-dessous est
+envoyée aux trois candidats ; la grille est remplie à réception des comptes de test, puis le
+propriétaire décide. Le développement avance avec la passerelle `fake`.
+
+**Demande type** (à envoyer à PayDunya, PayTech et CinetPay) :
+
+> Objet : Ouverture d'un compte marchand — agence de voyages, Sine-Saloum
+>
+> Bonjour,
+>
+> Nous ouvrons la réservation en ligne de séjours dans le Sine-Saloum (paniers de 50 000 à
+> 1 500 000 FCFA, paiement total ou acompte). Nous souhaitons proposer Wave, Orange Money et la
+> carte Visa/Mastercard sur une même intégration, par page de paiement hébergée. Pourriez-vous
+> nous transmettre :
+>
+> 1. la documentation de l'API (création de paiement, notification serveur et sa signature,
+>    interrogation du statut, remboursement) ;
+> 2. un compte de test couvrant les trois moyens, avec simulation d'échecs ;
+> 3. vos frais par transaction (Wave, Orange Money, carte), frais fixes et plafonds ;
+> 4. le délai et la périodicité des reversements en XOF sur un compte sénégalais ;
+> 5. les pièces et le délai d'ouverture d'un compte marchand ;
+> 6. la conformité PCI DSS de la page hébergée et son accessibilité (mobile 360 px, clavier,
+>    lecteur d'écran) ;
+> 7. les modalités du support (langue, canal, horaires).
+>
+> Merci d'avance,
 
 ## R3 — Parcours de paiement mobile money
 

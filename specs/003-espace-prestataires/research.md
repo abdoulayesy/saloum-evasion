@@ -211,14 +211,18 @@ du propriétaire (spec, section « Clarifications ») sont reprises sans être r
   002) ; `/api/ical/*` est bloqué dans `robots.txt` (aucune page à indexer) et sert
   `X-Robots-Tag: noindex`.
 
-## R15 — Fournisseur SMS pour le repli de connexion (D-T21) **[à valider commercialement]**
+## R15 — Fournisseur SMS pour le repli de connexion (D-T21)
 
 - **Décision** : un adaptateur `SmsSender` (`send(toE164, text)` → `ok` / `failed`) appelé en
   `fetch`, sans SDK ; sans clé configurée, le SMS est écrit dans la boîte d'envoi de test comme
   les messages WhatsApp. Texte unique, sans lien : « Saloum Évasion : votre code est 123456. Il
   expire dans 10 min. Ne le donnez à personne. » (≤ 160 caractères GSM, sans accent si le
   fournisseur facture l'Unicode).
-- **Fournisseur** : à choisir sur devis réels ; grille à remplir (aucune valeur supposée) :
+- **Fournisseur retenu** (décision du propriétaire du 2026-11-19) : **Orange SMS API (Sénégal)**.
+  Restent à obtenir avant la mise en production : le devis, l'enregistrement du nom d'expéditeur
+  « SaloumEvas » et le test de 50 envois vers Orange, Free et Expresso (taux et délai de remise) ;
+  si la remise vers Free ou Expresso est insuffisante, la grille ci-dessous sert à départager.
+  Grille initiale (aucune valeur supposée) :
 
 | Critère | Orange SMS API (Sénégal) | Fournisseur panafricain (ex. Africa's Talking) | Fournisseur international (ex. Twilio) |
 |---|---|---|---|
