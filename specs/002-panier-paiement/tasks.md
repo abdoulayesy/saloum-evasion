@@ -33,11 +33,11 @@ Application unique à la racine (plan 001 et 002) : `src/`, `tests/unit/`, `test
 - [X] T002 Ajouter les variables d'environnement du quickstart (passerelle, WhatsApp, `CRON_SECRET`, Plausible Events) dans .env.example et un module de lecture typé et validé par Zod dans src/lib/env.ts
 - [X] T003 [P] Ajouter les segments traduits du tunnel (`panier`/`cart`, `commande`/`checkout`, `coordonnees`/`details`, `paiement`/`payment`, `statut`/`status`, `reservation`/`booking`, `solde`/`balance`, `annulation`/`cancel`, `retrouver`/`find`, `reprendre`/`resume`) dans src/i18n/pathnames.ts, avec leur réécriture vers les routes internes du groupe `(checkout)` dans src/middleware.ts (plan, tension T19)
 - [X] T004 [P] Créer les espaces de messages `cart`, `checkout`, `booking`, `payment`, `refund` (FR et EN, libellés des étapes, erreurs, causes d'échec, mentions « indicatif » et « en cours de confirmation ») dans src/i18n/messages/fr.json et src/i18n/messages/en.json
-- [ ] T005 [P] Ajouter les URL du tunnel (`/fr/panier`, `/fr/commande/coordonnees`, `/fr/commande/statut?p=demo`) avec le cookie du panier de démonstration et une matrice d'assertions sans catégorie SEO dans lighthouserc.json
-- [ ] T006 [P] Étendre scripts/check-bundles.ts aux routes du groupe `(checkout)` et ajouter un plafond de 3 Ko gzip pour l'ensemble des îlots `src/components/client/CartBadge.tsx` et `PaymentStatusPoller.tsx`
+- [X] T005 [P] Ajouter les URL du tunnel (`/fr/panier`, `/fr/commande/coordonnees`, `/fr/commande/statut?p=demo`) avec le cookie du panier de démonstration et une matrice d'assertions sans catégorie SEO dans lighthouserc.json
+- [X] T006 [P] Étendre scripts/check-bundles.ts aux routes du groupe `(checkout)` et ajouter un plafond de 3 Ko gzip pour l'ensemble des îlots `src/components/client/CartBadge.tsx` et `PaymentStatusPoller.tsx`
 - [X] T007 [P] Ajouter le tag `@checkout` et un projet `android-360-3g` (profil `3g` de tests/e2e/support/network.ts) dans playwright.config.ts ; script `e2e:checkout` dans package.json
 - [ ] T097 [P] Comparer PayDunya, PayTech et CinetPay selon les critères éliminatoires de research R2 (dont test manuel de la page hébergée à 360 px, au clavier et au lecteur d'écran — tension T14) ; consigner la décision dans specs/002-panier-paiement/research.md (R2) ; **décision commerciale du propriétaire requise avant T098** (avancée en phase 1 : seul blocage avant l'ouverture au public)
-- [ ] T008 [P] Créer les helpers E2E du tunnel (`seedCheckoutFixtures`, `fillContact`, `payWithFake(outcome)`, `readCartSummary`, `expectNoindex`) dans tests/e2e/support/checkout.ts
+- [X] T008 [P] Créer les helpers E2E du tunnel (`seedCheckoutFixtures`, `fillContact`, `payWithFake(outcome)`, `readCartSummary`, `expectNoindex`) dans tests/e2e/support/checkout.ts
 
 > **Avancement de la phase 1 (2026-11-16)** :
 > - T001 : prérequis 001 vérifiés (collections, réglages, îlot `AddToRequest`, résolveur, demande de
@@ -151,39 +151,68 @@ WhatsApp journalisé + PDF, en moins de 3 minutes, sans compte.
 
 ### Tests for User Story 1 ⚠️
 
-- [ ] T037 [P] [US1] E2E parcours complet Wave / Orange Money / carte, chronométré < 3 min, axe à chaque étape, sans compte, changement de langue en cours de parcours (panier, coordonnées et étape conservés) (`@checkout @us1`, projet android-360-3g) dans tests/e2e/checkout/us1-pay.mobile.spec.ts
-- [ ] T038 [P] [US1] E2E parité des moyens de paiement : même rang, boîtes englobantes égales (±1 px), ordre Wave / Orange Money / Carte, aucun présélectionné, à 360, 412 et 1280 px (`@parity`) dans tests/e2e/checkout/parity.spec.ts
-- [ ] T039 [P] [US1] E2E conditions d'annulation visibles et acceptation obligatoire avant le bouton « Payer » ; prix TTC FCFA et mention « ≈ € indicatif » à chaque étape (`@cancellation-visible`) dans tests/e2e/checkout/trust.spec.ts
-- [ ] T040 [P] [US1] E2E « ne revient pas sur le site » : notification seule ⇒ réservation `paid` et notifications parties ; « retour avant confirmation » ⇒ écran d'attente puis confirmation (`delayMs`) dans tests/e2e/checkout/us1-async.spec.ts
-- [ ] T041 [P] [US1] E2E tunnel complet sans JavaScript (projet nojs) : ajout, panier, coordonnées, paiement `fake`, confirmation dans tests/e2e/checkout/us1-nojs.spec.ts
-- [ ] T042 [P] [US1] E2E clavier du parcours complet sur desktop, focus jamais masqué par le résumé collant (`expectFocusNotObscured`) (`@keyboard`) dans tests/e2e/checkout/keyboard.spec.ts
-- [ ] T043 [P] [US1] E2E SEO du tunnel : `noindex` + `X-Robots-Tag` sur chaque page, absentes de `/sitemap.xml`, `title` et H1 uniques (`@seo`) dans tests/e2e/checkout/seo.spec.ts
-- [ ] T044 [P] [US1] Test d'intégration du traitement des notifications (signature invalide 401, doublon 200 sans effet, montant divergent ⇒ anomalie, transition vers état antérieur ignorée, commissions créées) dans tests/unit/payments/notify.test.ts
+- [X] T037 [P] [US1] E2E parcours complet Wave / Orange Money / carte, chronométré < 3 min, axe à chaque étape, sans compte, changement de langue en cours de parcours (panier, coordonnées et étape conservés) (`@checkout @us1`, projet android-360-3g) dans tests/e2e/checkout/us1-pay.mobile.spec.ts
+- [X] T038 [P] [US1] E2E parité des moyens de paiement : même rang, boîtes englobantes égales (±1 px), ordre Wave / Orange Money / Carte, aucun présélectionné, à 360, 412 et 1280 px (`@parity`) dans tests/e2e/checkout/parity.spec.ts
+- [X] T039 [P] [US1] E2E conditions d'annulation visibles et acceptation obligatoire avant le bouton « Payer » ; prix TTC FCFA et mention « ≈ € indicatif » à chaque étape (`@cancellation-visible`) dans tests/e2e/checkout/trust.spec.ts
+- [X] T040 [P] [US1] E2E « ne revient pas sur le site » : notification seule ⇒ réservation `paid` et notifications parties ; « retour avant confirmation » ⇒ écran d'attente puis confirmation (`delayMs`) dans tests/e2e/checkout/us1-async.spec.ts
+- [X] T041 [P] [US1] E2E tunnel complet sans JavaScript (projet nojs) : ajout, panier, coordonnées, paiement `fake`, confirmation dans tests/e2e/checkout/us1-nojs.spec.ts
+- [X] T042 [P] [US1] E2E clavier du parcours complet sur desktop, focus jamais masqué par le résumé collant (`expectFocusNotObscured`) (`@keyboard`) dans tests/e2e/checkout/keyboard.spec.ts
+- [X] T043 [P] [US1] E2E SEO du tunnel : `noindex` + `X-Robots-Tag` sur chaque page, absentes de `/sitemap.xml`, `title` et H1 uniques (`@seo`) dans tests/e2e/checkout/seo.spec.ts
+- [X] T044 [P] [US1] Test d'intégration du traitement des notifications (signature invalide 401, doublon 200 sans effet, montant divergent ⇒ anomalie, transition vers état antérieur ignorée, commissions créées) dans tests/unit/payments/notify.test.ts
 
 ### Implementation for User Story 1
 
-- [ ] T045 [US1] Implémenter les Server Actions `addToCart`, `updateCartLine`, `removeCartLine` (schémas Zod du contrat, prix recalculés, conflit second hébergement avec remplacement, 303 sans JS) dans src/lib/cart/actions.ts
-- [ ] T046 [P] [US1] Créer le formulaire serveur « Ajouter au panier » à 360 px d'abord (dates, créneau, voyageurs ; `type="date"`, `inputmode="numeric"`) pour hébergement, séjour, expérience/table dans src/components/checkout/AddToCartForm.tsx et l'intégrer aux fiches 001 quand `bookable`
-- [ ] T047 [P] [US1] Créer le sélecteur de transfert (aller, retour, aller-retour ; AIBD ou Dakar ; heure ; passagers) dans src/components/checkout/TransferPicker.tsx
-- [ ] T048 [US1] Renommer l'îlot `AddToRequest` en src/components/client/AddToCart.tsx : migration unique de la « demande en cours » 001 vers le panier serveur (FR-006), puis suppression de la clé locale
-- [ ] T049 [P] [US1] Créer l'îlot src/components/client/CartBadge.tsx (< 1 Ko, lit `se_cart_summary`, espace réservé, CLS nul) et fusionner la barre collante 001 (« Panier · n · total » + WhatsApp) dans src/components/ui/StickyActionBar.tsx
-- [ ] T050 [US1] Créer la page panier à 360 px d'abord (lignes modifiables, erreurs FR-004 à côté de chaque ligne, transferts proposés, total, lien « Demander un devis à la place ») dans src/components/views/CartView.tsx
-- [ ] T051 [P] [US1] Créer le résumé collant dépliable natif `<details>` (nombre, total, détail par ligne, acompte éventuel ; `scroll-padding-bottom`) dans src/components/checkout/StickySummary.tsx
-- [ ] T052 [US1] Implémenter `submitContactDetails` (schéma Zod, pot de miel, limitation 10/h/IP, revalidation du panier, création idempotente de la `Booking` `awaiting_payment` avec lignes figées et `policySnapshot`) dans src/lib/booking/createBooking.ts et src/lib/cart/actions.ts
-- [ ] T053 [P] [US1] Créer l'étape coordonnées (prénom, nom, WhatsApp avec indicatif +221 par défaut, e-mail avec explication, demande particulière, deux consentements distincts non précochés, résumé d'erreurs `role="alert"`) dans src/components/checkout/ContactForm.tsx et src/components/views/CheckoutDetailsView.tsx
-- [ ] T054 [US1] Implémenter `startPayment` (accès, refus si paiement en attente, `price_changed`, montant serveur, `Payment` + `idempotencyKey`, `gateway.createCheckout`, 303 vers la page hébergée) dans src/lib/payments/startPayment.ts
-- [ ] T055 [P] [US1] Créer l'étape paiement : src/components/checkout/PaymentMethods.tsx (radios natifs, même composant, ≥ 44 px, ordre stable), src/components/checkout/CancellationTerms.tsx (conditions par ligne + case d'acceptation), bouton « Payer {montant} » désactivé après envoi, dans src/components/views/CheckoutPaymentView.tsx
-- [ ] T056 [US1] Implémenter le point d'entrée src/app/api/payments/notify/[gateway]/route.ts et src/lib/payments/notify.ts selon le contrat (signature, journal, verrou, vérification du montant, transitions, commissions, `availabilityDeadline`, programmation des tâches, `carts.status = checked_out`) jusqu'à faire passer T044
-- [ ] T057 [P] [US1] Créer la route src/app/api/payments/status/[paymentId]/route.ts et l'îlot src/components/client/PaymentStatusPoller.tsx (< 2 Ko, interrogation 3 s, arrêt à 10 min, `aria-live="polite"`) ; page statut src/components/views/CheckoutStatusView.tsx
-- [ ] T058 [US1] Créer le jeton de gestion (32 octets, haché SHA-256, révocable) dans src/lib/booking/manageToken.ts et la page confirmation / gestion src/components/views/BookingView.tsx (référence, statuts paiement et disponibilité, récapitulatif identique FR-010, bouton PDF, retrait du jeton de l'URL)
-- [ ] T059 [P] [US1] Écrire les tests du bon PDF (sections FR et EN par extraction de texte, montants, conditions figées, NAP de `siteSettings`, poids < 300 Ko) dans tests/unit/voucher/voucher.test.ts
-- [ ] T060 [US1] Implémenter le gabarit src/lib/voucher/Voucher.tsx (`@react-pdf/renderer`, polices embarquées, une colonne, ≥ 11 pt), src/lib/voucher/render.ts, la tâche src/jobs/generateVoucher.ts (bucket privé, version) et la route src/app/api/bookings/[ref]/voucher/route.ts jusqu'à faire passer T059
-- [ ] T061 [P] [US1] Créer les modèles `booking_confirmed` (e-mail HTML + paramètres du modèle WhatsApp, FR/EN) dans src/lib/notifications/templates/bookingConfirmed.ts et les notifications équipe et prestataires (FR-025) dans src/lib/notifications/templates/internal.ts
-- [ ] T062 [US1] Ajouter dans l'admin la confirmation de disponibilité par ligne (`confirmed` / `unavailable` / `replaced` + note) pour le rôle `operations`, avec envoi de `availability_update` et régénération du PDF quand tout est confirmé, dans src/collections/Bookings.ts (composant d'admin src/components/admin/AvailabilityPanel.tsx)
-- [ ] T063 [P] [US1] Créer la tâche src/jobs/availabilitySlaAlert.ts (échéance 2 h en heures ouvrées Africa/Dakar, sinon 10 h le lendemain) et son test de calcul d'échéance dans tests/unit/checkout/availabilityDeadline.test.ts
-- [ ] T064 [P] [US1] Créer la route src/app/api/whatsapp/webhook/route.ts (vérification du jeton, signature `X-Hub-Signature-256`, mise à jour des statuts de livraison dans `notifications`)
-- [ ] T064b [P] [US1] Créer le module commun src/lib/analytics.ts (Plausible sans cookie, script en idle, évènements typés), que la phase 10 de la 001 réutilise au lieu de le recréer, et src/lib/analytics/server.ts (API Events)
-- [ ] T065 [P] [US1] Émettre `cart_item_added`, `cart_view`, `checkout_details_view`, `checkout_payment_view` (client) et `payment_started`, `payment_succeeded`, `payment_failed`, `checkout_completed` avec la durée en secondes depuis le premier `cart_item_added` (temps médian FR-040) (serveur) via les modules de T064b
+- [X] T045 [US1] Implémenter les Server Actions `addToCart`, `updateCartLine`, `removeCartLine` (schémas Zod du contrat, prix recalculés, conflit second hébergement avec remplacement, 303 sans JS) dans src/lib/cart/actions.ts
+- [X] T046 [P] [US1] Créer le formulaire serveur « Ajouter au panier » à 360 px d'abord (dates, créneau, voyageurs ; `type="date"`, `inputmode="numeric"`) pour hébergement, séjour, expérience/table dans src/components/checkout/AddToCartForm.tsx et l'intégrer aux fiches 001 quand `bookable`
+- [X] T047 [P] [US1] Créer le sélecteur de transfert (aller, retour, aller-retour ; AIBD ou Dakar ; heure ; passagers) dans src/components/checkout/TransferPicker.tsx
+- [X] T048 [US1] Renommer l'îlot `AddToRequest` en src/components/client/AddToCart.tsx : migration unique de la « demande en cours » 001 vers le panier serveur (FR-006), puis suppression de la clé locale
+- [X] T049 [P] [US1] Créer l'îlot src/components/client/CartBadge.tsx (< 1 Ko, lit `se_cart_summary`, espace réservé, CLS nul) et fusionner la barre collante 001 (« Panier · n · total » + WhatsApp) dans src/components/ui/StickyActionBar.tsx
+- [X] T050 [US1] Créer la page panier à 360 px d'abord (lignes modifiables, erreurs FR-004 à côté de chaque ligne, transferts proposés, total, lien « Demander un devis à la place ») dans src/components/views/CartView.tsx
+- [X] T051 [P] [US1] Créer le résumé collant dépliable natif `<details>` (nombre, total, détail par ligne, acompte éventuel ; `scroll-padding-bottom`) dans src/components/checkout/StickySummary.tsx
+- [X] T052 [US1] Implémenter `submitContactDetails` (schéma Zod, pot de miel, limitation 10/h/IP, revalidation du panier, création idempotente de la `Booking` `awaiting_payment` avec lignes figées et `policySnapshot`) dans src/lib/booking/createBooking.ts et src/lib/cart/actions.ts
+- [X] T053 [P] [US1] Créer l'étape coordonnées (prénom, nom, WhatsApp avec indicatif +221 par défaut, e-mail avec explication, demande particulière, deux consentements distincts non précochés, résumé d'erreurs `role="alert"`) dans src/components/checkout/ContactForm.tsx et src/components/views/CheckoutDetailsView.tsx
+- [X] T054 [US1] Implémenter `startPayment` (accès, refus si paiement en attente, `price_changed`, montant serveur, `Payment` + `idempotencyKey`, `gateway.createCheckout`, 303 vers la page hébergée) dans src/lib/payments/startPayment.ts
+- [X] T055 [P] [US1] Créer l'étape paiement : src/components/checkout/PaymentMethods.tsx (radios natifs, même composant, ≥ 44 px, ordre stable), src/components/checkout/CancellationTerms.tsx (conditions par ligne + case d'acceptation), bouton « Payer {montant} » désactivé après envoi, dans src/components/views/CheckoutPaymentView.tsx
+- [X] T056 [US1] Implémenter le point d'entrée src/app/api/payments/notify/[gateway]/route.ts et src/lib/payments/notify.ts selon le contrat (signature, journal, verrou, vérification du montant, transitions, commissions, `availabilityDeadline`, programmation des tâches, `carts.status = checked_out`) jusqu'à faire passer T044
+- [X] T057 [P] [US1] Créer la route src/app/api/payments/status/[paymentId]/route.ts et l'îlot src/components/client/PaymentStatusPoller.tsx (< 2 Ko, interrogation 3 s, arrêt à 10 min, `aria-live="polite"`) ; page statut src/components/views/CheckoutStatusView.tsx
+- [X] T058 [US1] Créer le jeton de gestion (32 octets, haché SHA-256, révocable) dans src/lib/booking/manageToken.ts et la page confirmation / gestion src/components/views/BookingView.tsx (référence, statuts paiement et disponibilité, récapitulatif identique FR-010, bouton PDF, retrait du jeton de l'URL)
+- [X] T059 [P] [US1] Écrire les tests du bon PDF (sections FR et EN par extraction de texte, montants, conditions figées, NAP de `siteSettings`, poids < 300 Ko) dans tests/unit/voucher/voucher.test.ts
+- [X] T060 [US1] Implémenter le gabarit src/lib/voucher/Voucher.tsx (`@react-pdf/renderer`, polices embarquées, une colonne, ≥ 11 pt), src/lib/voucher/render.ts, la tâche src/jobs/generateVoucher.ts (bucket privé, version) et la route src/app/api/bookings/[ref]/voucher/route.ts jusqu'à faire passer T059
+- [X] T061 [P] [US1] Créer les modèles `booking_confirmed` (e-mail HTML + paramètres du modèle WhatsApp, FR/EN) dans src/lib/notifications/templates/bookingConfirmed.ts et les notifications équipe et prestataires (FR-025) dans src/lib/notifications/templates/internal.ts
+- [X] T062 [US1] Ajouter dans l'admin la confirmation de disponibilité par ligne (`confirmed` / `unavailable` / `replaced` + note) pour le rôle `operations`, avec envoi de `availability_update` et régénération du PDF quand tout est confirmé, dans src/collections/Bookings.ts (composant d'admin src/components/admin/AvailabilityPanel.tsx)
+- [X] T063 [P] [US1] Créer la tâche src/jobs/availabilitySlaAlert.ts (échéance 2 h en heures ouvrées Africa/Dakar, sinon 10 h le lendemain) et son test de calcul d'échéance dans tests/unit/checkout/availabilityDeadline.test.ts
+- [X] T064 [P] [US1] Créer la route src/app/api/whatsapp/webhook/route.ts (vérification du jeton, signature `X-Hub-Signature-256`, mise à jour des statuts de livraison dans `notifications`)
+- [X] T064b [P] [US1] Créer le module commun src/lib/analytics.ts (Plausible sans cookie, script en idle, évènements typés), que la phase 10 de la 001 réutilise au lieu de le recréer, et src/lib/analytics/server.ts (API Events)
+- [X] T065 [P] [US1] Émettre `cart_item_added`, `cart_view`, `checkout_details_view`, `checkout_payment_view` (client) et `payment_started`, `payment_succeeded`, `payment_failed`, `checkout_completed` avec la durée en secondes depuis le premier `cart_item_added` (temps médian FR-040) (serveur) via les modules de T064b
+
+> **Avancement de l'US1** (2026-11-18) :
+> - Ajout au panier (T045, T046) : après « Ajouter au panier », le visiteur arrive sur le panier
+>   (et non sur la fiche) ; le panier propose les expériences de la destination et le transfert,
+>   ce qui sert l'objectif des 3 minutes ; la fiche reste statique. Erreurs affichées au panier.
+> - T048 : la « demande en cours » 001 est reprise par un îlot du panier (`RequestMigration`) et
+>   l'action `migrateRequestDraft` ; l'îlot `AddToRequest` reste pour les offres non vendables.
+> - T052 : la réservation `awaiting_payment` est créée à l'étape coordonnées (prix et conditions
+>   figés), idempotente par `(panier, version)` ; le formulaire utilise `useActionState` (comme la
+>   001), aucune donnée personnelle dans les URL.
+> - T055 : avec acompte possible, deux boutons portent chacun leur montant (« Payer l'acompte de… »,
+>   « Payer le total de… ») : montant visible sans JavaScript.
+> - T056 : pas de verrou SQL explicite ; idempotence par l'unicité de `gatewayEventId` et la machine
+>   à états (`processNotification`, testé en mémoire). Les effets du succès (commissions, jeton de
+>   gestion, file d'envoi) s'exécutent dans la requête de notification : à déplacer dans la file si
+>   la réponse dépasse 2 s chez l'agrégateur réel.
+> - T058 : accès à la réservation par le cookie du panier (même appareil) ou par le jeton de gestion
+>   créé au paiement (lien des messages) ; jeton retiré de l'URL visible (`StripQueryParam`).
+> - T060 : bon PDF rendu à la demande (route sécurisée et pièce jointe de l'e-mail) plutôt que stocké
+>   dans un bucket privé ; polices PDF standard (Helvetica) au lieu de polices embarquées.
+> - T062 : pas de panneau d'admin dédié ; le statut de disponibilité des lignes se modifie dans la
+>   fiche réservation, un crochet prévient le voyageur et incrémente la version du bon.
+> - T063 : contrôle de l'échéance exécuté à chaque passage de `/api/jobs/run`.
+> - T064b : `src/lib/analytics.ts` existait (phase 10 de la 001) ; ajout de `src/lib/analyticsServer.ts`.
+> - Cookie `se_cart` : `Secure` seulement si le site est en HTTPS (WebKit refuse un cookie `Secure`
+>   sur http://localhost).
+> - Seed : `seed:checkout` ne rend jamais vendables les fiches de référence des tests de la 001
+>   (`week-end-bolong-ndangane`, `excursion-pirogue-bolongs`) ; il crée le panier de démonstration de
+>   Lighthouse CI. CI : `pnpm seed && pnpm seed:checkout`, passerelle `fake`, `CRON_SECRET`.
 
 **Checkpoint** : T037 à T044 verts ; `pnpm lhci` et `pnpm bundles` dans les budgets sur les
 routes du tunnel ; MVP démontrable.

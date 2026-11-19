@@ -2,6 +2,7 @@ import { APIError, type CollectionBeforeChangeHook, type CollectionConfig } from
 import { isAdmin, isAdminField, isBackOffice, isOperations, nobody } from '@/access';
 import { amountField, cartLineFields, civilDateField, integerField } from '@/fields/checkout';
 import { validateE164 } from '@/fields/validators';
+import { notifyAvailabilityChange } from '@/hooks/availabilityUpdate';
 import {
   BOOKING_STATUSES,
   canTransitionBooking,
@@ -54,7 +55,7 @@ export const Bookings: CollectionConfig = {
   },
   access: { read: isBackOffice, create: nobody, update: isOperations, delete: isAdmin },
   indexes: [{ fields: ['cart', 'cartVersion'], unique: true }],
-  hooks: { beforeChange: [guardBookingStatus] },
+  hooks: { beforeChange: [guardBookingStatus], afterChange: [notifyAvailabilityChange] },
   fields: [
     {
       name: 'reference',

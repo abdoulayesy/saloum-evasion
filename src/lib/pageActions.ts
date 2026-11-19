@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import type { ActionLink } from '@/components/ui/StickyActionBar';
 import { buildPath } from '@/i18n/pathnames';
 import type { Locale } from '@/i18n/routing';
+import { checkoutPath } from '@/lib/checkout/paths';
 import { isLive } from '@/lib/navigation';
 import { absoluteUrl, type SiteSettings } from '@/lib/site';
 import { buildWhatsAppLink } from '@/lib/whatsapp';
@@ -38,6 +39,12 @@ export const siteWhatsappHref = async (
   });
 };
 
+/** Offre vendable : l'action principale mène au bloc « Réserver en ligne » de la fiche (002). */
+export const bookAction = async (locale: Locale): Promise<ActionLink> => {
+  const t = await getTranslations({ locale, namespace: 'actions' });
+  return { href: '#reserver', label: t('book') };
+};
+
 export const primaryAction = async (
   locale: Locale,
   kind: PageKind,
@@ -49,9 +56,15 @@ export const primaryAction = async (
   const tRequest = await getTranslations({ locale, namespace: 'request' });
   const formHref = buildPath(locale, { type: 'request' });
   const href = `${formHref}?${kind}=${encodeURIComponent(slug)}`;
+  const tCart = await getTranslations({ locale, namespace: 'cart' });
   return {
     href,
     label: kind === 'stay' ? t('requestStay') : t('addToRequest'),
+    cart: {
+      href: checkoutPath(locale, 'cart'),
+      // Gabarit brut : `{count}` et `{total}` sont remplacés par l'îlot côté client.
+      template: String(tCart.raw('summary')),
+    },
     // Avec JavaScript, l'ajout passe par la « demande en cours » (T147).
     add: {
       kind,

@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState, type FormEvent } from 'react';
 import { durationBucket, pageType, track } from '@/lib/analytics';
+import { DIAL_CODES } from '@/lib/request/constants';
 import { clearDraft, readDraft, type DraftItem } from '@/lib/request/draft';
 import { submitStayRequest, type FormValues, type SubmitResult } from '@/lib/request/submit';
 
@@ -32,24 +33,6 @@ type RequestFormProps = {
   labels: RequestFormLabels;
   errorMessages: Record<string, string>;
 };
-
-const DIAL_CODES = [
-  '+221',
-  '+33',
-  '+32',
-  '+41',
-  '+1',
-  '+44',
-  '+49',
-  '+34',
-  '+39',
-  '+212',
-  '+225',
-  '+223',
-  '+224',
-  '+222',
-  '+220',
-];
 
 const FIELD_ORDER = [
   'items',

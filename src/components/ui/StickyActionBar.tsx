@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { AddToRequest } from '@/components/client/AddToRequest';
+import { CartBadge } from '@/components/client/CartBadge';
 import type { RequestItemKind } from '@/lib/request/constants';
 
 // Barre d'action collante (constitution I, FR-017) : fixe en bas d'écran sous `md`, dans la
@@ -23,6 +24,8 @@ export type ActionLink = {
   ariaLabel?: string;
   /** Ajout à la « demande en cours » (fiches séjour, expérience, hébergement). */
   add?: AddToRequestSpec;
+  /** Panier non vide (cookie lisible) : l'action devient « Panier · n · total » (002, T049). */
+  cart?: { href: string; template: string };
 };
 
 type StickyActionBarProps = {
@@ -43,7 +46,21 @@ export const StickyActionBar = ({ primary, whatsapp, label }: StickyActionBarPro
       className="sticky-action-bar border-t border-sable-deep bg-sable/95 px-4 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur md:border-0 md:bg-transparent md:px-0 md:pt-6 md:pb-0 md:backdrop-blur-none"
     >
       <div className="mx-auto flex max-w-6xl gap-3 md:px-8">
-        {primary?.add && (
+        {primary?.add && primary.cart && (
+          <CartBadge
+            href={primary.cart.href}
+            template={primary.cart.template}
+            className={`${buttonBase} bg-mangrove text-sable`}
+          >
+            <AddToRequest
+              href={primary.href}
+              label={primary.label}
+              className={`${buttonBase} bg-mangrove text-sable`}
+              {...primary.add}
+            />
+          </CartBadge>
+        )}
+        {primary?.add && !primary.cart && (
           <AddToRequest
             href={primary.href}
             label={primary.label}

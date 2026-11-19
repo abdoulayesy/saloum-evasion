@@ -22,6 +22,15 @@ describe('variables d’environnement du tunnel', () => {
         FAKE_GATEWAY_SECRET: 's',
       }),
     ).toThrow(/interdite en production/);
+    // Dérogation explicite (recette en préproduction), quelle que soit la variable du processus.
+    expect(
+      parseCheckoutEnv({
+        NODE_ENV: 'production',
+        PAYMENT_GATEWAY: 'fake',
+        FAKE_GATEWAY_SECRET: 's',
+        ALLOW_FAKE_GATEWAY: '1',
+      }).PAYMENT_GATEWAY,
+    ).toBe('fake');
     expect(
       parseCheckoutEnv({ NODE_ENV: 'production', PAYMENT_GATEWAY: 'paydunya' }).PAYMENT_GATEWAY,
     ).toBe('paydunya');

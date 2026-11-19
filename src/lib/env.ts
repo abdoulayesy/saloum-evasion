@@ -23,10 +23,17 @@ const checkoutEnvSchema = z
     CRON_SECRET: optional,
     PLAUSIBLE_EVENTS_API: z.string().trim().url().default('https://plausible.io/api/event'),
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+    // Recettes sur préproduction uniquement : autorise la passerelle factice en production.
+    ALLOW_FAKE_GATEWAY: optional,
   })
   .superRefine((env, context) => {
     // La passerelle factice n'est jamais acceptée en production.
-    if (env.NODE_ENV === 'production' && env.PAYMENT_GATEWAY === 'fake' && process.env.ALLOW_FAKE_GATEWAY !== '1') {
+    // Lu dans la source validée (et non dans process.env) : résultat indépendant de l'environnement.
+    if (
+      env.NODE_ENV === 'production' &&
+      env.PAYMENT_GATEWAY === 'fake' &&
+      env.ALLOW_FAKE_GATEWAY !== '1'
+    ) {
       context.addIssue({
         code: 'custom',
         path: ['PAYMENT_GATEWAY'],
@@ -48,7 +55,9 @@ export type CheckoutEnv = z.infer<typeof checkoutEnvSchema>;
 export const parseCheckoutEnv = (source: Record<string, string | undefined>): CheckoutEnv => {
   const result = checkoutEnvSchema.safeParse(source);
   if (!result.success) {
-    const details = result.error.issues.map((issue) => `${issue.path.join('.')} : ${issue.message}`);
+    const details = result.error.issues.map(
+      (issue) => `${issue.path.join('.')} : ${issue.message}`,
+    );
     throw new Error(`Configuration du tunnel invalide :\n- ${details.join('\n- ')}`);
   }
   return result.data;

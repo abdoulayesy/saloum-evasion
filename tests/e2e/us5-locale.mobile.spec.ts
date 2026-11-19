@@ -71,10 +71,17 @@ test.describe('US5 — bascule de langue sur la même page', () => {
     await page.goto('/fr/sejours');
     await expect(page).toHaveURL(/\/fr\/sejours$/);
     const banner = page.getByText('This page is also available in English.');
-    await expect(banner).toBeVisible();
+    // Affiché à la première interaction, pas au chargement (élément LCP sinon) : touche répétée
+    // jusqu'à ce que l'îlot soit hydraté et écoute.
+    await expect(banner).toBeHidden();
+    await expect(async () => {
+      await page.keyboard.press('Shift');
+      await expect(banner).toBeVisible({ timeout: 1_000 });
+    }).toPass({ timeout: 15_000 });
     await page.getByRole('button', { name: 'Close' }).click();
     await expect(banner).toBeHidden();
     await page.goto('/fr/destinations');
+    await page.keyboard.press('Shift');
     await expect(page.getByText('This page is also available in English.')).toBeHidden();
     await context.close();
   });

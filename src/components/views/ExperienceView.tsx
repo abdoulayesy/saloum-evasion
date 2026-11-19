@@ -1,3 +1,4 @@
+import { BookOnline } from '@/components/checkout/BookOnline';
 import { RichText } from '@payloadcms/richtext-lexical/react';
 import { getTranslations } from 'next-intl/server';
 import { ExperienceCard } from '@/components/cards/ExperienceCard';
@@ -15,7 +16,7 @@ import { destinationPath } from '@/lib/catalogPaths';
 import { populated, populatedList } from '@/lib/cms/populated';
 import { experiencePath } from '@/lib/experiencePaths';
 import { formatDuration, formatSeason } from '@/lib/format';
-import { primaryAction, whatsappAction } from '@/lib/pageActions';
+import { bookAction, primaryAction, whatsappAction } from '@/lib/pageActions';
 import { lexicalToPlainText } from '@/lib/richText';
 import { buildBreadcrumbs } from '@/lib/seo/breadcrumbs';
 import { buildBreadcrumbList } from '@/lib/seo/jsonld/breadcrumb';
@@ -133,8 +134,11 @@ export const ExperienceView = async ({
       : []),
   ]);
 
+  const bookable = experience.bookable === true && (experience.slots ?? []).length > 0;
   const [primary, whatsapp] = await Promise.all([
-    primaryAction(locale, 'experience', experience.seo?.slug ?? '', experience.title ?? ''),
+    bookable
+      ? bookAction(locale)
+      : primaryAction(locale, 'experience', experience.seo?.slug ?? '', experience.title ?? ''),
     whatsappAction(locale, settings, { title: experience.title ?? undefined, path }),
   ]);
 
@@ -199,6 +203,25 @@ export const ExperienceView = async ({
       <Container className="mt-8 grid grid-cols-1 gap-10 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <div className="flex flex-col gap-10">
           {experience.summary && <p className="text-lg text-ink-muted">{experience.summary}</p>}
+          {bookable && (
+            <BookOnline
+              locale={locale}
+              offer={{
+                offerType: experience.offerKind === 'table' ? 'table' : 'experience',
+                id: experience.id,
+                maxGuests: experience.maxParticipants,
+                slots: (experience.slots ?? []).map((slot) => ({
+                  label: slot.label ?? slot.startTime,
+                  startTime: slot.startTime,
+                })),
+              }}
+              cancellationSummary={
+                typeof experience.cancellationPolicy === 'object'
+                  ? experience.cancellationPolicy?.summary
+                  : null
+              }
+            />
+          )}
           {experience.body && (
             <section aria-labelledby="experience-texte">
               <h2 id="experience-texte" className="text-mangrove">

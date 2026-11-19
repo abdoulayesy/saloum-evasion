@@ -5,6 +5,7 @@ import {
   type SendResult,
 } from '@/lib/notifications/email';
 import { MAX_ATTEMPTS, nextStep } from '@/lib/notifications/retry';
+import { renderBookingVoucher } from '@/lib/voucher/render';
 import { sendWhatsAppTemplate, type WhatsAppTemplate } from '@/lib/notifications/whatsapp';
 
 // Gabarit d'envoi commun (002, T034 ; contracts/notifications.md) : chaque notification est
@@ -16,18 +17,28 @@ export const SEND_NOTIFICATION_TASK = 'sendNotification';
 
 type Locale = 'fr' | 'en';
 
+/** E-mail, éventuellement avec le bon de réservation PDF joint (rendu à l'envoi). */
+export type NotificationEmail = EmailContent & { voucherBookingId?: number };
+
 export type NotificationContent =
-  { channel: 'email'; email: EmailContent } | { channel: 'whatsapp'; whatsapp: WhatsAppTemplate };
+  | { channel: 'email'; email: NotificationEmail }
+  | { channel: 'whatsapp'; whatsapp: WhatsAppTemplate };
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
-const emailContentOf = (value: unknown): EmailContent | null =>
+const emailContentOf = (value: unknown): NotificationEmail | null =>
   isRecord(value) &&
   typeof value.subject === 'string' &&
   typeof value.text === 'string' &&
   typeof value.html === 'string'
-    ? { subject: value.subject, text: value.text, html: value.html }
+    ? {
+        subject: value.subject,
+        text: value.text,
+        html: value.html,
+        voucherBookingId:
+          typeof value.voucherBookingId === 'number' ? value.voucherBookingId : undefined,
+      }
     : null;
 
 const whatsappContentOf = (value: unknown): WhatsAppTemplate | null => {
@@ -68,16 +79,29 @@ export const enqueueNotification = async (
   return notification.id;
 };
 
+/** Bon de réservation joint, rendu au moment de l'envoi (toujours à jour). */
+const voucherAttachment = async (payload: Payload, bookingId: number | undefined) => {
+  if (bookingId === undefined) return undefined;
+  const booking = await payload.findByID({ collection: 'bookings', id: bookingId, depth: 0 });
+  const pdf = await renderBookingVoucher(payload, bookingId);
+  return [{ filename: `${booking.reference}.pdf`, content: pdf }];
+};
+
 const deliver = async (
+  payload: Payload,
   channel: 'email' | 'whatsapp',
   recipient: string,
   content: unknown,
 ): Promise<SendResult> => {
   if (channel === 'email') {
     const email = emailContentOf(content);
-    return email
-      ? sendNotificationEmail(recipient, email)
-      : { ok: false, error: 'Contenu e-mail invalide.' };
+    if (!email) return { ok: false, error: 'Contenu e-mail invalide.' };
+    const { voucherBookingId, ...message } = email;
+    return sendNotificationEmail(
+      recipient,
+      message,
+      await voucherAttachment(payload, voucherBookingId),
+    );
   }
   const template = whatsappContentOf(content);
   return template
@@ -111,7 +135,12 @@ export const runNotificationAttempt = async (
   });
   if (notification.status === 'sent' || notification.status === 'escalated') return;
   const attempts = (notification.attempts ?? 0) + 1;
-  const result = await deliver(notification.channel, notification.recipient, notification.payload);
+  const result = await deliver(
+    payload,
+    notification.channel,
+    notification.recipient,
+    notification.payload,
+  );
   if (result.ok) {
     await payload.update({
       collection: 'notifications',

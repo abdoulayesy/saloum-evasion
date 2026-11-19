@@ -12,6 +12,9 @@ const context = { disableRevalidate: true };
 
 const TABLE_SLUG = 'table-du-saloum-chez-l-habitant';
 
+// Fiches de référence des tests de la 001 (demande de séjour) : jamais rendues vendables ici.
+const REQUEST_ONLY_SLUGS = new Set(['week-end-bolong-ndangane', 'excursion-pirogue-bolongs']);
+
 type PartnerKind = 'lodging' | 'guide' | 'restaurant' | 'transport';
 
 const PARTNERS: { key: PartnerKind; name: string; whatsapp: string }[] = [
@@ -167,7 +170,21 @@ const run = async (): Promise<void> => {
     sort: 'id',
   });
   const table = experiences.docs.find((doc) => doc.seo?.slug === TABLE_SLUG);
-  const activities = experiences.docs.filter((doc) => doc.id !== table?.id).slice(0, 3);
+  const activities = experiences.docs
+    .filter((doc) => doc.id !== table?.id && !REQUEST_ONLY_SLUGS.has(doc.seo?.slug ?? ''))
+    .slice(0, 3);
+  // Remet en « demande seulement » les fiches de référence (relance du script sur une base ancienne).
+  for (const doc of experiences.docs.filter((candidate) =>
+    REQUEST_ONLY_SLUGS.has(candidate.seo?.slug ?? ''),
+  )) {
+    await payload.update({
+      collection: 'experiences',
+      id: doc.id,
+      locale: 'fr',
+      data: { bookable: false },
+      context,
+    });
+  }
   for (const experience of activities) {
     await payload.update({
       collection: 'experiences',
@@ -206,9 +223,26 @@ const run = async (): Promise<void> => {
     });
   }
 
-  // Séjour signature : le premier séjour.
-  const stays = await payload.find({ collection: 'stays', limit: 1, depth: 0, sort: 'id' });
-  const [stay] = stays.docs;
+  // Séjour signature : le premier séjour qui n'est pas une fiche de référence de la 001.
+  const stays = await payload.find({
+    collection: 'stays',
+    limit: 10,
+    depth: 0,
+    sort: 'id',
+    locale: 'fr',
+  });
+  for (const doc of stays.docs.filter((candidate) =>
+    REQUEST_ONLY_SLUGS.has(candidate.seo?.slug ?? ''),
+  )) {
+    await payload.update({
+      collection: 'stays',
+      id: doc.id,
+      locale: 'fr',
+      data: { bookable: false },
+      context,
+    });
+  }
+  const stay = stays.docs.find((candidate) => !REQUEST_ONLY_SLUGS.has(candidate.seo?.slug ?? ''));
   if (stay) {
     await payload.update({
       collection: 'stays',
@@ -291,6 +325,47 @@ const run = async (): Promise<void> => {
         context,
       });
     }
+  }
+
+  // Panier de démonstration de Lighthouse CI (cookie `se_cart=LhciDemoCartToken00000`, lighthouserc.json) :
+  // une expérience à 60 jours, pour mesurer le panier et l'étape coordonnées.
+  const demoActivity = activities[0];
+  if (demoActivity) {
+    const start = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    const tokenHash = '38cb3de8855c89dd9dd2a97fc7c49a0aa0c2adf44bebd0d84a2b63f12cf14fb5';
+    const existingCart = await payload.find({
+      collection: 'carts',
+      where: { tokenHash: { equals: tokenHash } },
+      limit: 1,
+      depth: 0,
+    });
+    const cartData = {
+      tokenHash,
+      locale: 'fr' as const,
+      status: 'open' as const,
+      version: 1,
+      remindersSent: 0,
+      remindersConsent: false,
+      expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+      items: [
+        {
+          lineId: 'lhcidemoline01',
+          offerType: 'experience' as const,
+          offer: { relationTo: 'experiences' as const, value: demoActivity.id },
+          startDate: start,
+          slot: '09:00',
+          adults: 2,
+          children: 0,
+          infants: 0,
+          quotedUnitPrice: demoActivity.pricePerPerson,
+          quotedTotal: demoActivity.pricePerPerson * 2,
+        },
+      ],
+    };
+    const [demoCart] = existingCart.docs;
+    if (demoCart)
+      await payload.update({ collection: 'carts', id: demoCart.id, data: cartData, context });
+    else await payload.create({ collection: 'carts', data: cartData, context });
   }
 
   payload.logger.info(
