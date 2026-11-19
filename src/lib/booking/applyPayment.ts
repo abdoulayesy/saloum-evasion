@@ -9,15 +9,18 @@ import {
   bookingConfirmedEmail,
   bookingConfirmedWhatsApp,
 } from '@/lib/notifications/templates/bookingConfirmed';
+import { balancePaidEmail, balancePaidWhatsApp } from '@/lib/notifications/templates/balance';
 import { teamBookingEmail } from '@/lib/notifications/templates/internal';
 import { siteUrl } from '@/lib/site';
 import type { Booking, Payment } from '@/payload-types';
-import { newManageToken } from './access';
+import { currentManageToken, hashManageToken, manageTokenFor } from './access';
 
-// Effets d'un paiement réussi (002, T056, contrat payment-gateway étape 5) : statut et montant
-// payé, taux de commission figés et écritures de commission (FR-034), échéance de confirmation
-// de disponibilité (FR-005), jeton de gestion, panier commandé, notifications (voyageur et
-// équipe). Appelé une seule fois par paiement (garanti par `processNotification`).
+// Effets d'un paiement réussi (002, T056 et T069, contrat payment-gateway étape 5) : statut et
+// montant payé, taux de commission figés et écritures de commission au prorata de l'encaissé
+// (FR-034), échéance de confirmation de disponibilité (FR-005), jeton de gestion (le lien déjà
+// envoyé reste valable), bon PDF en nouvelle version, notifications. Paiement initial :
+// `booking_confirmed`, équipe, panier commandé ; solde : `balance_paid`. Appelé une seule fois
+// par paiement (garanti par `processNotification`).
 
 const relationId = (value: number | { id: number }): number =>
   typeof value === 'number' ? value : value.id;
@@ -97,7 +100,12 @@ export const applySuccessfulPayment = async (payload: Payload, paymentId: number
     }),
   );
 
-  const { token, hash } = newManageToken();
+  // Lien de gestion : celui déjà envoyé (paiement du solde) ou le premier (paiement initial).
+  const existingToken = currentManageToken(booking);
+  const { token, hash } =
+    existingToken !== null
+      ? { token: existingToken, hash: hashManageToken(existingToken) }
+      : manageTokenFor(booking);
   const deadline = availabilityDeadline(paidAt, {
     slaMinutes: settings.checkout.availabilitySlaMinutes,
     businessStart: settings.checkout.businessHoursStart ?? '08:00',
@@ -118,14 +126,34 @@ export const applySuccessfulPayment = async (payload: Payload, paymentId: number
       },
     },
   });
+  const origin = siteUrl();
+  const manageUrl = `${origin}${checkoutPath(booking.locale, 'booking', booking.reference)}?k=${token}`;
+
+  if (payment.purpose === 'balance') {
+    await enqueueNotification(payload, {
+      template: 'balance_paid',
+      channel: 'email',
+      recipient: booking.traveller.email,
+      locale: booking.locale,
+      booking: booking.id,
+      email: { ...balancePaidEmail(updated, manageUrl), voucherBookingId: booking.id },
+    });
+    await enqueueNotification(payload, {
+      template: 'balance_paid',
+      channel: 'whatsapp',
+      recipient: booking.traveller.whatsapp,
+      locale: booking.locale,
+      booking: booking.id,
+      whatsapp: balancePaidWhatsApp(updated, manageUrl),
+    });
+    return { booking: updated, manageToken: token };
+  }
+
   await payload.update({
     collection: 'carts',
     id: relationId(booking.cart),
     data: { status: 'checked_out' },
   });
-
-  const origin = siteUrl();
-  const manageUrl = `${origin}${checkoutPath(booking.locale, 'booking', booking.reference)}?k=${token}`;
   await enqueueNotification(payload, {
     template: 'booking_confirmed',
     channel: 'email',

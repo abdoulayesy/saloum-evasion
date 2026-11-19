@@ -69,14 +69,18 @@ const CheckoutStepPage = async ({ params, searchParams }: Props) => {
       depth: 0,
       showHiddenFields: true,
     });
-    if (!(await canAccessBooking(payload, booking, single(search.k))))
-      redirect(checkoutPath(locale, 'cart'));
+    const token = single(search.k);
+    if (!(await canAccessBooking(payload, booking, token))) redirect(checkoutPath(locale, 'cart'));
     if (payment.status === 'succeeded')
-      redirect(checkoutPath(locale, 'booking', booking.reference));
+      redirect(
+        `${checkoutPath(locale, 'booking', booking.reference)}${token ? `?k=${encodeURIComponent(token)}` : ''}`,
+      );
     return (
       <CheckoutStatusView
         locale={locale}
         payment={payment}
+        bookingReference={booking.reference}
+        manageToken={token}
         cancelled={single(search.cancelled) === '1'}
       />
     );

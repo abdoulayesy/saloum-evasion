@@ -229,18 +229,36 @@ lien ; montants, statuts et deux versions du PDF corrects.
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T066 [P] [US2] E2E acompte proposé à J+45, absent à J+20 avec raison, refusé pour un séjour `requireFullPayment` ; paiement du solde depuis le lien (`@checkout @us2`) dans tests/e2e/checkout/us2-deposit.mobile.spec.ts
-- [ ] T067 [P] [US2] Tests du planificateur de rappels (J-21, J-15, alerte à l'échéance, aucun rappel si soldé ou annulé) dans tests/unit/checkout/balanceSchedule.test.ts
+- [X] T066 [P] [US2] E2E acompte proposé à J+45, absent à J+20 avec raison, refusé pour un séjour `requireFullPayment` ; paiement du solde depuis le lien (`@checkout @us2`) dans tests/e2e/checkout/us2-deposit.mobile.spec.ts
+- [X] T067 [P] [US2] Tests du planificateur de rappels (J-21, J-15, alerte à l'échéance, aucun rappel si soldé ou annulé) dans tests/unit/checkout/balanceSchedule.test.ts
 
 ### Implementation for User Story 2
 
-- [ ] T068 [US2] Ajouter le choix acompte / total (montant de l'acompte, solde et date limite affichés ; raison si non éligible) à src/components/views/CheckoutPaymentView.tsx et la validation `plan` à src/lib/payments/startPayment.ts
-- [ ] T069 [US2] Gérer les transitions `deposit_paid` → `paid` et le `purpose: balance` dans src/lib/payments/notify.ts (commissions reconnues au prorata, PDF régénéré, `balance_paid`)
-- [ ] T070 [P] [US2] Créer la page de paiement du solde src/components/views/BookingBalanceView.tsx (jeton requis, mêmes composants de paiement et de parité)
-- [ ] T071 [P] [US2] Créer la tâche src/jobs/balanceReminder.ts (J-21, J-15, alerte équipe et dernier rappel à l'échéance, sans annulation automatique) jusqu'à faire passer T067
-- [ ] T072 [P] [US2] Créer les modèles `balance_due` et `balance_paid` (FR/EN, e-mail + WhatsApp) dans src/lib/notifications/templates/balance.ts
+- [X] T068 [US2] Ajouter le choix acompte / total (montant de l'acompte, solde et date limite affichés ; raison si non éligible) à src/components/views/CheckoutPaymentView.tsx et la validation `plan` à src/lib/payments/startPayment.ts
+- [X] T069 [US2] Gérer les transitions `deposit_paid` → `paid` et le `purpose: balance` dans src/lib/payments/notify.ts (commissions reconnues au prorata, PDF régénéré, `balance_paid`)
+- [X] T070 [P] [US2] Créer la page de paiement du solde src/components/views/BookingBalanceView.tsx (jeton requis, mêmes composants de paiement et de parité)
+- [X] T071 [P] [US2] Créer la tâche src/jobs/balanceReminder.ts (J-21, J-15, alerte équipe et dernier rappel à l'échéance, sans annulation automatique) jusqu'à faire passer T067
+- [X] T072 [P] [US2] Créer les modèles `balance_due` et `balance_paid` (FR/EN, e-mail + WhatsApp) dans src/lib/notifications/templates/balance.ts
 
 **Checkpoint** : T066 et T067 verts ; US1 toujours verte.
+
+> **Avancement de l’US2** (2026-11-19) :
+> - Jeton de gestion **dérivé** du secret du serveur (research R13, précision US2) : les rappels
+>   du solde et la confirmation du solde renvoient le lien déjà reçu, qui reste valable.
+> - T068 : sans acompte possible, la raison est affichée (« arrivée trop proche » ou « séjour
+>   réglé en une fois ») ; le seuil réglable n’apparaît pas dans le texte.
+> - T069 : les effets du solde sont dans `applySuccessfulPayment` (appelé par
+>   `processNotification`, inchangé) : `deposit_paid` → `paid`, commissions de l’encaissé,
+>   bon PDF version + 1, `balance_paid` (e-mail avec le PDF + WhatsApp), pas de nouvel avis à
+>   l’équipe. Le récapitulatif n’affiche plus de solde une fois tout payé.
+> - T070 : page `/fr/reservation/{ref}/solde` (jeton ou cookie) ; la page de statut, l’îlot
+>   d’interrogation et l’API de statut conservent le jeton (solde payé depuis un autre appareil).
+> - T071 : `balanceReminder` s’exécute à chaque passage de `/api/jobs/run`, comme l’alerte de
+>   disponibilité ; dernier rappel au voyageur (même modèle WhatsApp `balance_due`) et alerte de
+>   l’équipe à la date limite. `?now=` n’est accepté qu’avec la passerelle factice (tests).
+>   Une seule exécution de la file par processus (deux `jobs.run` simultanés prenaient la même
+>   tâche : erreur 500 constatée en E2E parallèle).
+> - Seed : le séjour signature vendable exige le paiement total (scénario E2E).
 
 ---
 

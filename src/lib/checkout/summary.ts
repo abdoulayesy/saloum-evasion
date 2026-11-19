@@ -127,8 +127,11 @@ export const summaryTotals = (booking: SummarySource): SummaryTotals => ({
   total: formatXof(booking.total),
   totalEur: formatEur(booking.total, booking.locale),
   paid: formatXof(booking.amountPaid),
+  // Solde affiché tant qu'il reste dû (acompte payé ou réservation encore impayée).
   balance:
-    booking.paymentPlan === 'deposit' && booking.balanceDueDate
+    booking.paymentPlan === 'deposit' &&
+    booking.balanceDueDate &&
+    booking.amountPaid < booking.total
       ? {
           amount: formatXof(booking.balanceAmount),
           dueDate: formatDate(booking.balanceDueDate, booking.locale),

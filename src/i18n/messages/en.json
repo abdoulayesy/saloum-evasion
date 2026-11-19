@@ -538,7 +538,11 @@
     "expiredTitle": "Payment expired",
     "expired": "The payment time limit has passed: nothing was charged.",
     "waitHint": "This usually takes less than a minute. This page updates by itself.",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "depositUnavailable": {
+      "arrival_soon": "Your arrival is too close for a deposit: payment is made in full.",
+      "full_payment_required": "This stay is paid in full, without a deposit."
+    }
   },
   "booking": {
     "reference": "Reference: {reference}",
@@ -567,7 +571,8 @@
     "balanceDue": "Balance of {amount} due before {date}",
     "thanks": "Thank you! Your booking is registered.",
     "confirmationSent": "A confirmation email and WhatsApp message are on their way.",
-    "deadline": "Our team confirms availability before {date} (Dakar time)."
+    "deadline": "Our team confirms availability before {date} (Dakar time).",
+    "payBalance": "Pay the balance of {amount}"
   },
   "refund": {
     "status": {
@@ -576,5 +581,12 @@
       "paid": "Paid",
       "rejected": "Rejected"
     }
+  },
+  "balance": {
+    "title": "Pay the balance",
+    "reference": "Booking {reference}",
+    "due": "Balance of {amount} due before {date}.",
+    "pay": "Pay the balance of {amount}",
+    "back": "Back to my booking"
   }
 }

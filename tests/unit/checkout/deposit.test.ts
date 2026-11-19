@@ -48,7 +48,7 @@ describe('acompte', () => {
     if (plan.plan === 'deposit') expect(plan.depositAmount + plan.balanceAmount).toBe(487_350);
   });
 
-  it('paiement total quand l’arrivée est proche', () => {
+  it('paiement total quand l’arrivée est proche, avec la raison', () => {
     expect(
       paymentPlan({
         total: 90_000,
@@ -62,7 +62,19 @@ describe('acompte', () => {
       balanceAmount: 0,
       balanceDueDate: null,
       amountDueNow: 90_000,
+      reason: 'arrival_soon',
     });
+  });
+
+  it('séjour qui exige le paiement total : raison distincte, même loin de l’arrivée', () => {
+    expect(
+      paymentPlan({
+        total: 300_000,
+        today: TODAY,
+        firstArrivalDate: '2027-06-01',
+        requireFullPayment: true,
+      }),
+    ).toMatchObject({ plan: 'full', amountDueNow: 300_000, reason: 'full_payment_required' });
   });
 
   it('réglages du site pris en compte (pourcentage, seuil, échéance)', () => {

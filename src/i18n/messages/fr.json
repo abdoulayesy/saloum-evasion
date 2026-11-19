@@ -538,7 +538,11 @@
     "expiredTitle": "Paiement expiré",
     "expired": "Le délai de paiement est dépassé : rien n’a été débité.",
     "waitHint": "Cela prend en général moins d’une minute. Cette page se met à jour toute seule.",
-    "refresh": "Actualiser"
+    "refresh": "Actualiser",
+    "depositUnavailable": {
+      "arrival_soon": "Votre arrivée est trop proche pour un acompte : le paiement se fait en une fois.",
+      "full_payment_required": "Ce séjour se règle en une seule fois, sans acompte."
+    }
   },
   "booking": {
     "reference": "Référence : {reference}",
@@ -567,7 +571,8 @@
     "balanceDue": "Solde de {amount} à régler avant le {date}",
     "thanks": "Merci ! Votre réservation est enregistrée.",
     "confirmationSent": "Un e-mail et un message WhatsApp de confirmation sont en route.",
-    "deadline": "Notre équipe confirme la disponibilité avant le {date} (heure de Dakar)."
+    "deadline": "Notre équipe confirme la disponibilité avant le {date} (heure de Dakar).",
+    "payBalance": "Payer le solde de {amount}"
   },
   "refund": {
     "status": {
@@ -576,5 +581,12 @@
       "paid": "Versé",
       "rejected": "Refusé"
     }
+  },
+  "balance": {
+    "title": "Payer le solde",
+    "reference": "Réservation {reference}",
+    "due": "Solde de {amount} à régler avant le {date}.",
+    "pay": "Payer le solde de {amount}",
+    "back": "Retour à ma réservation"
   }
 }

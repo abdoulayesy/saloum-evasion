@@ -40,8 +40,18 @@ export const isDepositEligible = ({
 }: EligibilityInput): boolean =>
   !requireFullPayment && daysBetween(today, firstArrivalDate) > settings.depositThresholdDays;
 
+/** Raison affichée quand seul le paiement total est proposé (US2, scénario 2). */
+export type DepositIneligibility = 'arrival_soon' | 'full_payment_required';
+
 export type PaymentPlan =
-  | { plan: 'full'; depositAmount: 0; balanceAmount: 0; balanceDueDate: null; amountDueNow: number }
+  | {
+      plan: 'full';
+      depositAmount: 0;
+      balanceAmount: 0;
+      balanceDueDate: null;
+      amountDueNow: number;
+      reason: DepositIneligibility;
+    }
   | {
       plan: 'deposit';
       depositAmount: number;
@@ -63,6 +73,7 @@ export const paymentPlan = (input: EligibilityInput & { total: number }): Paymen
       balanceAmount: 0,
       balanceDueDate: null,
       amountDueNow: input.total,
+      reason: input.requireFullPayment ? 'full_payment_required' : 'arrival_soon',
     };
   }
   const deposit = depositAmount(input.total, settings.depositPercent);

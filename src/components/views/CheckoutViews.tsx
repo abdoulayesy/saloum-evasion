@@ -152,7 +152,7 @@ export const CheckoutPaymentView = async ({
             />
             <span>{t('termsAccept')}</span>
           </label>
-          {plan.plan === 'deposit' && (
+          {plan.plan === 'deposit' ? (
             <p>
               {t('depositExplain', {
                 deposit: formatXof(plan.depositAmount),
@@ -160,6 +160,8 @@ export const CheckoutPaymentView = async ({
                 date: formatDate(plan.balanceDueDate, locale),
               })}
             </p>
+          ) : (
+            <p data-testid="deposit-unavailable">{t(`depositUnavailable.${plan.reason}`)}</p>
           )}
           <div className="flex flex-col gap-3 sm:flex-row">
             {plan.plan === 'deposit' && (
@@ -188,14 +190,24 @@ export const CheckoutPaymentView = async ({
 export const CheckoutStatusView = async ({
   locale,
   payment,
+  bookingReference,
+  manageToken,
   cancelled,
 }: {
   locale: Locale;
   payment: Payment;
+  bookingReference: string;
+  /** Jeton de gestion (solde payé depuis le lien reçu, sans le cookie du panier). */
+  manageToken: string | null;
   cancelled: boolean;
 }) => {
   const t = await getTranslations({ locale, namespace: 'payment' });
-  const retryHref = checkoutPath(locale, 'payment');
+  const tokenParam = manageToken ? `k=${encodeURIComponent(manageToken)}` : '';
+  const retryHref =
+    payment.purpose === 'balance'
+      ? `${checkoutPath(locale, 'balance', bookingReference)}${tokenParam ? `?${tokenParam}` : ''}`
+      : checkoutPath(locale, 'payment');
+  const refreshHref = `${checkoutPath(locale, 'status')}?p=${payment.id}${tokenParam ? `&${tokenParam}` : ''}`;
   const waiting = payment.status === 'initiated' || payment.status === 'pending';
   const title = waiting
     ? t('statusTitle')
@@ -215,13 +227,15 @@ export const CheckoutStatusView = async ({
             {t('pending')}
           </p>
           <p>{cancelled ? t('cancelled') : t('waitHint')}</p>
-          <a
-            href={`${checkoutPath(locale, 'status')}?p=${payment.id}`}
-            className={secondaryButtonClass}
-          >
+          <a href={refreshHref} className={secondaryButtonClass}>
             {t('refresh')}
           </a>
-          <PaymentStatusPoller paymentId={payment.id} locale={locale} pendingLabel={t('pending')} />
+          <PaymentStatusPoller
+            paymentId={payment.id}
+            locale={locale}
+            manageToken={manageToken}
+            pendingLabel={t('pending')}
+          />
         </div>
       ) : (
         <div className="mt-6 flex flex-col gap-4">

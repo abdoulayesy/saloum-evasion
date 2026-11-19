@@ -38,9 +38,10 @@ export const GET = async (
   return json({
     status: payment.status,
     failureReason: payment.failureReason ?? null,
+    // Jeton conservé : le solde peut être payé depuis un appareil sans le cookie du panier.
     bookingUrl:
       payment.status === 'succeeded'
-        ? checkoutPath(locale, 'booking', booking.reference)
+        ? `${checkoutPath(locale, 'booking', booking.reference)}${token ? `?k=${encodeURIComponent(token)}` : ''}`
         : undefined,
   });
 };
