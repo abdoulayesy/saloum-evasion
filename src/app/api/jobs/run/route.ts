@@ -4,6 +4,8 @@ import { runAvailabilitySlaCheck } from '@/jobs/availabilitySlaAlert';
 import { runAbandonedCartReminders } from '@/jobs/abandonedCartReminder';
 import { runBalanceReminders } from '@/jobs/balanceReminder';
 import { runPaymentReconciliation } from '@/jobs/reconcilePendingPayments';
+import { runRefundDeadlineAlert } from '@/jobs/refundDeadlineAlert';
+import { runUnavailableAutoRefund } from '@/jobs/unavailableAutoRefund';
 import { getPayloadClient } from '@/lib/cms/queries';
 import { isCronAuthorized } from '@/lib/cronAuth';
 import { checkoutEnv } from '@/lib/env';
@@ -45,19 +47,45 @@ const runQueueOnce = (payload: Payload): Promise<QueueRun> => {
   return current;
 };
 
+const CHECK_INTERVAL_MS = 20_000;
+const lastChecks = new Map<string, number>();
+
+/**
+ * Contrôles périodiques au plus toutes les 20 s par processus : le planificateur appelle la
+ * route chaque minute, mais des appels rapprochés (relances manuelles, tests) répéteraient sinon
+ * des dizaines de requêtes inutiles et satureraient la base. La file, elle, part à chaque appel.
+ */
+const atMostEvery = async (key: string, check: () => Promise<void>): Promise<void> => {
+  const last = lastChecks.get(key) ?? 0;
+  if (Date.now() - last < CHECK_INTERVAL_MS) return;
+  lastChecks.set(key, Date.now());
+  await check();
+};
+
 export const GET = async (request: NextRequest) => {
   if (!isCronAuthorized(request.headers)) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
   const payload = await getPayloadClient();
   // Contrôles périodiques légers avant la file, toujours à l'heure réelle : échéance de
-  // confirmation de disponibilité (T063), réconciliation des paiements en attente (T077).
+  // confirmation de disponibilité (T063), réconciliation des paiements en attente (T077),
+  // remboursements validés non versés à J+10 (T088), prestations indisponibles sans choix à
+  // 48 h (T089).
   // Relances (solde T071, paniers abandonnés T078) : date de référence.
-  await runAvailabilitySlaCheck(payload);
-  await runPaymentReconciliation(payload);
+  await atMostEvery('realtime', async () => {
+    await runAvailabilitySlaCheck(payload);
+    await runPaymentReconciliation(payload);
+    await runRefundDeadlineAlert(payload);
+    await runUnavailableAutoRefund(payload);
+  });
   const now = referenceDate(request);
-  await runBalanceReminders(payload, now);
-  await runAbandonedCartReminders(payload, now);
+  const reminders = async () => {
+    await runBalanceReminders(payload, now);
+    await runAbandonedCartReminders(payload, now);
+  };
+  // Date de référence explicite (tests) : toujours exécutées ; sinon au même rythme que le reste.
+  if (request.nextUrl.searchParams.has('now')) await reminders();
+  else await atMostEvery('reminders', reminders);
   const result = await runQueueOnce(payload);
   return NextResponse.json(
     { ran: Object.keys(result.jobStatus ?? {}).length, remaining: result.remainingJobsFromQueried },

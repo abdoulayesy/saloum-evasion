@@ -3,6 +3,7 @@ import { isAdmin, isAdminField, isBackOffice, isOperations, nobody } from '@/acc
 import { amountField, cartLineFields, civilDateField, integerField } from '@/fields/checkout';
 import { validateE164 } from '@/fields/validators';
 import { notifyAvailabilityChange } from '@/hooks/availabilityUpdate';
+import { stampUnavailableLines } from '@/hooks/unavailableLines';
 import {
   BOOKING_STATUSES,
   canTransitionBooking,
@@ -55,7 +56,10 @@ export const Bookings: CollectionConfig = {
   },
   access: { read: isBackOffice, create: nobody, update: isOperations, delete: isAdmin },
   indexes: [{ fields: ['cart', 'cartVersion'], unique: true }],
-  hooks: { beforeChange: [guardBookingStatus], afterChange: [notifyAvailabilityChange] },
+  hooks: {
+    beforeChange: [guardBookingStatus, stampUnavailableLines],
+    afterChange: [notifyAvailabilityChange],
+  },
   fields: [
     {
       name: 'reference',
@@ -162,6 +166,48 @@ export const Bookings: CollectionConfig = {
           ],
         },
         { name: 'availabilityNote', type: 'textarea', label: 'Note de disponibilité' },
+        // Prestation indisponible (US4, T089, FR-005) : deux alternatives au plus, choix du
+        // voyageur sous 48 h, sinon remboursement intégral automatique.
+        {
+          name: 'alternatives',
+          type: 'array',
+          maxRows: 2,
+          label: 'Alternatives proposées (si indisponible)',
+          labels: { singular: 'Alternative', plural: 'Alternatives' },
+          fields: [
+            { name: 'title', type: 'text', required: true, label: 'Alternative' },
+            { name: 'description', type: 'textarea', label: 'Précisions pour le voyageur' },
+            amountField('price', 'Prix de l’alternative (jamais facturé au-delà du prix payé)'),
+          ],
+        },
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'unavailableAt',
+              type: 'date',
+              label: 'Indisponible depuis',
+              admin: { readOnly: true },
+            },
+            {
+              name: 'choiceDeadline',
+              type: 'date',
+              label: 'Choix attendu avant',
+              admin: { readOnly: true },
+            },
+            {
+              name: 'travellerChoice',
+              type: 'select',
+              label: 'Choix du voyageur',
+              admin: { readOnly: true },
+              options: [
+                { label: 'Alternative 1', value: 'alternative_1' },
+                { label: 'Alternative 2', value: 'alternative_2' },
+                { label: 'Remboursement', value: 'refund' },
+              ],
+            },
+          ],
+        },
         { name: 'cancelled', type: 'checkbox', defaultValue: false, label: 'Annulée' },
         { name: 'partnerNotifiedAt', type: 'date', label: 'Prestataire notifié le' },
       ],

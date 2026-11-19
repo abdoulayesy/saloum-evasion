@@ -4,6 +4,7 @@ import * as migration_20261115_160745_video_static_mp4 from './20261115_160745_v
 import * as migration_20261116_065551_checkout_model from './20261116_065551_checkout_model';
 import * as migration_20261116_183311_jobs_queue from './20261116_183311_jobs_queue';
 import * as migration_20261116_183458_cart_token from './20261116_183458_cart_token';
+import * as migration_20261119_213815_unavailable_alternatives from './20261119_213815_unavailable_alternatives';
 
 export const migrations = [
   {
@@ -34,6 +35,11 @@ export const migrations = [
   {
     up: migration_20261116_183458_cart_token.up,
     down: migration_20261116_183458_cart_token.down,
-    name: '20261116_183458_cart_token'
+    name: '20261116_183458_cart_token',
+  },
+  {
+    up: migration_20261119_213815_unavailable_alternatives.up,
+    down: migration_20261119_213815_unavailable_alternatives.down,
+    name: '20261119_213815_unavailable_alternatives'
   },
 ];

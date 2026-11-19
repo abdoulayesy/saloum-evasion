@@ -1,4 +1,4 @@
-import type { Payload, TaskConfig } from 'payload';
+import type { Payload, PayloadRequest, TaskConfig } from 'payload';
 import {
   sendNotificationEmail,
   type EmailContent,
@@ -48,7 +48,10 @@ const whatsappContentOf = (value: unknown): WhatsAppTemplate | null => {
   return { name: value.name, locale: value.locale === 'en' ? 'en' : 'fr', params };
 };
 
-/** Journalise une notification et la place dans la file d'envoi immédiat. */
+/**
+ * Journalise une notification et la place dans la file d'envoi immédiat. `req` : depuis un hook
+ * de collection, l'écriture rejoint la transaction en cours (annulée avec elle).
+ */
 export const enqueueNotification = async (
   payload: Payload,
   input: {
@@ -57,6 +60,7 @@ export const enqueueNotification = async (
     locale: Locale;
     booking?: number;
   } & NotificationContent,
+  req?: PayloadRequest,
 ): Promise<number> => {
   const content = input.channel === 'email' ? input.email : input.whatsapp;
   const notification = await payload.create({
@@ -71,10 +75,12 @@ export const enqueueNotification = async (
       status: 'queued',
       attempts: 0,
     },
+    req,
   });
   await payload.jobs.queue({
     task: SEND_NOTIFICATION_TASK,
     input: { notificationId: notification.id },
+    req,
   });
   return notification.id;
 };

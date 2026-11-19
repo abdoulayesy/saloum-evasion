@@ -1,12 +1,20 @@
 import { APIError, type CollectionBeforeChangeHook, type CollectionConfig } from 'payload';
 import { isAdmin, isBackOffice, isOperations, roleOf } from '@/access';
 import { amountField } from '@/fields/checkout';
+import { refundErrors, type RefundStatus } from '@/lib/booking/refundRules';
+import { refundWorkflow, stampRefund } from '@/lib/booking/refunds';
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
-const isEmpty = (value: unknown): boolean =>
-  value === null || value === undefined || (typeof value === 'string' && value.trim() === '');
+const REFUND_METHODS = ['original', 'wave', 'orange_money', 'bank_transfer'] as const;
+const REFUND_STATUSES = ['requested', 'approved', 'paid', 'rejected'] as const;
+
+const isRefundMethod = (value: unknown): value is (typeof REFUND_METHODS)[number] =>
+  REFUND_METHODS.some((method) => method === value);
+
+const isRefundStatus = (value: unknown): value is RefundStatus =>
+  REFUND_STATUSES.some((status) => status === value);
 
 /**
  * Règles métier (FR-027 à FR-029) : montant = somme des lignes ; montant inférieur au calcul des
@@ -23,20 +31,21 @@ export const guardRefund: CollectionBeforeChangeHook = ({ data, originalDoc, req
     throw new APIError(message, 400, undefined, true);
   };
   const lines = Array.isArray(merged.lines) ? merged.lines.filter(isRecord) : [];
-  const sum = lines.reduce(
-    (total, line) => total + (typeof line.amount === 'number' ? line.amount : 0),
-    0,
-  );
-  if (lines.length > 0 && sum !== merged.amount)
-    fail('Le montant doit égaler la somme des lignes.');
-  const amount = typeof merged.amount === 'number' ? merged.amount : 0;
-  const calculated = typeof merged.calculatedAmount === 'number' ? merged.calculatedAmount : 0;
-  if (amount < calculated && isEmpty(merged.adjustmentReason))
-    fail('Montant inférieur au calcul des paliers : motif obligatoire.');
-  if (merged.method !== 'original' && isEmpty(merged.methodJustification))
-    fail('Moyen de remboursement différent de l’original : justification obligatoire.');
-  if (merged.status === 'rejected' && isEmpty(merged.rejectionReason))
-    fail('Refus : motif obligatoire.');
+  const text = (value: unknown): string | null => (typeof value === 'string' ? value : null);
+  const [firstError] = refundErrors({
+    amount: typeof merged.amount === 'number' ? merged.amount : 0,
+    calculatedAmount: typeof merged.calculatedAmount === 'number' ? merged.calculatedAmount : 0,
+    lines: lines.map((line) => ({
+      lineId: String(line.lineId ?? ''),
+      amount: typeof line.amount === 'number' ? line.amount : 0,
+    })),
+    method: isRefundMethod(merged.method) ? merged.method : 'original',
+    status: isRefundStatus(merged.status) ? merged.status : 'requested',
+    adjustmentReason: text(merged.adjustmentReason),
+    methodJustification: text(merged.methodJustification),
+    rejectionReason: text(merged.rejectionReason),
+  });
+  if (firstError) fail(firstError);
   const previous: unknown = operation === 'update' ? originalDoc?.status : 'requested';
   const next: unknown = merged.status;
   const role = req.user ? roleOf(req) : 'admin';
@@ -60,7 +69,7 @@ export const Refunds: CollectionConfig = {
     defaultColumns: ['booking', 'amount', 'reason', 'status', 'createdAt'],
   },
   access: { read: isBackOffice, create: isOperations, update: isBackOffice, delete: isAdmin },
-  hooks: { beforeChange: [guardRefund] },
+  hooks: { beforeChange: [guardRefund, stampRefund], afterChange: [refundWorkflow] },
   fields: [
     {
       name: 'booking',
