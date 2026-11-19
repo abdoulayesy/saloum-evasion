@@ -39,7 +39,7 @@ type Props = {
   notice: 'added' | 'removed' | 'updated' | null;
   errorKey: string | null;
   pending: PendingReplacement | null;
-  /** Suggestions de la destination et transfert, diffusés après le panier (Suspense). */
+  /** Suggestions de la destination et transfert, rendues sous le panier. */
   suggestionsSlot?: ReactNode;
 };
 

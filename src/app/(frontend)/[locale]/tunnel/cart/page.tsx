@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Payload } from 'payload';
-import { Suspense } from 'react';
 import type { CartSuggestion, PendingReplacement } from '@/components/views/CartView';
 import { CartSuggestionsSection, CartView } from '@/components/views/CartView';
 import type { Locale } from '@/i18n/routing';
@@ -121,7 +120,7 @@ const loadSuggestions = async (
   };
 };
 
-/** Suggestions chargées à part : le panier (élément LCP) n'attend pas leurs requêtes. */
+/** Suggestions de la destination et transfert (requêtes en parallèle), rendues avec le panier : rien ne s’affiche après lui, l’élément LCP reste stable. */
 const CartSuggestions = async ({
   locale,
   reviewed,
@@ -185,17 +184,15 @@ const CartPage = async ({ params, searchParams }: Props) => {
       pending={pending}
       suggestionsSlot={
         state.reviewed.length > 0 ? (
-          <Suspense fallback={null}>
-            <CartSuggestions
-              locale={locale}
-              reviewed={state.reviewed}
-              defaultDates={{
-                startDate: lodging?.item.startDate,
-                endDate: lodgingEnd,
-                adults: lodging?.item.adults,
-              }}
-            />
-          </Suspense>
+          <CartSuggestions
+            locale={locale}
+            reviewed={state.reviewed}
+            defaultDates={{
+              startDate: lodging?.item.startDate,
+              endDate: lodgingEnd,
+              adults: lodging?.item.adults,
+            }}
+          />
         ) : null
       }
     />
