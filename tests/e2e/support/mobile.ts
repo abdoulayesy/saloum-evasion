@@ -70,16 +70,27 @@ export const setTextZoom = async (page: Page, factor: number): Promise<void> => 
 
 /** L'élément qui a le focus n'est pas masqué par un élément fixe ou collant (WCAG 2.4.11). */
 export const expectFocusNotObscured = async (page: Page): Promise<void> => {
-  const obscured = await page.evaluate(() => {
+  const { obscured, detail } = await page.evaluate(async () => {
+    // Deux images : le défilement qui suit un changement de focus (asynchrone sous WebKit) est fini.
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     const active = document.activeElement;
-    if (!(active instanceof HTMLElement) || active === document.body) return false;
+    if (!(active instanceof HTMLElement) || active === document.body)
+      return { obscured: false, detail: '' };
     const rect = active.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
     const top = document.elementFromPoint(x, y);
-    return top !== null && top !== active && !active.contains(top);
+    const describe = (el: Element | null) =>
+      el
+        ? `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''}.${String(el.className).slice(0, 50)} « ${(el.textContent ?? '').trim().slice(0, 40)} »`
+        : 'aucun';
+    return {
+      obscured: top !== null && top !== active && !active.contains(top),
+      detail: `actif ${describe(active)} à y=${Math.round(y)} / ${window.innerHeight}, recouvert par ${describe(top)}`,
+    };
   });
-  expect(obscured, "L'élément actif est masqué").toBe(false);
+  // Le message nomme l'élément actif et celui qui le recouvre (diagnostic en CI).
+  expect(obscured, `L'élément actif est masqué (${detail})`).toBe(false);
 };
 
 /** Le centre de l'élément est dans le tiers inférieur de la fenêtre (zone du pouce). */

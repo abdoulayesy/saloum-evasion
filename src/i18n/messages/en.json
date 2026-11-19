@@ -109,7 +109,8 @@
     "whatsappGeneric": "Hello, I am planning a stay in the Sine-Saloum: {url}",
     "seeStay": "See the stay",
     "discoverStays": "Discover the stays",
-    "barLabel": "Quick actions"
+    "barLabel": "Quick actions",
+    "book": "Book"
   },
   "gallery": {
     "label": "Photo gallery",
@@ -384,7 +385,71 @@
     "openSummary": "Show cart details",
     "priceChanged": "The price has changed since you added it: {before} → {after}.",
     "unavailable": "This service is no longer available; it has been removed from the total.",
-    "browse": "Explore our stays"
+    "browse": "Explore our stays",
+    "continue": "Continue: my details",
+    "continueShopping": "Add something else",
+    "added": "Added to your cart.",
+    "removed": "The item has been removed from your cart.",
+    "updated": "Your cart is up to date.",
+    "addToCart": "Add to cart",
+    "bookTitle": "Book online",
+    "bookIntro": "Choose your dates: the price is calculated straight away, then you pay once.",
+    "startDate": "Arrival",
+    "endDate": "Departure",
+    "date": "Date",
+    "slot": "Time slot",
+    "adults": "Adults",
+    "children": "Children (4 to 11)",
+    "infants": "Infants (under 4, free)",
+    "travellers": "Travellers",
+    "update": "Update",
+    "lineTotal": "Line price",
+    "indicativeEur": "{eur} indicative",
+    "conflictLodging": "Your cart already contains accommodation: {title}. Only one accommodation or stay is possible per booking.",
+    "replace": "Replace with the new one",
+    "keep": "Keep the one in the cart",
+    "suggestions": "Complete your stay",
+    "suggestionsIntro": "Add an experience, a table or a transfer without leaving the cart.",
+    "transferTitle": "Transfer from AIBD airport or Dakar",
+    "transferRoute": "Route",
+    "direction": "Direction",
+    "directions": {
+      "outbound": "Outbound",
+      "return": "Return",
+      "both": "Return trip"
+    },
+    "outboundDate": "Outbound date",
+    "outboundTime": "Pick-up time (outbound)",
+    "returnDate": "Return date",
+    "returnTime": "Pick-up time (return)",
+    "passengers": "Passengers (infants included)",
+    "perVehicle": "price per vehicle depending on the number of passengers",
+    "errors": {
+      "saisie": "Some information is missing or incorrect. Please check the form.",
+      "indisponible": "This service can no longer be booked online.",
+      "creneau": "This time slot does not exist for this service.",
+      "retour": "Please enter the return date and time.",
+      "too_soon": "Online booking is possible from tomorrow.",
+      "invalid_nights": "The departure date must be after the arrival date.",
+      "below_min_nights": "This accommodation requires a minimum number of nights.",
+      "over_capacity": "There are more travellers than places.",
+      "no_adult": "At least one adult is required."
+    },
+    "issues": {
+      "unavailable": "This service is no longer available; remove it to continue.",
+      "invalid_slot": "This time slot is no longer offered; remove the line and choose another.",
+      "multiple_lodgings": "Only one accommodation per booking.",
+      "stay_excludes_accommodation": "A signature stay already includes accommodation.",
+      "outside_stay_dates": "This date is outside your stay.",
+      "return_before_outbound": "The return must be after the outbound trip.",
+      "too_soon": "This date is too close: booking is possible from tomorrow.",
+      "invalid_nights": "Incorrect stay dates.",
+      "below_min_nights": "Not enough nights for this accommodation.",
+      "over_capacity": "Too many travellers for this service.",
+      "no_adult": "At least one adult is required."
+    },
+    "fixBeforeContinue": "Fix the flagged items to continue.",
+    "migrated": "{count} item(s) from your request in progress have joined the cart."
   },
   "checkout": {
     "steps": {
@@ -399,7 +464,31 @@
     "whatsappHelp": "A question? Message us on WhatsApp",
     "progress": "Checkout progress",
     "whatsappMessage": "Hello, I have a question about my order in progress.",
-    "comingSoon": "This step will be available very soon."
+    "comingSoon": "This step will be available very soon.",
+    "detailsIntro": "No account needed: these details are used to organise your stay and send you the confirmation.",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "whatsapp": "WhatsApp number",
+    "whatsappHint": "We send the confirmation and practical information on WhatsApp.",
+    "dialCode": "Country code",
+    "email": "Email",
+    "emailHint": "To receive your booking voucher and the link to manage your booking.",
+    "specialRequest": "Special request (optional)",
+    "consentProcessing": "I agree that my data is used to organise my stay (required).",
+    "privacyLink": "Privacy policy",
+    "consentReminders": "Remind me if I do not finish my booking (2 messages at most).",
+    "toPayment": "Continue: payment",
+    "errorSummary": "Please fix the following fields:",
+    "errors": {
+      "required": "This field is required.",
+      "email": "Incorrect email address.",
+      "phone": "Incorrect number: check the country code and the number.",
+      "consent": "Your agreement is needed to book.",
+      "tooLong": "Text too long.",
+      "rateLimited": "Too many attempts in a short time. Please try again in a few minutes.",
+      "generic": "Something went wrong. Please try again or message us on WhatsApp.",
+      "cart": "Your cart has changed: please check it before continuing."
+    }
   },
   "payment": {
     "methods": {
@@ -418,13 +507,67 @@
       "technical": "A technical problem prevented the payment."
     },
     "retry": "Try again",
-    "changeMethod": "Change payment method"
+    "changeMethod": "Change payment method",
+    "title": "Payment",
+    "summaryTitle": "Your booking",
+    "termsTitle": "Cancellation terms",
+    "tier": "Cancellation {days} days or more before the date: {percent}% refunded",
+    "tierLast": "Cancellation less than {days} days before the date: {percent}% refunded",
+    "termsAccept": "I have read and accept the cancellation terms.",
+    "depositExplain": "Deposit of {deposit} now, balance of {balance} due before {date}.",
+    "payDeposit": "Pay the deposit of {amount}",
+    "payFull": "Pay {amount}",
+    "payTotal": "Pay the total of {amount}",
+    "processing": "Payment in progress…",
+    "secure": "You will be redirected to the secure payment page. No card data goes through our site.",
+    "activePayment": "A payment is already in progress for this booking.",
+    "seeStatus": "See the payment status",
+    "errors": {
+      "conditions": "Tick the box to accept the cancellation terms.",
+      "moyen": "Choose a payment method.",
+      "saisie": "The form is incomplete. Please try again.",
+      "acces": "This booking cannot be accessed from this device.",
+      "acompte": "A deposit is not possible for this booking.",
+      "passerelle": "The payment service is not responding. Please try again in a moment.",
+      "moyen_indisponible": "This payment method is temporarily unavailable. Please choose another."
+    },
+    "statusTitle": "Payment confirmation",
+    "cancelledTitle": "Payment cancelled",
+    "cancelled": "You cancelled the payment: nothing was charged. You can try again.",
+    "failedTitle": "The payment did not go through",
+    "expiredTitle": "Payment expired",
+    "expired": "The payment time limit has passed: nothing was charged.",
+    "waitHint": "This usually takes less than a minute. This page updates by itself.",
+    "refresh": "Refresh"
   },
   "booking": {
     "reference": "Reference: {reference}",
     "voucher": "Download the booking voucher (PDF)",
     "invalidLink": "This link is no longer valid.",
-    "findTitle": "Find my booking"
+    "findTitle": "Find my booking",
+    "title": "Your booking",
+    "statusLabel": "Status",
+    "status": {
+      "awaiting_payment": "Awaiting payment",
+      "deposit_paid": "Deposit paid",
+      "paid": "Paid",
+      "expired": "Expired",
+      "cancellation_requested": "Cancellation requested",
+      "cancelled": "Cancelled",
+      "partially_cancelled": "Partially cancelled",
+      "completed": "Completed"
+    },
+    "availability": {
+      "pending": "Availability being confirmed",
+      "confirmed": "Confirmed",
+      "unavailable": "Unavailable: our team will contact you",
+      "replaced": "Replaced"
+    },
+    "paidAmount": "Already paid",
+    "balanceDue": "Balance of {amount} due before {date}",
+    "thanks": "Thank you! Your booking is registered.",
+    "confirmationSent": "A confirmation email and WhatsApp message are on their way.",
+    "deadline": "Our team confirms availability before {date} (Dakar time)."
   },
   "refund": {
     "status": {

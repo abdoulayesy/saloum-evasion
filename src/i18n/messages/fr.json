@@ -109,7 +109,8 @@
     "whatsappGeneric": "Bonjour, je prépare un séjour dans le Sine-Saloum : {url}",
     "seeStay": "Voir le séjour",
     "discoverStays": "Découvrir les séjours",
-    "barLabel": "Actions rapides"
+    "barLabel": "Actions rapides",
+    "book": "Réserver"
   },
   "gallery": {
     "label": "Galerie de photos",
@@ -384,7 +385,71 @@
     "openSummary": "Voir le détail du panier",
     "priceChanged": "Le prix a changé depuis l’ajout : {before} → {after}.",
     "unavailable": "Cette prestation n’est plus disponible ; elle est retirée du total.",
-    "browse": "Découvrir nos séjours"
+    "browse": "Découvrir nos séjours",
+    "continue": "Continuer : mes coordonnées",
+    "continueShopping": "Ajouter autre chose",
+    "added": "C’est ajouté à votre panier.",
+    "removed": "L’élément a été retiré du panier.",
+    "updated": "Votre panier est à jour.",
+    "addToCart": "Ajouter au panier",
+    "bookTitle": "Réserver en ligne",
+    "bookIntro": "Choisissez vos dates : le prix est calculé tout de suite, vous payez ensuite en une fois.",
+    "startDate": "Arrivée",
+    "endDate": "Départ",
+    "date": "Date",
+    "slot": "Créneau",
+    "adults": "Adultes",
+    "children": "Enfants (4 à 11 ans)",
+    "infants": "Bébés (moins de 4 ans, gratuit)",
+    "travellers": "Voyageurs",
+    "update": "Mettre à jour",
+    "lineTotal": "Prix de la ligne",
+    "indicativeEur": "{eur} indicatif",
+    "conflictLodging": "Votre panier contient déjà un hébergement : {title}. Un seul hébergement ou séjour est possible par réservation.",
+    "replace": "Remplacer par le nouveau",
+    "keep": "Garder celui du panier",
+    "suggestions": "Compléter votre séjour",
+    "suggestionsIntro": "Ajoutez une expérience, une table ou un transfert sans quitter le panier.",
+    "transferTitle": "Transfert depuis l’aéroport AIBD ou Dakar",
+    "transferRoute": "Trajet",
+    "direction": "Sens",
+    "directions": {
+      "outbound": "Aller",
+      "return": "Retour",
+      "both": "Aller et retour"
+    },
+    "outboundDate": "Date de l’aller",
+    "outboundTime": "Heure de prise en charge (aller)",
+    "returnDate": "Date du retour",
+    "returnTime": "Heure de prise en charge (retour)",
+    "passengers": "Passagers (bébés compris)",
+    "perVehicle": "prix par véhicule selon le nombre de passagers",
+    "errors": {
+      "saisie": "Certaines informations manquent ou sont incorrectes. Vérifiez le formulaire.",
+      "indisponible": "Cette prestation n’est plus réservable en ligne.",
+      "creneau": "Ce créneau n’existe pas pour cette prestation.",
+      "retour": "Indiquez la date et l’heure du retour.",
+      "too_soon": "La réservation en ligne est possible à partir de demain.",
+      "invalid_nights": "La date de départ doit suivre la date d’arrivée.",
+      "below_min_nights": "Cet hébergement demande un nombre minimum de nuits.",
+      "over_capacity": "Il y a plus de voyageurs que de places.",
+      "no_adult": "Au moins un adulte est nécessaire."
+    },
+    "issues": {
+      "unavailable": "Cette prestation n’est plus disponible ; retirez-la pour continuer.",
+      "invalid_slot": "Ce créneau n’est plus proposé ; retirez la ligne et choisissez-en un autre.",
+      "multiple_lodgings": "Un seul hébergement par réservation.",
+      "stay_excludes_accommodation": "Un séjour signature comprend déjà l’hébergement.",
+      "outside_stay_dates": "Cette date est en dehors de votre séjour.",
+      "return_before_outbound": "Le retour doit avoir lieu après l’aller.",
+      "too_soon": "Cette date est trop proche : réservation possible à partir de demain.",
+      "invalid_nights": "Dates de séjour incorrectes.",
+      "below_min_nights": "Nombre de nuits insuffisant pour cet hébergement.",
+      "over_capacity": "Trop de voyageurs pour cette prestation.",
+      "no_adult": "Au moins un adulte est nécessaire."
+    },
+    "fixBeforeContinue": "Corrigez les éléments signalés pour continuer.",
+    "migrated": "{count} élément(s) de votre demande en cours ont rejoint le panier."
   },
   "checkout": {
     "steps": {
@@ -399,7 +464,31 @@
     "whatsappHelp": "Une question ? Écrire sur WhatsApp",
     "progress": "Progression de la commande",
     "whatsappMessage": "Bonjour, j’ai une question sur ma commande en cours.",
-    "comingSoon": "Cette étape sera disponible très prochainement."
+    "comingSoon": "Cette étape sera disponible très prochainement.",
+    "detailsIntro": "Pas de compte à créer : ces informations servent à organiser votre séjour et à vous envoyer la confirmation.",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "whatsapp": "Numéro WhatsApp",
+    "whatsappHint": "Nous vous envoyons la confirmation et les infos pratiques sur WhatsApp.",
+    "dialCode": "Indicatif",
+    "email": "E-mail",
+    "emailHint": "Pour recevoir votre bon de réservation et le lien pour gérer votre réservation.",
+    "specialRequest": "Demande particulière (facultatif)",
+    "consentProcessing": "J’accepte que mes données servent à organiser mon séjour (obligatoire).",
+    "privacyLink": "Politique de confidentialité",
+    "consentReminders": "Me relancer si je ne termine pas ma réservation (2 messages au plus).",
+    "toPayment": "Continuer : paiement",
+    "errorSummary": "Corrigez les champs suivants :",
+    "errors": {
+      "required": "Ce champ est obligatoire.",
+      "email": "Adresse e-mail incorrecte.",
+      "phone": "Numéro incorrect : vérifiez l’indicatif et le numéro.",
+      "consent": "Votre accord est nécessaire pour réserver.",
+      "tooLong": "Texte trop long.",
+      "rateLimited": "Trop d’essais en peu de temps. Réessayez dans quelques minutes.",
+      "generic": "Un problème est survenu. Réessayez ou écrivez-nous sur WhatsApp.",
+      "cart": "Votre panier a changé : vérifiez-le avant de continuer."
+    }
   },
   "payment": {
     "methods": {
@@ -418,13 +507,67 @@
       "technical": "Un problème technique a empêché le paiement."
     },
     "retry": "Réessayer",
-    "changeMethod": "Changer de moyen de paiement"
+    "changeMethod": "Changer de moyen de paiement",
+    "title": "Paiement",
+    "summaryTitle": "Votre réservation",
+    "termsTitle": "Conditions d’annulation",
+    "tier": "Annulation {days} jours ou plus avant la date : {percent} % remboursé",
+    "tierLast": "Annulation moins de {days} jours avant la date : {percent} % remboursé",
+    "termsAccept": "J’ai lu et j’accepte les conditions d’annulation.",
+    "depositExplain": "Acompte de {deposit} maintenant, solde de {balance} à régler avant le {date}.",
+    "payDeposit": "Payer l’acompte de {amount}",
+    "payFull": "Payer {amount}",
+    "payTotal": "Payer le total de {amount}",
+    "processing": "Paiement en cours…",
+    "secure": "Vous serez redirigé vers la page sécurisée de paiement. Aucune donnée de carte ne passe par notre site.",
+    "activePayment": "Un paiement est déjà en cours pour cette réservation.",
+    "seeStatus": "Voir l’état du paiement",
+    "errors": {
+      "conditions": "Cochez la case pour accepter les conditions d’annulation.",
+      "moyen": "Choisissez un moyen de paiement.",
+      "saisie": "Le formulaire est incomplet. Réessayez.",
+      "acces": "Cette réservation n’est pas accessible depuis cet appareil.",
+      "acompte": "L’acompte n’est pas possible pour cette réservation.",
+      "passerelle": "Le service de paiement ne répond pas. Réessayez dans un instant.",
+      "moyen_indisponible": "Ce moyen de paiement est momentanément indisponible. Choisissez-en un autre."
+    },
+    "statusTitle": "Confirmation du paiement",
+    "cancelledTitle": "Paiement annulé",
+    "cancelled": "Vous avez annulé le paiement : rien n’a été débité. Vous pouvez réessayer.",
+    "failedTitle": "Le paiement n’a pas abouti",
+    "expiredTitle": "Paiement expiré",
+    "expired": "Le délai de paiement est dépassé : rien n’a été débité.",
+    "waitHint": "Cela prend en général moins d’une minute. Cette page se met à jour toute seule.",
+    "refresh": "Actualiser"
   },
   "booking": {
     "reference": "Référence : {reference}",
     "voucher": "Télécharger le bon de réservation (PDF)",
     "invalidLink": "Ce lien n’est plus valide.",
-    "findTitle": "Retrouver ma réservation"
+    "findTitle": "Retrouver ma réservation",
+    "title": "Votre réservation",
+    "statusLabel": "Statut",
+    "status": {
+      "awaiting_payment": "En attente de paiement",
+      "deposit_paid": "Acompte payé",
+      "paid": "Payée",
+      "expired": "Expirée",
+      "cancellation_requested": "Annulation demandée",
+      "cancelled": "Annulée",
+      "partially_cancelled": "Partiellement annulée",
+      "completed": "Terminée"
+    },
+    "availability": {
+      "pending": "Disponibilité en cours de confirmation",
+      "confirmed": "Confirmé",
+      "unavailable": "Indisponible : notre équipe vous contacte",
+      "replaced": "Remplacé"
+    },
+    "paidAmount": "Déjà payé",
+    "balanceDue": "Solde de {amount} à régler avant le {date}",
+    "thanks": "Merci ! Votre réservation est enregistrée.",
+    "confirmationSent": "Un e-mail et un message WhatsApp de confirmation sont en route.",
+    "deadline": "Notre équipe confirme la disponibilité avant le {date} (heure de Dakar)."
   },
   "refund": {
     "status": {

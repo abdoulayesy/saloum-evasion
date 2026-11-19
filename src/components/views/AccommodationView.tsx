@@ -1,3 +1,4 @@
+import { BookOnline } from '@/components/checkout/BookOnline';
 import Link from 'next/link';
 import { RichText } from '@payloadcms/richtext-lexical/react';
 import { getTranslations } from 'next-intl/server';
@@ -13,7 +14,7 @@ import { ActionBarSpacer, StickyActionBar } from '@/components/ui/StickyActionBa
 import type { Locale } from '@/i18n/routing';
 import { accommodationPath, destinationPath, relationId } from '@/lib/catalogPaths';
 import { populated, populatedList } from '@/lib/cms/populated';
-import { primaryAction, whatsappAction } from '@/lib/pageActions';
+import { bookAction, primaryAction, whatsappAction } from '@/lib/pageActions';
 import { formatXof } from '@/lib/pricing';
 import { buildBreadcrumbs } from '@/lib/seo/breadcrumbs';
 import { buildBreadcrumbList } from '@/lib/seo/jsonld/breadcrumb';
@@ -96,13 +97,16 @@ export const AccommodationView = async ({
     }),
   ]);
 
+  const bookable = accommodation.bookable === true;
   const [primary, whatsapp] = await Promise.all([
-    primaryAction(
-      locale,
-      'accommodation',
-      accommodation.seo?.slug ?? '',
-      accommodation.title ?? '',
-    ),
+    bookable
+      ? bookAction(locale)
+      : primaryAction(
+          locale,
+          'accommodation',
+          accommodation.seo?.slug ?? '',
+          accommodation.title ?? '',
+        ),
     whatsappAction(locale, settings, { title: accommodation.title ?? undefined, path }),
   ]);
 
@@ -145,6 +149,21 @@ export const AccommodationView = async ({
         <div className="flex flex-col gap-10">
           {accommodation.summary && (
             <p className="text-lg text-ink-muted">{accommodation.summary}</p>
+          )}
+          {bookable && (
+            <BookOnline
+              locale={locale}
+              offer={{
+                offerType: 'accommodation',
+                id: accommodation.id,
+                maxGuests: accommodation.capacity,
+              }}
+              cancellationSummary={
+                typeof accommodation.cancellationPolicy === 'object'
+                  ? accommodation.cancellationPolicy?.summary
+                  : null
+              }
+            />
           )}
           {accommodation.body && (
             <section aria-labelledby="hebergement-texte">

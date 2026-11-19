@@ -30,6 +30,10 @@ jobs:
       DATABASE_URI: postgres://saloum:saloum@localhost:5432/saloum_evasion
       PAYLOAD_SECRET: ci-secret-not-for-production-0123456789
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      PAYMENT_GATEWAY: fake
+      FAKE_GATEWAY_SECRET: ci-fake-gateway-secret
+      ALLOW_FAKE_GATEWAY: '1'
+      CRON_SECRET: cron-de-test
       REVALIDATE_SECRET: ci-revalidate
       RATE_LIMIT_SALT: ci-salt
       NEXT_TELEMETRY_DISABLED: '1'
@@ -58,7 +62,7 @@ jobs:
         run: pnpm migrate
 
       - name: Données de démonstration (seed)
-        run: pnpm seed
+        run: pnpm seed && pnpm seed:checkout
 
       - name: Build
         run: pnpm build
@@ -77,6 +81,10 @@ jobs:
 
       - name: Lighthouse CI (mobile, budgets de la constitution)
         run: pnpm lhci
+
+      - name: Annotations des assertions Lighthouse en échec
+        if: failure()
+        run: node scripts/lhci-annotate.mjs
 
       - name: Contrôle SEO (liens, hreflang, unicité)
         run: |

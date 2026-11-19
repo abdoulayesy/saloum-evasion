@@ -25,7 +25,15 @@ export type RequestEmailData = {
   adminUrl: string;
 };
 
-export type EmailMessage = { to: string; subject: string; text: string; html: string };
+export type EmailAttachment = { filename: string; content: Buffer };
+
+export type EmailMessage = {
+  to: string;
+  subject: string;
+  text: string;
+  html: string;
+  attachments?: EmailAttachment[];
+};
 
 const KIND_LABELS: Record<string, string> = {
   stay: 'Séjour',
@@ -126,7 +134,13 @@ export const sendEmail = async (message: EmailMessage): Promise<boolean> => {
   if (outbox) {
     await mkdir(outbox, { recursive: true });
     const file = join(outbox, `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.json`);
-    await writeFile(file, JSON.stringify(message, null, 2), 'utf8');
+    // Pièces jointes : nom et taille seulement dans la boîte d'envoi de test.
+    const { attachments, ...rest } = message;
+    const summary = attachments?.map(({ filename, content }) => ({
+      filename,
+      size: content.length,
+    }));
+    await writeFile(file, JSON.stringify({ ...rest, attachments: summary }, null, 2), 'utf8');
     return true;
   }
   const apiKey = process.env.RESEND_API_KEY;
@@ -139,6 +153,7 @@ export const sendEmail = async (message: EmailMessage): Promise<boolean> => {
       subject: message.subject,
       text: message.text,
       html: message.html,
+      attachments: message.attachments?.map(({ filename, content }) => ({ filename, content })),
     });
     return !error;
   } catch {

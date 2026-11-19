@@ -26,7 +26,12 @@ export type AnalyticsEvent =
   | 'video_chapter'
   | 'filter_applied'
   | 'language_switch'
-  | 'web_vital';
+  | 'web_vital'
+  // Tunnel 002 (T065) : évènements côté client ; les paiements sont mesurés côté serveur.
+  | 'cart_item_added'
+  | 'cart_view'
+  | 'checkout_details_view'
+  | 'checkout_payment_view';
 
 /** File d'attente Plausible (remplacée par le script une fois chargé). */
 const queue = (): PlausibleQueue => {
