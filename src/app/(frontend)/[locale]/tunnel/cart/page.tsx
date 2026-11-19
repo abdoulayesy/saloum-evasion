@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Payload } from 'payload';
+import { Suspense } from 'react';
 import type { CartSuggestion, PendingReplacement } from '@/components/views/CartView';
-import { CartView } from '@/components/views/CartView';
+import { CartSuggestionsSection, CartView } from '@/components/views/CartView';
 import type { Locale } from '@/i18n/routing';
 import { loadCartState } from '@/lib/cart/load';
 import { addDays } from '@/lib/checkout/deposit';
@@ -70,28 +71,30 @@ const loadSuggestions = async (
   const inCart = new Set(
     reviewed.map((line) => `${line.item.offerType}-${String(line.offer?.doc.id)}`),
   );
-  const experiences = destination
-    ? await payload.find({
-        collection: 'experiences',
-        locale,
-        depth: 0,
-        limit: 6,
-        where: {
-          and: [
-            { bookable: { equals: true } },
-            { _status: { equals: 'published' } },
-            { destination: { equals: destination } },
-          ],
-        },
-      })
-    : { docs: [] };
-  const transfers = await payload.find({
-    collection: 'transfers',
-    locale,
-    depth: 0,
-    limit: 10,
-    where: { bookable: { equals: true } },
-  });
+  const [experiences, transfers] = await Promise.all([
+    destination
+      ? payload.find({
+          collection: 'experiences',
+          locale,
+          depth: 0,
+          limit: 6,
+          where: {
+            and: [
+              { bookable: { equals: true } },
+              { _status: { equals: 'published' } },
+              { destination: { equals: destination } },
+            ],
+          },
+        })
+      : Promise.resolve({ docs: [] }),
+    payload.find({
+      collection: 'transfers',
+      locale,
+      depth: 0,
+      limit: 10,
+      where: { bookable: { equals: true } },
+    }),
+  ]);
   const suggestions: CartSuggestion[] = experiences.docs
     .map((doc): CartSuggestion => {
       const offerType = doc.offerKind === 'table' ? 'table' : 'experience';
@@ -116,6 +119,28 @@ const loadSuggestions = async (
       ? []
       : transfers.docs.map((doc) => ({ id: doc.id, title: doc.title ?? '' })),
   };
+};
+
+/** Suggestions chargées à part : le panier (élément LCP) n'attend pas leurs requêtes. */
+const CartSuggestions = async ({
+  locale,
+  reviewed,
+  defaultDates,
+}: {
+  locale: Locale;
+  reviewed: ReviewedLine[];
+  defaultDates: { startDate?: string; endDate?: string; adults?: number };
+}) => {
+  const payload = await getPayloadClient();
+  const { suggestions, transfers } = await loadSuggestions(payload, locale, reviewed);
+  return (
+    <CartSuggestionsSection
+      locale={locale}
+      suggestions={suggestions}
+      transfers={transfers}
+      defaultDates={defaultDates}
+    />
+  );
 };
 
 const CartPage = async ({ params, searchParams }: Props) => {
@@ -149,9 +174,6 @@ const CartPage = async ({ params, searchParams }: Props) => {
     lodging?.offer?.offerType === 'stay'
       ? addDays(lodging.item.startDate, lodging.offer.doc.durationNights)
       : (lodging?.item.endDate ?? undefined);
-  const { suggestions, transfers } = state.reviewed.length
-    ? await loadSuggestions(payload, locale, state.reviewed)
-    : { suggestions: [], transfers: [] };
 
   return (
     <CartView
@@ -161,13 +183,21 @@ const CartPage = async ({ params, searchParams }: Props) => {
       notice={notice}
       errorKey={single(search.erreur)}
       pending={pending}
-      suggestions={suggestions}
-      transfers={transfers}
-      defaultDates={{
-        startDate: lodging?.item.startDate,
-        endDate: lodgingEnd,
-        adults: lodging?.item.adults,
-      }}
+      suggestionsSlot={
+        state.reviewed.length > 0 ? (
+          <Suspense fallback={null}>
+            <CartSuggestions
+              locale={locale}
+              reviewed={state.reviewed}
+              defaultDates={{
+                startDate: lodging?.item.startDate,
+                endDate: lodgingEnd,
+                adults: lodging?.item.adults,
+              }}
+            />
+          </Suspense>
+        ) : null
+      }
     />
   );
 };

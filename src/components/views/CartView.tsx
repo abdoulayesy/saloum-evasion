@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { AddToCartForm, type AddToCartOffer } from '@/components/checkout/AddToCartForm';
 import { CheckoutSteps } from '@/components/checkout/CheckoutSteps';
@@ -38,9 +39,8 @@ type Props = {
   notice: 'added' | 'removed' | 'updated' | null;
   errorKey: string | null;
   pending: PendingReplacement | null;
-  suggestions: CartSuggestion[];
-  transfers: TransferChoice[];
-  defaultDates: { startDate?: string; endDate?: string; adults?: number };
+  /** Suggestions de la destination et transfert, diffusés après le panier (Suspense). */
+  suggestionsSlot?: ReactNode;
 };
 
 const ERROR_KEYS = new Set([
@@ -62,9 +62,7 @@ export const CartView = async ({
   notice,
   errorKey,
   pending,
-  suggestions,
-  transfers,
-  defaultDates,
+  suggestionsSlot,
 }: Props) => {
   const t = await getTranslations({ locale, namespace: 'cart' });
   const tCheckout = await getTranslations({ locale, namespace: 'checkout' });
@@ -259,52 +257,71 @@ export const CartView = async ({
           </div>
         </>
       )}
-      {(suggestions.length > 0 || transfers.length > 0) && (
-        <section aria-labelledby="suggestions" className="mt-10">
-          <h2 id="suggestions" className="text-mangrove">
-            {t('suggestions')}
-          </h2>
-          <p className="mt-2 text-ink-muted">{t('suggestionsIntro')}</p>
-          <div className="mt-4 flex flex-col gap-3">
-            {suggestions.map((suggestion) => (
-              <details
-                key={`${suggestion.offer.offerType}-${suggestion.offer.id}`}
-                className="rounded-control border border-line bg-white p-4"
-              >
-                <summary className="flex min-h-touch cursor-pointer items-center font-semibold text-mangrove">
-                  {suggestion.title}
-                </summary>
-                <div className="mt-3">
-                  <AddToCartForm
-                    locale={locale}
-                    offer={suggestion.offer}
-                    idPrefix={`suggestion-${suggestion.offer.id}`}
-                    defaults={defaultDates}
-                  />
-                </div>
-              </details>
-            ))}
-            {transfers.length > 0 && (
-              <details className="rounded-control border border-line bg-white p-4">
-                <summary className="flex min-h-touch cursor-pointer items-center font-semibold text-mangrove">
-                  {t('transferTitle')}
-                </summary>
-                <div className="mt-3">
-                  <TransferPicker
-                    locale={locale}
-                    transfers={transfers}
-                    defaults={{
-                      outboundDate: defaultDates.startDate,
-                      returnDate: defaultDates.endDate,
-                      passengers: defaultDates.adults,
-                    }}
-                  />
-                </div>
-              </details>
-            )}
-          </div>
-        </section>
-      )}
+      {suggestionsSlot}
     </>
+  );
+};
+
+type SuggestionsProps = {
+  locale: Locale;
+  suggestions: CartSuggestion[];
+  transfers: TransferChoice[];
+  defaultDates: { startDate?: string; endDate?: string; adults?: number };
+};
+
+/** Compléter son séjour : expériences de la destination et transfert, formulaires serveur. */
+export const CartSuggestionsSection = async ({
+  locale,
+  suggestions,
+  transfers,
+  defaultDates,
+}: SuggestionsProps) => {
+  if (suggestions.length === 0 && transfers.length === 0) return null;
+  const t = await getTranslations({ locale, namespace: 'cart' });
+  return (
+    <section aria-labelledby="suggestions" className="mt-10">
+      <h2 id="suggestions" className="text-mangrove">
+        {t('suggestions')}
+      </h2>
+      <p className="mt-2 text-ink-muted">{t('suggestionsIntro')}</p>
+      <div className="mt-4 flex flex-col gap-3">
+        {suggestions.map((suggestion) => (
+          <details
+            key={`${suggestion.offer.offerType}-${suggestion.offer.id}`}
+            className="rounded-control border border-line bg-white p-4"
+          >
+            <summary className="flex min-h-touch cursor-pointer items-center font-semibold text-mangrove">
+              {suggestion.title}
+            </summary>
+            <div className="mt-3">
+              <AddToCartForm
+                locale={locale}
+                offer={suggestion.offer}
+                idPrefix={`suggestion-${suggestion.offer.id}`}
+                defaults={defaultDates}
+              />
+            </div>
+          </details>
+        ))}
+        {transfers.length > 0 && (
+          <details className="rounded-control border border-line bg-white p-4">
+            <summary className="flex min-h-touch cursor-pointer items-center font-semibold text-mangrove">
+              {t('transferTitle')}
+            </summary>
+            <div className="mt-3">
+              <TransferPicker
+                locale={locale}
+                transfers={transfers}
+                defaults={{
+                  outboundDate: defaultDates.startDate,
+                  returnDate: defaultDates.endDate,
+                  passengers: defaultDates.adults,
+                }}
+              />
+            </div>
+          </details>
+        )}
+      </div>
+    </section>
   );
 };
