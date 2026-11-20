@@ -284,6 +284,9 @@ export const CartSuggestionsSection = async ({
       <h2 id="suggestions" className="text-xl text-mangrove">
         {t('suggestions')}
       </h2>
+      {/* Texte court : plus bas que le H1, ce paragraphe peut être peint dans une seconde image ;
+          plus long, il devenait l'élément LCP et la mesure comptait tout le JavaScript chargé
+          entre-temps (Lighthouse CI, LCP 2,3 s au lieu de 0,8 s). */}
       <p className="mt-2 text-ink-muted">{t('suggestionsIntro')}</p>
       <div className="mt-4 flex flex-col gap-3">
         {suggestions.map((suggestion) => (

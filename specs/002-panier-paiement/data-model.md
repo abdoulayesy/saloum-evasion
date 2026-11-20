@@ -231,7 +231,9 @@ Pour un remboursement motif `partner`, `commissionAmount` de l'ajustement = 0 et
 
 `partner`, `periodStart`, `periodEnd`, `amount` (XOF), `method`, `reference`, `paidAt`,
 `recordedBy`. **Relevé** (FR-036) = somme des `commissionEntries` de la période − `payouts`
-de la période ; export CSV (séparateur `;`, UTF-8 avec BOM pour le tableur).
+de la période ; export CSV (séparateur `;`, UTF-8 avec BOM pour le tableur). Une écriture
+appartient à la période par sa date `occurredAt` ; un reversement, si la période qu'il couvre
+(`periodStart`–`periodEnd`) y est entièrement incluse.
 
 ### `reminders` (Relances)
 

@@ -46,6 +46,13 @@ export const formatXof = (amountXof: number): string => {
   return `${groupThousands(amountXof)} FCFA`;
 };
 
+/**
+ * Montant signé des écritures comptables (remboursements, ajustements) : « −6 250 FCFA ». Signe
+ * moins typographique (U+2212). Réservé à l'admin finance ; le site public n'affiche que des prix.
+ */
+export const formatSignedXof = (amountXof: number): string =>
+  amountXof < 0 ? `−${formatXof(-amountXof)}` : formatXof(amountXof);
+
 /** « ≈ 382 € » (FR) ou « ≈ €382 » (EN). */
 export const formatEur = (amountXof: number, locale: 'fr' | 'en' = 'fr'): string => {
   const eur = groupThousands(toEurIndicative(amountXof));

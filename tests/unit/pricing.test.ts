@@ -3,6 +3,7 @@ import {
   budgetBand,
   durationCategory,
   formatEur,
+  formatSignedXof,
   formatXof,
   priceFrom,
   toEurIndicative,
@@ -45,6 +46,12 @@ describe('tarification', () => {
     expect(toEurIndicative(250_000)).toBe(382);
     expect(toEurIndicative(1)).toBe(1);
     expect(toEurIndicative(0)).toBe(0);
+  });
+
+  it('montant signé des écritures (US5) : signe moins typographique', () => {
+    expect(formatSignedXof(-6_250)).toBe(`−${formatXof(6_250)}`);
+    expect(formatSignedXof(0)).toBe(formatXof(0));
+    expect(formatSignedXof(112_000)).toBe(formatXof(112_000));
   });
 
   it('formats d’affichage', () => {

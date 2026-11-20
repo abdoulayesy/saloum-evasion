@@ -1,5 +1,12 @@
 import { APIError, type CollectionBeforeChangeHook, type CollectionConfig } from 'payload';
-import { isAdmin, isAdminField, isBackOffice, isOperations, nobody } from '@/access';
+import {
+  isAdmin,
+  isAdminField,
+  isBackOffice,
+  isFinanceField,
+  isOperations,
+  nobody,
+} from '@/access';
 import { amountField, cartLineFields, civilDateField, integerField } from '@/fields/checkout';
 import { validateE164 } from '@/fields/validators';
 import { notifyAvailabilityChange } from '@/hooks/availabilityUpdate';
@@ -42,6 +49,9 @@ const statusLabels: Record<BookingStatus, string> = {
 
 /** Montants figés au paiement : jamais modifiables depuis l'admin, sauf par un administrateur. */
 const readOnlyMoney = { update: isAdminField };
+
+/** Commission et part à reverser : invisibles du rôle `operations` (data-model « Rôles »). */
+const financeMoney = { read: isFinanceField, update: isAdminField };
 
 // Réservations (002, T023) : copie figée du panier au paiement (prix, politique d'annulation,
 // taux de commission). Créées uniquement par le serveur ; les opérations confirment la
@@ -138,11 +148,11 @@ export const Bookings: CollectionConfig = {
             },
             {
               ...amountField('commissionAmount', 'Commission', { required: false }),
-              access: readOnlyMoney,
+              access: financeMoney,
             },
             {
               ...amountField('partnerAmount', 'Part prestataire', { required: false }),
-              access: readOnlyMoney,
+              access: financeMoney,
             },
           ],
         },
@@ -211,6 +221,14 @@ export const Bookings: CollectionConfig = {
         { name: 'cancelled', type: 'checkbox', defaultValue: false, label: 'Annulée' },
         { name: 'partnerNotifiedAt', type: 'date', label: 'Prestataire notifié le' },
       ],
+    },
+    // Commissions par ligne, nettes des remboursements (US5, T094) : finance et admin.
+    {
+      name: 'financeSummary',
+      type: 'ui',
+      admin: {
+        components: { Field: '/components/admin/BookingLinesFinance#BookingLinesFinance' },
+      },
     },
     {
       type: 'row',
