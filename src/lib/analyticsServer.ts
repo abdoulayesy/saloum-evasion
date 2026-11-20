@@ -9,6 +9,7 @@ export type ServerEvent =
   | 'payment_started'
   | 'payment_succeeded'
   | 'payment_failed'
+  | 'payment_abandoned'
   | 'checkout_completed'
   | 'payment_recovered'
   | 'cancellation_requested';

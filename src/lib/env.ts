@@ -47,6 +47,19 @@ const checkoutEnvSchema = z
         message: 'FAKE_GATEWAY_SECRET est requis avec la passerelle « fake ».',
       });
     }
+    // Passerelle réelle : clé d'API et secret de signature des notifications obligatoires (sans
+    // secret, aucune notification ne serait vérifiable ; revue de sécurité T103).
+    if (env.PAYMENT_GATEWAY !== 'fake') {
+      for (const key of ['PAYMENT_GATEWAY_API_KEY', 'PAYMENT_GATEWAY_WEBHOOK_SECRET'] as const) {
+        if (!env[key]) {
+          context.addIssue({
+            code: 'custom',
+            path: [key],
+            message: `${key} est requis avec une passerelle réelle.`,
+          });
+        }
+      }
+    }
   });
 
 export type CheckoutEnv = z.infer<typeof checkoutEnvSchema>;

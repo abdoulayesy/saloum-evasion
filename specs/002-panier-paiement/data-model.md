@@ -142,7 +142,7 @@ tiers }`), `availabilityStatus` (`pending` \| `confirmed` \| `unavailable` \| `r
 ```text
 awaiting_payment ──paiement acompte réussi──▶ deposit_paid ──paiement solde réussi──▶ paid
 awaiting_payment ──paiement total réussi────▶ paid
-awaiting_payment ──panier expiré / 24 h sans paiement──▶ expired
+awaiting_payment ──30 jours sans paiement ni modification (purgeCarts)──▶ expired
 deposit_paid | paid ──demande d'annulation──▶ cancellation_requested
 cancellation_requested ──refus──▶ (statut précédent)
 cancellation_requested ──validation totale──▶ cancelled

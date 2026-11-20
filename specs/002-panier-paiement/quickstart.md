@@ -33,7 +33,8 @@ pnpm dev
 pnpm jobs:dev          # exécute la file Payload toutes les 10 s (remplace la tâche cron)
 ```
 
-1. Ouvrir `http://localhost:3000/fr/hebergements/ecolodge-demo` en émulation mobile 360 × 800.
+1. Ouvrir `http://localhost:3000/fr/hebergements/ecolodge-des-bolongs` en émulation mobile
+   360 × 800.
 2. Ajouter l'hébergement (2 nuits, 2 adultes), une expérience, une table et un transfert
    aller-retour depuis AIBD.
 3. Panier → Coordonnées → Paiement : vérifier les conditions d'annulation et les trois moyens
@@ -50,7 +51,7 @@ pnpm test                                  # Vitest : tarification, acompte, com
                                            # remboursements, machines à états, contrat gateway, PDF
 pnpm e2e --grep @checkout                  # Playwright : 360 px, 3G, trois moyens, échecs, relance, annulation
 pnpm e2e:nojs --grep @checkout             # tunnel complet sans JavaScript (passerelle fake)
-pnpm lhci                                  # inclut /fr/panier, /fr/commande/coordonnees, /fr/commande/statut
+pnpm lhci                                  # inclut /fr/panier, /en/cart, /fr/commande/coordonnees
 pnpm bundles                               # ≤ 150 Ko par route, tunnel compris
 ```
 
@@ -72,5 +73,12 @@ Scénarios E2E obligatoires (tags) :
 - Compte test de l'agrégateur retenu, `PAYMENT_GATEWAY=<id>`, URL de notification publique.
 - Modèles WhatsApp soumis à Meta en FR et EN (délai d'approbation de quelques jours : à lancer
   dès le choix du numéro).
-- Tâche cron de l'hébergeur : `POST /api/jobs/run` chaque minute avec `CRON_SECRET`.
-- Revue de sécurité de l'intégration de paiement (principe IX) avant ouverture au public.
+- Tâches cron (`vercel.json`, en-tête `Authorization: Bearer CRON_SECRET`) : `GET /api/jobs/run`
+  chaque minute (file, relances, réconciliation) et `GET /api/cron/purge` chaque jour à 3 h
+  (purge des paniers et réservations impayés à 30 jours, passage `completed`).
+- Revue de sécurité de l'intégration de paiement (principe IX) avant ouverture au public :
+  [docs/security-review-002.md](../../docs/security-review-002.md), à compléter pour la passerelle
+  réelle.
+- Modèles WhatsApp : [docs/whatsapp-templates.md](../../docs/whatsapp-templates.md) ; objectifs
+  Plausible : [docs/analytics.md](../../docs/analytics.md) ; registre des traitements du CMS
+  existant : `pnpm cms:privacy-register`.
