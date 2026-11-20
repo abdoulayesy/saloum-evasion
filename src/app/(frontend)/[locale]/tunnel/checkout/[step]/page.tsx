@@ -12,6 +12,7 @@ import { bookingPaymentPlan } from '@/lib/booking/plan';
 import { loadCartState } from '@/lib/cart/load';
 import { isCartPayable } from '@/lib/cart/validate';
 import { checkoutPath } from '@/lib/checkout/paths';
+import { isPaymentApplied } from '@/lib/checkout/stateMachines';
 import { getPayloadClient } from '@/lib/cms/queries';
 import { tunnelLocale } from '../../locale';
 
@@ -71,7 +72,7 @@ const CheckoutStepPage = async ({ params, searchParams }: Props) => {
     });
     const token = single(search.k);
     if (!(await canAccessBooking(payload, booking, token))) redirect(checkoutPath(locale, 'cart'));
-    if (payment.status === 'succeeded')
+    if (isPaymentApplied(payment, booking))
       redirect(
         `${checkoutPath(locale, 'booking', booking.reference)}${token ? `?k=${encodeURIComponent(token)}` : ''}`,
       );

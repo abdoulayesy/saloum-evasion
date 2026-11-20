@@ -8,7 +8,16 @@ import { isLocale, type Locale } from '@/i18n/routing';
 export const INTERNAL_TUNNEL_SEGMENT = 'tunnel';
 
 export type CheckoutStep =
-  'cart' | 'resume' | 'details' | 'payment' | 'status' | 'find' | 'booking' | 'balance' | 'cancel';
+  | 'cart'
+  | 'resume'
+  | 'unsubscribe'
+  | 'details'
+  | 'payment'
+  | 'status'
+  | 'find'
+  | 'booking'
+  | 'balance'
+  | 'cancel';
 
 export type CheckoutRoute = { step: CheckoutStep; ref?: string };
 
@@ -16,6 +25,7 @@ const SEGMENTS: Record<Locale, Record<string, string>> = {
   fr: {
     cart: 'panier',
     resume: 'reprendre',
+    unsubscribe: 'desinscription',
     checkout: 'commande',
     details: 'coordonnees',
     payment: 'paiement',
@@ -28,6 +38,7 @@ const SEGMENTS: Record<Locale, Record<string, string>> = {
   en: {
     cart: 'cart',
     resume: 'resume',
+    unsubscribe: 'unsubscribe',
     checkout: 'checkout',
     details: 'details',
     payment: 'payment',
@@ -56,6 +67,8 @@ const parts = (step: CheckoutStep, ref?: string): string[] => {
       return ['cart'];
     case 'resume':
       return ['cart', 'resume'];
+    case 'unsubscribe':
+      return ['cart', 'unsubscribe'];
     case 'details':
     case 'payment':
     case 'status':
@@ -111,6 +124,8 @@ export const parseCheckoutPath = (
     if (second === undefined && third === undefined) return { locale, route: { step: 'cart' } };
     if (second === segment.resume && third === undefined)
       return { locale, route: { step: 'resume' } };
+    if (second === segment.unsubscribe && third === undefined)
+      return { locale, route: { step: 'unsubscribe' } };
     return null;
   }
   if (first === segment.checkout && third === undefined) {

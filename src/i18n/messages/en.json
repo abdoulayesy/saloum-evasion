@@ -449,7 +449,9 @@
       "no_adult": "At least one adult is required."
     },
     "fixBeforeContinue": "Fix the flagged items to continue.",
-    "migrated": "{count} item(s) from your request in progress have joined the cart."
+    "migrated": "{count} item(s) from your request in progress have joined the cart.",
+    "resumeChanged": "Your cart is restored. A price or availability has changed since your visit: check the details below before paying.",
+    "resumeExpired": "This resume link is no longer valid (it lasts 7 days). Your cart may still be here: otherwise, put your stay together again."
   },
   "checkout": {
     "steps": {
@@ -588,5 +590,12 @@
     "due": "Balance of {amount} due before {date}.",
     "pay": "Pay the balance of {amount}",
     "back": "Back to my booking"
+  },
+  "unsubscribe": {
+    "title": "Payment reminders",
+    "intro": "You are receiving reminders to complete a booking started on Saloum Évasion.",
+    "confirm": "Stop these reminders",
+    "done": "Done: you will no longer receive reminders for this cart.",
+    "invalid": "This link is no longer valid."
   }
 }

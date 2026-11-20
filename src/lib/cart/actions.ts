@@ -19,6 +19,7 @@ import {
   updateTravellersSchema,
   type AddToCartInput,
 } from './schema';
+import { verifyReminderLinkToken } from './reminderLink';
 import { INTRINSIC_ISSUES, lineEndDate, toCartLine, todayInDakar } from './validate';
 
 // Server Actions du panier (002, T045 ; contrat checkout-actions). Formulaires classiques :
@@ -323,4 +324,39 @@ export const migrateRequestDraft = async (raw: RequestMigrationInput): Promise<n
   const saved = await saveCartItems(payload, cart, [...existing, ...kept], locale);
   await writeCartCookies(token, cartSummary(saved));
   return kept.length;
+};
+
+/**
+ * Désinscription des relances (002, US3, T079 ; contrat checkout-actions « unsubscribeReminders »),
+ * en un geste depuis le lien de chaque relance : consentement retiré, relances programmées
+ * annulées. Un bouton (et non le simple clic sur le lien) : les robots qui ouvrent les liens des
+ * messages ne désinscrivent personne.
+ */
+export const unsubscribeReminders = async (formData: FormData): Promise<void> => {
+  const localeValue = formData.get('locale');
+  const locale: Locale =
+    typeof localeValue === 'string' && isLocale(localeValue) ? localeValue : 'fr';
+  const token = formData.get('t');
+  const page = checkoutPath(locale, 'unsubscribe');
+  const verified = typeof token === 'string' ? verifyReminderLinkToken(token, 'unsubscribe') : null;
+  if (!verified) redirect(page);
+  const payload = await getPayloadClient();
+  const cart = await payload
+    .findByID({ collection: 'carts', id: verified.cartId, depth: 0 })
+    .catch(() => null);
+  if (cart) {
+    await payload.update({ collection: 'carts', id: cart.id, data: { remindersConsent: false } });
+    await payload.update({
+      collection: 'reminders',
+      where: {
+        and: [
+          { targetType: { equals: 'carts' } },
+          { targetId: { equals: cart.id } },
+          { status: { equals: 'scheduled' } },
+        ],
+      },
+      data: { status: 'cancelled', unsubscribed: true },
+    });
+  }
+  redirect(`${page}?fait=1`);
 };

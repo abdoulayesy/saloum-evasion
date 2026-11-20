@@ -65,7 +65,8 @@ export const fillContact = async (page: Page, contact: ContactDetails) => {
     .check();
 };
 
-export type FakeOutcome = 'Réussir' | 'Solde insuffisant' | 'Refuser' | 'Annuler';
+export type FakeOutcome =
+  'Réussir' | 'Solde insuffisant' | 'Refuser' | 'Annuler' | 'Délai dépassé' | 'Erreur technique';
 
 /** Sur la page de paiement simulée, choisit l'issue. */
 export const payWithFake = async (page: Page, outcome: FakeOutcome) => {
@@ -122,4 +123,22 @@ export const reachPaymentPage = async (
   await fillContact(page, { firstName });
   await page.getByRole('button', { name: 'Continuer : paiement' }).click();
   await expect(page).toHaveURL(/\/fr\/commande\/paiement$/, { timeout: 30_000 });
+};
+
+/** File de tâches exécutée à une date de référence (relances ; passerelle factice uniquement). */
+export const runJobsAt = async (request: APIRequestContext, at: Date) => {
+  const response = await request.get(`/api/jobs/run?now=${at.toISOString()}`, {
+    headers: { authorization: `Bearer ${CRON_SECRET}` },
+  });
+  expect(response.status()).toBe(200);
+};
+
+/** Premier lien de la boîte d'envoi qui correspond à `pattern` (e-mail le plus récent d'abord). */
+export const linkInOutbox = async (needle: string, pattern: RegExp): Promise<string | null> => {
+  const messages = await outboxContaining(needle);
+  for (const message of messages.reverse()) {
+    const found = pattern.exec(String(message.content.text ?? ''))?.[0];
+    if (found) return found;
+  }
+  return null;
 };

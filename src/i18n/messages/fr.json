@@ -449,7 +449,9 @@
       "no_adult": "Au moins un adulte est nécessaire."
     },
     "fixBeforeContinue": "Corrigez les éléments signalés pour continuer.",
-    "migrated": "{count} élément(s) de votre demande en cours ont rejoint le panier."
+    "migrated": "{count} élément(s) de votre demande en cours ont rejoint le panier.",
+    "resumeChanged": "Votre panier est restauré. Un prix ou une disponibilité a changé depuis votre visite : vérifiez le détail ci-dessous avant de payer.",
+    "resumeExpired": "Ce lien de reprise n’est plus valable (il dure 7 jours). Votre panier est peut-être encore là : sinon, recomposez votre séjour."
   },
   "checkout": {
     "steps": {
@@ -588,5 +590,12 @@
     "due": "Solde de {amount} à régler avant le {date}.",
     "pay": "Payer le solde de {amount}",
     "back": "Retour à ma réservation"
+  },
+  "unsubscribe": {
+    "title": "Rappels de paiement",
+    "intro": "Vous recevez des rappels pour finaliser une réservation commencée sur Saloum Évasion.",
+    "confirm": "Ne plus recevoir de rappels",
+    "done": "C’est noté : vous ne recevrez plus de rappels pour ce panier.",
+    "invalid": "Ce lien n’est plus valable."
   }
 }

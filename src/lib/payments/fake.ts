@@ -22,6 +22,8 @@ export const FAKE_OUTCOMES = [
   'insufficient_funds',
   'declined',
   'cancelled_by_user',
+  'timeout',
+  'technical',
 ] as const;
 
 export type FakeOutcome = (typeof FAKE_OUTCOMES)[number];

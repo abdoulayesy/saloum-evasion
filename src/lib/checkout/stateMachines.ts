@@ -79,3 +79,18 @@ export const isPaymentFinal = (status: PaymentStatus): boolean =>
 export const bookingStatusAfterPayment = (
   purpose: 'full' | 'deposit' | 'balance',
 ): BookingStatus => (purpose === 'deposit' ? 'deposit_paid' : 'paid');
+
+/**
+ * Le paiement réussi est-il déjà appliqué à la réservation ? Le statut de la tentative passe à
+ * `succeeded` juste avant les effets métier (`applySuccessfulPayment`) : tant que la réservation
+ * ne les reflète pas, la page de statut continue d'attendre au lieu d'afficher une réservation
+ * encore « en attente de paiement ».
+ */
+export const isPaymentApplied = (
+  payment: { status: PaymentStatus; purpose: 'full' | 'deposit' | 'balance' },
+  booking: { status: BookingStatus },
+): boolean => {
+  if (payment.status !== 'succeeded') return false;
+  if (payment.purpose === 'balance') return booking.status !== 'deposit_paid';
+  return booking.status !== 'awaiting_payment';
+};

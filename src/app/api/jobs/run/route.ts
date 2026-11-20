@@ -1,7 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import type { Payload } from 'payload';
 import { runAvailabilitySlaCheck } from '@/jobs/availabilitySlaAlert';
+import { runAbandonedCartReminders } from '@/jobs/abandonedCartReminder';
 import { runBalanceReminders } from '@/jobs/balanceReminder';
+import { runPaymentReconciliation } from '@/jobs/reconcilePendingPayments';
 import { getPayloadClient } from '@/lib/cms/queries';
 import { isCronAuthorized } from '@/lib/cronAuth';
 import { checkoutEnv } from '@/lib/env';
@@ -14,8 +16,8 @@ export const dynamic = 'force-dynamic';
 const BATCH_SIZE = 50;
 
 /**
- * Date de référence des rappels du solde. `?now=` (ISO) n'est accepté qu'avec la passerelle factice
- * (tests de bout en bout : déclencher l'échéance du solde sans attendre des semaines).
+ * Date de référence des relances. `?now=` (ISO) n'est accepté qu'avec la passerelle factice
+ * (tests de bout en bout : déclencher une échéance sans attendre des heures ou des semaines).
  */
 const referenceDate = (request: NextRequest): Date => {
   const requested = request.nextUrl.searchParams.get('now');
@@ -48,10 +50,14 @@ export const GET = async (request: NextRequest) => {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
   const payload = await getPayloadClient();
-  // Contrôles périodiques légers avant la file : échéance de confirmation de disponibilité
-  // (T063, toujours à l'heure réelle) et rappels du solde (T071, date de référence).
+  // Contrôles périodiques légers avant la file, toujours à l'heure réelle : échéance de
+  // confirmation de disponibilité (T063), réconciliation des paiements en attente (T077).
+  // Relances (solde T071, paniers abandonnés T078) : date de référence.
   await runAvailabilitySlaCheck(payload);
-  await runBalanceReminders(payload, referenceDate(request));
+  await runPaymentReconciliation(payload);
+  const now = referenceDate(request);
+  await runBalanceReminders(payload, now);
+  await runAbandonedCartReminders(payload, now);
   const result = await runQueueOnce(payload);
   return NextResponse.json(
     { ran: Object.keys(result.jobStatus ?? {}).length, remaining: result.remainingJobsFromQueried },

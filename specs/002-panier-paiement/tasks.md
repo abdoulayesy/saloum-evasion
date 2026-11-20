@@ -272,20 +272,46 @@ coordonnées → relance → reprise depuis le lien → paiement ; double appui 
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T073 [P] [US3] E2E échec (chaque cause) → message clair, panier intact, réessai ou autre moyen en un geste ; double appui et seconde tentative pendant `pending` refusés (`@checkout @us3`) dans tests/e2e/checkout/us3-failure.mobile.spec.ts
-- [ ] T074 [P] [US3] E2E abandon → relance journalisée → lien de reprise → changement de prix signalé → paiement ; désinscription en un geste dans tests/e2e/checkout/us3-reminder.spec.ts
-- [ ] T075 [P] [US3] Tests de la réconciliation (pending > 10 min interrogé toutes les 5 min pendant 24 h, `expired` à 30 min sans nouvelle, aucune double transition) dans tests/unit/payments/reconcile.test.ts
+- [X] T073 [P] [US3] E2E échec (chaque cause) → message clair, panier intact, réessai ou autre moyen en un geste ; double appui et seconde tentative pendant `pending` refusés (`@checkout @us3`) dans tests/e2e/checkout/us3-failure.mobile.spec.ts
+- [X] T074 [P] [US3] E2E abandon → relance journalisée → lien de reprise → changement de prix signalé → paiement ; désinscription en un geste dans tests/e2e/checkout/us3-reminder.spec.ts
+- [X] T075 [P] [US3] Tests de la réconciliation (pending > 10 min interrogé toutes les 5 min pendant 24 h, `expired` à 30 min sans nouvelle, aucune double transition) dans tests/unit/payments/reconcile.test.ts
 
 ### Implementation for User Story 3
 
-- [ ] T076 [US3] Afficher les causes d'échec (`declined`, `insufficient_funds`, `timeout`, `cancelled_by_user`, `technical`) et les actions « Réessayer » / « Changer de moyen » dans src/components/views/CheckoutStatusView.tsx
-- [ ] T077 [P] [US3] Créer la tâche src/jobs/reconcilePendingPayments.ts (appel `gateway.getStatus`, mêmes transitions que notify) jusqu'à faire passer T075
-- [ ] T078 [P] [US3] Créer la tâche src/jobs/abandonedCartReminder.ts (consentement requis, 1 h et 24 h, au plus deux, annulation si payé) et les modèles `payment_failed_reminder` dans src/lib/notifications/templates/reminder.ts
-- [ ] T079 [US3] Créer la reprise src/components/views/CartResumeView.tsx (jeton de relance 7 j, restauration du panier, signalement des changements de prix ou de disponibilité, redirection vers le paiement) et l'action `unsubscribeReminders` dans src/lib/cart/actions.ts
-- [ ] T080 [P] [US3] Ajouter dans l'admin la vue des paniers abandonnés et paiements échoués (contenu, montant, cause, relances) avec action « Renvoyer un lien de paiement » (FR-032) dans src/components/admin/AbandonedCarts.tsx
-- [ ] T081 [P] [US3] Émettre `payment_recovered` (canal, rang) dans src/lib/analytics/server.ts
+- [X] T076 [US3] Afficher les causes d'échec (`declined`, `insufficient_funds`, `timeout`, `cancelled_by_user`, `technical`) et les actions « Réessayer » / « Changer de moyen » dans src/components/views/CheckoutStatusView.tsx
+- [X] T077 [P] [US3] Créer la tâche src/jobs/reconcilePendingPayments.ts (appel `gateway.getStatus`, mêmes transitions que notify) jusqu'à faire passer T075
+- [X] T078 [P] [US3] Créer la tâche src/jobs/abandonedCartReminder.ts (consentement requis, 1 h et 24 h, au plus deux, annulation si payé) et les modèles `payment_failed_reminder` dans src/lib/notifications/templates/reminder.ts
+- [X] T079 [US3] Créer la reprise src/components/views/CartResumeView.tsx (jeton de relance 7 j, restauration du panier, signalement des changements de prix ou de disponibilité, redirection vers le paiement) et l'action `unsubscribeReminders` dans src/lib/cart/actions.ts
+- [X] T080 [P] [US3] Ajouter dans l'admin la vue des paniers abandonnés et paiements échoués (contenu, montant, cause, relances) avec action « Renvoyer un lien de paiement » (FR-032) dans src/components/admin/AbandonedCarts.tsx
+- [X] T081 [P] [US3] Émettre `payment_recovered` (canal, rang) dans src/lib/analytics/server.ts
 
 **Checkpoint** : T073 à T075 verts ; US1 et US2 toujours vertes.
+
+> **Avancement de l’US3** (2026-11-19) :
+> - T076 : causes et actions déjà en place depuis l’US1 ; ajouts : causes « délai dépassé » et
+>   « erreur technique » simulables sur la page de paiement factice, bouton de paiement
+>   désactivé et annoncé « Paiement en cours… » après l’envoi (îlot `PayButton`, contrat
+>   checkout-actions), seconde tentative simultanée renvoyée vers le statut de la première.
+> - Réussite annoncée seulement une fois appliquée à la réservation (`isPaymentApplied`) : la
+>   page de statut ne montre plus une réservation « en attente de paiement » juste après le
+>   succès (course constatée en E2E).
+> - T077 : `applyGatewayStatus` extrait de `processNotification` (mêmes transitions) ; le
+>   rythme de 5 min s’appuie sur `updatedAt` (mis à jour à chaque interrogation), sans champ
+>   ni migration.
+> - T078 : relances 1 h et 24 h après la dernière écriture de la réservation `awaiting_payment`,
+>   type unique `abandoned_cart` (au plus deux relances, même après un échec) ; la cause du
+>   dernier échec figure dans le message ; lien distinct par canal (attribution, T081).
+> - T079 : la reprise est un gestionnaire de route (`/fr/panier/reprendre`, pose du cookie) et non
+>   une vue : jeton signé sans stockage (7 jours), panier rattaché à l’appareil (nouveau
+>   jeton de panier), prix ou disponibilité changés → panier avec avis, nouvelle version du
+>   panier (réservation refigée aux prix du jour) ; désinscription par un bouton sur
+>   `/fr/panier/desinscription` (les robots qui ouvrent les liens ne désinscrivent personne).
+> - Panier : lignes et total au prix du jour (avant → après signalé sur la ligne), comme
+>   l’étape coordonnées et la réservation.
+> - T080 : vue d’admin `/admin/paniers-abandonnes` (rôles admin et operations), sans
+>   dépendance supplémentaire ; action « Renvoyer un lien de paiement » (source `team`).
+> - T081 : `payment_recovered` (canal, rang) quand le lien d’une relance a été ouvert.
+> - Correctif : caractères `` `n `` parasites affichés en haut du panier (002 US1).
 
 ---
 

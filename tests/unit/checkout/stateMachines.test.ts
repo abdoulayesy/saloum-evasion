@@ -5,6 +5,7 @@ import {
   bookingStatusAfterPayment,
   canTransitionBooking,
   canTransitionPayment,
+  isPaymentApplied,
   isPaymentFinal,
 } from '@/lib/checkout/stateMachines';
 
@@ -59,5 +60,21 @@ describe('machine à états des paiements', () => {
     expect(canTransitionPayment('succeeded', 'failed')).toBe(false);
     expect(canTransitionPayment('failed', 'succeeded')).toBe(false);
     expect(() => assertPaymentTransition('succeeded', 'pending')).toThrow();
+  });
+});
+
+// US3 : la page de statut n'annonce la réussite qu'une fois appliquée à la réservation.
+describe('paiement appliqué à la réservation', () => {
+  it('réussi mais réservation encore en attente : pas encore appliqué', () => {
+    const paid = { status: 'succeeded' as const, purpose: 'full' as const };
+    expect(isPaymentApplied(paid, { status: 'awaiting_payment' })).toBe(false);
+    expect(isPaymentApplied(paid, { status: 'paid' })).toBe(true);
+    expect(isPaymentApplied({ ...paid, status: 'pending' }, { status: 'paid' })).toBe(false);
+  });
+
+  it('solde : appliqué quand la réservation n’est plus « acompte payé »', () => {
+    const balance = { status: 'succeeded' as const, purpose: 'balance' as const };
+    expect(isPaymentApplied(balance, { status: 'deposit_paid' })).toBe(false);
+    expect(isPaymentApplied(balance, { status: 'paid' })).toBe(true);
   });
 });

@@ -149,13 +149,18 @@ const CartPage = async ({ params, searchParams }: Props) => {
   const payload = await getPayloadClient();
   const state = await loadCartState(payload, locale);
 
+  const resume = single(search.reprise);
   const notice = single(search.ajoute)
     ? 'added'
     : single(search.retire)
       ? 'removed'
       : single(search.modifie)
         ? 'updated'
-        : null;
+        : resume === 'changements'
+          ? 'resumeChanged'
+          : resume === 'expiree'
+            ? 'resumeExpired'
+            : null;
 
   const lodging = state.reviewed.find((line) => LODGING.has(line.item.offerType));
   const pendingEntries =
