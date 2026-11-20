@@ -30,7 +30,15 @@ export const loadCartState = async (payload: Payload, locale: Locale): Promise<C
   return { cart, expired: false, reviewed };
 };
 
-/** Ligne de récapitulatif à partir d'une ligne revue (prix vu à l'ajout). */
+/** Prix actuel d'une ligne encore vendable (prix vu à l'ajout si l'offre a disparu). */
+export const linePrice = (line: ReviewedLine): number =>
+  line.offer ? line.currentTotal : line.item.quotedTotal;
+
+/** Total du panier : prix du jour des lignes vendables (une ligne indisponible en est retirée). */
+export const cartTotal = (reviewed: readonly ReviewedLine[]): number =>
+  reviewed.reduce((sum, line) => sum + (line.offer ? line.currentTotal : 0), 0);
+
+/** Ligne de récapitulatif à partir d'une ligne revue (prix du jour, US3 scénario 3). */
 export const summaryLineOf = (line: ReviewedLine): SummarySourceLine => ({
   lineId: line.item.lineId,
   offerType: line.item.offerType,
@@ -43,5 +51,5 @@ export const summaryLineOf = (line: ReviewedLine): SummarySourceLine => ({
   adults: line.item.adults,
   children: line.item.children,
   infants: line.item.infants,
-  lineTotal: line.item.quotedTotal,
+  lineTotal: linePrice(line),
 });

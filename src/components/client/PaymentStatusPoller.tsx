@@ -6,22 +6,30 @@ import { useEffect, useState } from 'react';
 // succès → page de confirmation ; échec ou expiration → rechargement (la page serveur affiche la
 // cause). Sans JavaScript, le bouton « Actualiser » de la page suffit.
 
-type Props = { paymentId: number; locale: 'fr' | 'en'; pendingLabel: string };
+type Props = {
+  paymentId: number;
+  locale: 'fr' | 'en';
+  /** Jeton de gestion transmis à l'API de statut (paiement du solde sans cookie du panier). */
+  manageToken?: string | null;
+  pendingLabel: string;
+};
 
 const INTERVAL_MS = 3000;
 const MAX_DURATION_MS = 10 * 60 * 1000;
 
-export const PaymentStatusPoller = ({ paymentId, locale, pendingLabel }: Props) => {
+export const PaymentStatusPoller = ({ paymentId, locale, manageToken, pendingLabel }: Props) => {
   const [message, setMessage] = useState('');
   useEffect(() => {
     const started = Date.now();
     let stopped = false;
+    const tokenParam = manageToken ? `&k=${encodeURIComponent(manageToken)}` : '';
     const poll = async () => {
       if (stopped || Date.now() - started > MAX_DURATION_MS) return;
       try {
-        const response = await fetch(`/api/payments/status/${paymentId}?locale=${locale}`, {
-          cache: 'no-store',
-        });
+        const response = await fetch(
+          `/api/payments/status/${paymentId}?locale=${locale}${tokenParam}`,
+          { cache: 'no-store' },
+        );
         if (response.ok) {
           const body: unknown = await response.json();
           if (typeof body === 'object' && body !== null && 'status' in body) {
@@ -54,7 +62,7 @@ export const PaymentStatusPoller = ({ paymentId, locale, pendingLabel }: Props) 
       stopped = true;
       window.clearTimeout(timer);
     };
-  }, [paymentId, locale, pendingLabel]);
+  }, [paymentId, locale, manageToken, pendingLabel]);
   return (
     <p role="status" aria-live="polite" className="sr-only">
       {message}

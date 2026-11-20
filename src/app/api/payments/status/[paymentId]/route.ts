@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { canAccessBooking } from '@/lib/booking/access';
 import { checkoutPath } from '@/lib/checkout/paths';
+import { isPaymentApplied } from '@/lib/checkout/stateMachines';
 import { getPayloadClient } from '@/lib/cms/queries';
 import { isLocale } from '@/i18n/routing';
 
@@ -35,12 +36,14 @@ export const GET = async (
     return json({ error: 'Introuvable' }, 404);
   const localeParam = request.nextUrl.searchParams.get('locale') ?? booking.locale;
   const locale = isLocale(localeParam) ? localeParam : booking.locale;
+  // Réussite annoncée seulement une fois appliquée à la réservation (sinon : encore en attente).
+  const applied = isPaymentApplied(payment, booking);
   return json({
-    status: payment.status,
+    status: payment.status === 'succeeded' && !applied ? 'pending' : payment.status,
     failureReason: payment.failureReason ?? null,
-    bookingUrl:
-      payment.status === 'succeeded'
-        ? checkoutPath(locale, 'booking', booking.reference)
-        : undefined,
+    // Jeton conservé : le solde peut être payé depuis un appareil sans le cookie du panier.
+    bookingUrl: applied
+      ? `${checkoutPath(locale, 'booking', booking.reference)}${token ? `?k=${encodeURIComponent(token)}` : ''}`
+      : undefined,
   });
 };

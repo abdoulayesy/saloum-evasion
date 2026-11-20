@@ -253,7 +253,8 @@ const run = async (): Promise<void> => {
         bookable: true,
         partner: partnerId('lodging'),
         childPricePercent: 50,
-        requireFullPayment: false,
+        // Séjour signature réglé en une fois (FR-016, scénario E2E de l'US2).
+        requireFullPayment: true,
       },
       context,
     });

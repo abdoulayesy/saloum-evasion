@@ -1,15 +1,17 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { BookingBalanceView } from '@/components/views/BookingBalanceView';
 import { BookingView } from '@/components/views/BookingView';
 import { canAccessBooking, findBookingByReference } from '@/lib/booking/access';
-import { BOOKING_REFERENCE_PATTERN } from '@/lib/checkout/paths';
+import { BOOKING_REFERENCE_PATTERN, checkoutPath } from '@/lib/checkout/paths';
 import { getPayloadClient } from '@/lib/cms/queries';
 import { tunnelLocale } from '../../../locale';
 
 // Confirmation et gestion d'une réservation (002, T058) : `/fr/reservation/{ref}` (jeton `?k=` ou
 // cookie du panier). Lien invalide ou référence inconnue : même page « lien invalide » (200),
-// sans indication sur l'existence de la référence. Solde et annulation : US2 et US4.
+// sans indication sur l'existence de la référence. Solde : `/solde` (US2, T070) ; annulation :
+// US4.
 
 const ACTIONS = ['balance', 'cancel'] as const;
 
@@ -30,8 +32,11 @@ const parse = async (params: Props['params']) => {
 };
 
 export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
-  const locale = await tunnelLocale(params);
-  const t = await getTranslations({ locale, namespace: 'booking' });
+  const [locale, { action }] = await Promise.all([tunnelLocale(params), parse(params)]);
+  const t = await getTranslations({
+    locale,
+    namespace: action === 'balance' ? 'balance' : 'booking',
+  });
   return { title: `${t('title')} | Saloum Évasion` };
 };
 
@@ -47,6 +52,32 @@ const BookingPage = async ({ params, searchParams }: Props) => {
   const booking = await findBookingByReference(payload, reference);
   if (!booking || !(await canAccessBooking(payload, booking, token))) {
     return <h1 className="text-mangrove">{t('invalidLink')}</h1>;
+  }
+  if (action === 'balance') {
+    // Solde déjà payé, ou réservation sans acompte : retour à la page de la réservation.
+    if (booking.status !== 'deposit_paid' || booking.balanceAmount <= 0) {
+      redirect(
+        `${checkoutPath(locale, 'booking', booking.reference)}${token ? `?k=${encodeURIComponent(token)}` : ''}`,
+      );
+    }
+    const active = await payload.find({
+      collection: 'payments',
+      where: {
+        and: [{ booking: { equals: booking.id } }, { status: { in: ['initiated', 'pending'] } }],
+      },
+      limit: 1,
+      depth: 0,
+    });
+    const current = active.docs[0];
+    return (
+      <BookingBalanceView
+        locale={locale}
+        booking={booking}
+        manageToken={token}
+        errorKey={typeof search.erreur === 'string' ? search.erreur : null}
+        activePayment={current && new Date(current.expiresAt) > new Date() ? current : null}
+      />
+    );
   }
   if (action) {
     return (

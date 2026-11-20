@@ -98,6 +98,8 @@ describe('récapitulatif de réservation', () => {
     expect(
       summaryTotals({ ...BOOKING, paymentPlan: 'full', balanceDueDate: null }).balance,
     ).toBeNull();
+    // Solde payé (US2) : plus de reste à payer sur l'écran, les messages et le bon PDF.
+    expect(summaryTotals({ ...BOOKING, amountPaid: 487_350 }).balance).toBeNull();
   });
 
   it('anglais', () => {

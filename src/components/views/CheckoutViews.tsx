@@ -6,6 +6,7 @@ import { CheckoutSteps } from '@/components/checkout/CheckoutSteps';
 import { primaryButtonClass, secondaryButtonClass } from '@/components/checkout/fieldStyles';
 import { PaymentMethods } from '@/components/checkout/PaymentMethods';
 import { ContactForm } from '@/components/client/ContactForm';
+import { PayButton } from '@/components/client/PayButton';
 import { PaymentStatusPoller } from '@/components/client/PaymentStatusPoller';
 import { TrackEvent } from '@/components/client/TrackEvent';
 import { buildPath } from '@/i18n/pathnames';
@@ -152,7 +153,7 @@ export const CheckoutPaymentView = async ({
             />
             <span>{t('termsAccept')}</span>
           </label>
-          {plan.plan === 'deposit' && (
+          {plan.plan === 'deposit' ? (
             <p>
               {t('depositExplain', {
                 deposit: formatXof(plan.depositAmount),
@@ -160,23 +161,30 @@ export const CheckoutPaymentView = async ({
                 date: formatDate(plan.balanceDueDate, locale),
               })}
             </p>
+          ) : (
+            <p data-testid="deposit-unavailable">{t(`depositUnavailable.${plan.reason}`)}</p>
           )}
           <div className="flex flex-col gap-3 sm:flex-row">
             {plan.plan === 'deposit' && (
-              <button type="submit" name="plan" value="deposit" className={primaryButtonClass}>
-                {t('payDeposit', { amount: formatXof(plan.depositAmount) })}
-              </button>
+              <PayButton
+                name="plan"
+                value="deposit"
+                className={primaryButtonClass}
+                label={t('payDeposit', { amount: formatXof(plan.depositAmount) })}
+                pendingLabel={t('processing')}
+              />
             )}
-            <button
-              type="submit"
+            <PayButton
               name="plan"
               value="full"
               className={plan.plan === 'deposit' ? secondaryButtonClass : primaryButtonClass}
-            >
-              {plan.plan === 'deposit'
-                ? t('payTotal', { amount: formatXof(booking.total) })
-                : t('payFull', { amount: formatXof(booking.total) })}
-            </button>
+              label={
+                plan.plan === 'deposit'
+                  ? t('payTotal', { amount: formatXof(booking.total) })
+                  : t('payFull', { amount: formatXof(booking.total) })
+              }
+              pendingLabel={t('processing')}
+            />
           </div>
           <p className="text-sm text-ink-muted">{t('secure')}</p>
         </form>
@@ -188,15 +196,29 @@ export const CheckoutPaymentView = async ({
 export const CheckoutStatusView = async ({
   locale,
   payment,
+  bookingReference,
+  manageToken,
   cancelled,
 }: {
   locale: Locale;
   payment: Payment;
+  bookingReference: string;
+  /** Jeton de gestion (solde payé depuis le lien reçu, sans le cookie du panier). */
+  manageToken: string | null;
   cancelled: boolean;
 }) => {
   const t = await getTranslations({ locale, namespace: 'payment' });
-  const retryHref = checkoutPath(locale, 'payment');
-  const waiting = payment.status === 'initiated' || payment.status === 'pending';
+  const tokenParam = manageToken ? `k=${encodeURIComponent(manageToken)}` : '';
+  const retryHref =
+    payment.purpose === 'balance'
+      ? `${checkoutPath(locale, 'balance', bookingReference)}${tokenParam ? `?${tokenParam}` : ''}`
+      : checkoutPath(locale, 'payment');
+  const refreshHref = `${checkoutPath(locale, 'status')}?p=${payment.id}${tokenParam ? `&${tokenParam}` : ''}`;
+  // `succeeded` ici : réussite pas encore appliquée à la réservation (quelques instants).
+  const waiting =
+    payment.status === 'initiated' ||
+    payment.status === 'pending' ||
+    payment.status === 'succeeded';
   const title = waiting
     ? t('statusTitle')
     : payment.status === 'abandoned' ||
@@ -215,13 +237,15 @@ export const CheckoutStatusView = async ({
             {t('pending')}
           </p>
           <p>{cancelled ? t('cancelled') : t('waitHint')}</p>
-          <a
-            href={`${checkoutPath(locale, 'status')}?p=${payment.id}`}
-            className={secondaryButtonClass}
-          >
+          <a href={refreshHref} className={secondaryButtonClass}>
             {t('refresh')}
           </a>
-          <PaymentStatusPoller paymentId={payment.id} locale={locale} pendingLabel={t('pending')} />
+          <PaymentStatusPoller
+            paymentId={payment.id}
+            locale={locale}
+            manageToken={manageToken}
+            pendingLabel={t('pending')}
+          />
         </div>
       ) : (
         <div className="mt-6 flex flex-col gap-4">

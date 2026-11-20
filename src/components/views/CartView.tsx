@@ -14,7 +14,7 @@ import { TrackEvent } from '@/components/client/TrackEvent';
 import { buildPath } from '@/i18n/pathnames';
 import type { Locale } from '@/i18n/routing';
 import { addToCart, removeCartLine, updateCartLine } from '@/lib/cart/actions';
-import { summaryLineOf } from '@/lib/cart/load';
+import { cartTotal, linePrice, summaryLineOf } from '@/lib/cart/load';
 import type { ReviewedLine } from '@/lib/cart/validate';
 import { checkoutPath } from '@/lib/checkout/paths';
 import { summaryLines } from '@/lib/checkout/summary';
@@ -36,7 +36,8 @@ type Props = {
   locale: Locale;
   expired: boolean;
   reviewed: ReviewedLine[];
-  notice: 'added' | 'removed' | 'updated' | null;
+  /** `resumeChanged` / `resumeExpired` : retour par un lien de relance (US3, T079). */
+  notice: 'added' | 'removed' | 'updated' | 'resumeChanged' | 'resumeExpired' | null;
   errorKey: string | null;
   pending: PendingReplacement | null;
   /** Suggestions de la destination et transfert, rendues sous le panier. */
@@ -66,7 +67,7 @@ export const CartView = async ({
 }: Props) => {
   const t = await getTranslations({ locale, namespace: 'cart' });
   const tCheckout = await getTranslations({ locale, namespace: 'checkout' });
-  const total = reviewed.reduce((sum, line) => sum + line.item.quotedTotal, 0);
+  const total = cartTotal(reviewed);
   const summary = summaryLines({
     locale,
     lines: reviewed.map(summaryLineOf),
@@ -84,7 +85,7 @@ export const CartView = async ({
     <>
       <CheckoutSteps locale={locale} current="cart" />
       <RequestMigration locale={locale} migratedLabel={t('migrated')} />
-      `n <TrackEvent event="cart_view" props={{ items: reviewed.length }} />
+      <TrackEvent event="cart_view" props={{ items: reviewed.length }} />
       {notice === 'added' && (
         <TrackEvent event="cart_item_added" props={{ items: reviewed.length }} />
       )}
@@ -154,7 +155,7 @@ export const CartView = async ({
                     <p className="text-lg font-semibold">
                       {display?.price}{' '}
                       <span className="text-sm font-normal text-ink-muted">
-                        {t('indicativeEur', { eur: formatEur(line.item.quotedTotal, locale) })}
+                        {t('indicativeEur', { eur: formatEur(linePrice(line), locale) })}
                       </span>
                     </p>
                   </div>

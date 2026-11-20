@@ -52,6 +52,16 @@ export default buildConfig({
     user: Users.slug,
     meta: { titleSuffix: ' — Saloum Évasion', robots: 'noindex, nofollow' },
     importMap: { baseDir: path.resolve(dirname) },
+    // Paniers abandonnés et paiements échoués (002, US3, T080, FR-032).
+    components: {
+      afterNavLinks: ['/components/admin/AbandonedCartsNavLink#AbandonedCartsNavLink'],
+      views: {
+        abandonedCarts: {
+          Component: '/components/admin/AbandonedCarts#AbandonedCarts',
+          path: '/paniers-abandonnes',
+        },
+      },
+    },
   },
   i18n: { supportedLanguages: { fr, en }, fallbackLanguage: 'fr' },
   localization: {

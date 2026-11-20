@@ -4,6 +4,9 @@ import { CheckoutSteps } from '@/components/checkout/CheckoutSteps';
 import { primaryButtonClass } from '@/components/checkout/fieldStyles';
 import { StripQueryParam } from '@/components/client/StripQueryParam';
 import type { Locale } from '@/i18n/routing';
+import { checkoutPath } from '@/lib/checkout/paths';
+import { formatDate } from '@/lib/checkout/summary';
+import { formatXof } from '@/lib/pricing';
 import type { Booking } from '@/payload-types';
 
 // Confirmation et gestion d'une réservation (002, T058) : référence, statuts de paiement et de
@@ -31,7 +34,9 @@ export const BookingView = async ({
         timeZone: 'UTC',
       }).format(new Date(booking.availabilityDeadline))
     : null;
-  const voucherHref = `/api/bookings/${booking.reference.toLowerCase()}/voucher${manageToken ? `?k=${encodeURIComponent(manageToken)}` : ''}`;
+  const tokenQuery = manageToken ? `?k=${encodeURIComponent(manageToken)}` : '';
+  const voucherHref = `/api/bookings/${booking.reference.toLowerCase()}/voucher${tokenQuery}`;
+  const balanceHref = `${checkoutPath(locale, 'balance', booking.reference)}${tokenQuery}`;
   return (
     <>
       <StripQueryParam name="k" />
@@ -57,6 +62,21 @@ export const BookingView = async ({
       </dl>
       {paid && pendingLines && deadline && (
         <p className="mt-4">{t('deadline', { date: deadline })}</p>
+      )}
+      {booking.status === 'deposit_paid' && booking.balanceAmount > 0 && (
+        <div className="mt-6 rounded-card border-2 border-mangrove p-4">
+          <p className="font-semibold" data-testid="balance-due">
+            {t('balanceDue', {
+              amount: formatXof(booking.balanceAmount),
+              date: booking.balanceDueDate ? formatDate(booking.balanceDueDate, locale) : '',
+            })}
+          </p>
+          <p className="mt-4">
+            <a href={balanceHref} className={primaryButtonClass}>
+              {t('payBalance', { amount: formatXof(booking.balanceAmount) })}
+            </a>
+          </p>
+        </div>
       )}
       <div className="mt-6">
         <BookingSummary locale={locale} booking={booking} showAvailability={paid} />

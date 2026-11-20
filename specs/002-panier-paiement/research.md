@@ -247,8 +247,17 @@ propriétaire décide. Le développement avance avec la passerelle `fake`.
   ambiguïté, sans 0/O/1/I). « Retrouver ma réservation » : référence + e-mail → envoi du lien
   par e-mail (réponse identique que la paire existe ou non, limitation de débit 5/h/IP).
   En-têtes `Referrer-Policy: no-referrer` et `Cache-Control: private, no-store` sur ces pages.
+- **Précision (US2, 2026-11-19)** : le jeton n'est pas tiré au hasard mais **dérivé** du secret
+  du serveur : `HMAC-SHA256(clé dérivée de PAYLOAD_SECRET, id:référence:version)`, 32 octets en
+  base64url ; seule son empreinte SHA-256 reste stockée. Les rappels du solde (envoyés par une
+  tâche, sans le jeton en clair) et la confirmation du solde renvoient ainsi **le même lien**
+  que la confirmation initiale, qui reste valable. Révocation : l'équipe passe à la version
+  suivante (nouvelle empreinte), l'ancien lien cesse de fonctionner. « Retrouver ma
+  réservation » (US4) renverra le lien en vigueur.
 - **Raison** : sécurité suffisante pour une réservation ; pas de mot de passe (spec).
-- **Alternatives** : code envoyé à chaque visite (friction) ; comptes (hors périmètre).
+- **Alternatives** : code envoyé à chaque visite (friction) ; comptes (hors périmètre) ; jeton
+  aléatoire régénéré à chaque message (invaliderait le lien déjà reçu) ; plusieurs empreintes
+  stockées (migration et gestion d'une liste, sans bénéfice ici).
 
 ## R14 — Remboursements
 

@@ -229,18 +229,36 @@ lien ; montants, statuts et deux versions du PDF corrects.
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T066 [P] [US2] E2E acompte proposé à J+45, absent à J+20 avec raison, refusé pour un séjour `requireFullPayment` ; paiement du solde depuis le lien (`@checkout @us2`) dans tests/e2e/checkout/us2-deposit.mobile.spec.ts
-- [ ] T067 [P] [US2] Tests du planificateur de rappels (J-21, J-15, alerte à l'échéance, aucun rappel si soldé ou annulé) dans tests/unit/checkout/balanceSchedule.test.ts
+- [X] T066 [P] [US2] E2E acompte proposé à J+45, absent à J+20 avec raison, refusé pour un séjour `requireFullPayment` ; paiement du solde depuis le lien (`@checkout @us2`) dans tests/e2e/checkout/us2-deposit.mobile.spec.ts
+- [X] T067 [P] [US2] Tests du planificateur de rappels (J-21, J-15, alerte à l'échéance, aucun rappel si soldé ou annulé) dans tests/unit/checkout/balanceSchedule.test.ts
 
 ### Implementation for User Story 2
 
-- [ ] T068 [US2] Ajouter le choix acompte / total (montant de l'acompte, solde et date limite affichés ; raison si non éligible) à src/components/views/CheckoutPaymentView.tsx et la validation `plan` à src/lib/payments/startPayment.ts
-- [ ] T069 [US2] Gérer les transitions `deposit_paid` → `paid` et le `purpose: balance` dans src/lib/payments/notify.ts (commissions reconnues au prorata, PDF régénéré, `balance_paid`)
-- [ ] T070 [P] [US2] Créer la page de paiement du solde src/components/views/BookingBalanceView.tsx (jeton requis, mêmes composants de paiement et de parité)
-- [ ] T071 [P] [US2] Créer la tâche src/jobs/balanceReminder.ts (J-21, J-15, alerte équipe et dernier rappel à l'échéance, sans annulation automatique) jusqu'à faire passer T067
-- [ ] T072 [P] [US2] Créer les modèles `balance_due` et `balance_paid` (FR/EN, e-mail + WhatsApp) dans src/lib/notifications/templates/balance.ts
+- [X] T068 [US2] Ajouter le choix acompte / total (montant de l'acompte, solde et date limite affichés ; raison si non éligible) à src/components/views/CheckoutPaymentView.tsx et la validation `plan` à src/lib/payments/startPayment.ts
+- [X] T069 [US2] Gérer les transitions `deposit_paid` → `paid` et le `purpose: balance` dans src/lib/payments/notify.ts (commissions reconnues au prorata, PDF régénéré, `balance_paid`)
+- [X] T070 [P] [US2] Créer la page de paiement du solde src/components/views/BookingBalanceView.tsx (jeton requis, mêmes composants de paiement et de parité)
+- [X] T071 [P] [US2] Créer la tâche src/jobs/balanceReminder.ts (J-21, J-15, alerte équipe et dernier rappel à l'échéance, sans annulation automatique) jusqu'à faire passer T067
+- [X] T072 [P] [US2] Créer les modèles `balance_due` et `balance_paid` (FR/EN, e-mail + WhatsApp) dans src/lib/notifications/templates/balance.ts
 
 **Checkpoint** : T066 et T067 verts ; US1 toujours verte.
+
+> **Avancement de l’US2** (2026-11-19) :
+> - Jeton de gestion **dérivé** du secret du serveur (research R13, précision US2) : les rappels
+>   du solde et la confirmation du solde renvoient le lien déjà reçu, qui reste valable.
+> - T068 : sans acompte possible, la raison est affichée (« arrivée trop proche » ou « séjour
+>   réglé en une fois ») ; le seuil réglable n’apparaît pas dans le texte.
+> - T069 : les effets du solde sont dans `applySuccessfulPayment` (appelé par
+>   `processNotification`, inchangé) : `deposit_paid` → `paid`, commissions de l’encaissé,
+>   bon PDF version + 1, `balance_paid` (e-mail avec le PDF + WhatsApp), pas de nouvel avis à
+>   l’équipe. Le récapitulatif n’affiche plus de solde une fois tout payé.
+> - T070 : page `/fr/reservation/{ref}/solde` (jeton ou cookie) ; la page de statut, l’îlot
+>   d’interrogation et l’API de statut conservent le jeton (solde payé depuis un autre appareil).
+> - T071 : `balanceReminder` s’exécute à chaque passage de `/api/jobs/run`, comme l’alerte de
+>   disponibilité ; dernier rappel au voyageur (même modèle WhatsApp `balance_due`) et alerte de
+>   l’équipe à la date limite. `?now=` n’est accepté qu’avec la passerelle factice (tests).
+>   Une seule exécution de la file par processus (deux `jobs.run` simultanés prenaient la même
+>   tâche : erreur 500 constatée en E2E parallèle).
+> - Seed : le séjour signature vendable exige le paiement total (scénario E2E).
 
 ---
 
@@ -254,20 +272,46 @@ coordonnées → relance → reprise depuis le lien → paiement ; double appui 
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T073 [P] [US3] E2E échec (chaque cause) → message clair, panier intact, réessai ou autre moyen en un geste ; double appui et seconde tentative pendant `pending` refusés (`@checkout @us3`) dans tests/e2e/checkout/us3-failure.mobile.spec.ts
-- [ ] T074 [P] [US3] E2E abandon → relance journalisée → lien de reprise → changement de prix signalé → paiement ; désinscription en un geste dans tests/e2e/checkout/us3-reminder.spec.ts
-- [ ] T075 [P] [US3] Tests de la réconciliation (pending > 10 min interrogé toutes les 5 min pendant 24 h, `expired` à 30 min sans nouvelle, aucune double transition) dans tests/unit/payments/reconcile.test.ts
+- [X] T073 [P] [US3] E2E échec (chaque cause) → message clair, panier intact, réessai ou autre moyen en un geste ; double appui et seconde tentative pendant `pending` refusés (`@checkout @us3`) dans tests/e2e/checkout/us3-failure.mobile.spec.ts
+- [X] T074 [P] [US3] E2E abandon → relance journalisée → lien de reprise → changement de prix signalé → paiement ; désinscription en un geste dans tests/e2e/checkout/us3-reminder.spec.ts
+- [X] T075 [P] [US3] Tests de la réconciliation (pending > 10 min interrogé toutes les 5 min pendant 24 h, `expired` à 30 min sans nouvelle, aucune double transition) dans tests/unit/payments/reconcile.test.ts
 
 ### Implementation for User Story 3
 
-- [ ] T076 [US3] Afficher les causes d'échec (`declined`, `insufficient_funds`, `timeout`, `cancelled_by_user`, `technical`) et les actions « Réessayer » / « Changer de moyen » dans src/components/views/CheckoutStatusView.tsx
-- [ ] T077 [P] [US3] Créer la tâche src/jobs/reconcilePendingPayments.ts (appel `gateway.getStatus`, mêmes transitions que notify) jusqu'à faire passer T075
-- [ ] T078 [P] [US3] Créer la tâche src/jobs/abandonedCartReminder.ts (consentement requis, 1 h et 24 h, au plus deux, annulation si payé) et les modèles `payment_failed_reminder` dans src/lib/notifications/templates/reminder.ts
-- [ ] T079 [US3] Créer la reprise src/components/views/CartResumeView.tsx (jeton de relance 7 j, restauration du panier, signalement des changements de prix ou de disponibilité, redirection vers le paiement) et l'action `unsubscribeReminders` dans src/lib/cart/actions.ts
-- [ ] T080 [P] [US3] Ajouter dans l'admin la vue des paniers abandonnés et paiements échoués (contenu, montant, cause, relances) avec action « Renvoyer un lien de paiement » (FR-032) dans src/components/admin/AbandonedCarts.tsx
-- [ ] T081 [P] [US3] Émettre `payment_recovered` (canal, rang) dans src/lib/analytics/server.ts
+- [X] T076 [US3] Afficher les causes d'échec (`declined`, `insufficient_funds`, `timeout`, `cancelled_by_user`, `technical`) et les actions « Réessayer » / « Changer de moyen » dans src/components/views/CheckoutStatusView.tsx
+- [X] T077 [P] [US3] Créer la tâche src/jobs/reconcilePendingPayments.ts (appel `gateway.getStatus`, mêmes transitions que notify) jusqu'à faire passer T075
+- [X] T078 [P] [US3] Créer la tâche src/jobs/abandonedCartReminder.ts (consentement requis, 1 h et 24 h, au plus deux, annulation si payé) et les modèles `payment_failed_reminder` dans src/lib/notifications/templates/reminder.ts
+- [X] T079 [US3] Créer la reprise src/components/views/CartResumeView.tsx (jeton de relance 7 j, restauration du panier, signalement des changements de prix ou de disponibilité, redirection vers le paiement) et l'action `unsubscribeReminders` dans src/lib/cart/actions.ts
+- [X] T080 [P] [US3] Ajouter dans l'admin la vue des paniers abandonnés et paiements échoués (contenu, montant, cause, relances) avec action « Renvoyer un lien de paiement » (FR-032) dans src/components/admin/AbandonedCarts.tsx
+- [X] T081 [P] [US3] Émettre `payment_recovered` (canal, rang) dans src/lib/analytics/server.ts
 
 **Checkpoint** : T073 à T075 verts ; US1 et US2 toujours vertes.
+
+> **Avancement de l’US3** (2026-11-19) :
+> - T076 : causes et actions déjà en place depuis l’US1 ; ajouts : causes « délai dépassé » et
+>   « erreur technique » simulables sur la page de paiement factice, bouton de paiement
+>   désactivé et annoncé « Paiement en cours… » après l’envoi (îlot `PayButton`, contrat
+>   checkout-actions), seconde tentative simultanée renvoyée vers le statut de la première.
+> - Réussite annoncée seulement une fois appliquée à la réservation (`isPaymentApplied`) : la
+>   page de statut ne montre plus une réservation « en attente de paiement » juste après le
+>   succès (course constatée en E2E).
+> - T077 : `applyGatewayStatus` extrait de `processNotification` (mêmes transitions) ; le
+>   rythme de 5 min s’appuie sur `updatedAt` (mis à jour à chaque interrogation), sans champ
+>   ni migration.
+> - T078 : relances 1 h et 24 h après la dernière écriture de la réservation `awaiting_payment`,
+>   type unique `abandoned_cart` (au plus deux relances, même après un échec) ; la cause du
+>   dernier échec figure dans le message ; lien distinct par canal (attribution, T081).
+> - T079 : la reprise est un gestionnaire de route (`/fr/panier/reprendre`, pose du cookie) et non
+>   une vue : jeton signé sans stockage (7 jours), panier rattaché à l’appareil (nouveau
+>   jeton de panier), prix ou disponibilité changés → panier avec avis, nouvelle version du
+>   panier (réservation refigée aux prix du jour) ; désinscription par un bouton sur
+>   `/fr/panier/desinscription` (les robots qui ouvrent les liens ne désinscrivent personne).
+> - Panier : lignes et total au prix du jour (avant → après signalé sur la ligne), comme
+>   l’étape coordonnées et la réservation.
+> - T080 : vue d’admin `/admin/paniers-abandonnes` (rôles admin et operations), sans
+>   dépendance supplémentaire ; action « Renvoyer un lien de paiement » (source `team`).
+> - T081 : `payment_recovered` (canal, rang) quand le lien d’une relance a été ouvert.
+> - Correctif : caractères `` `n `` parasites affichés en haut du panier (002 US1).
 
 ---
 
