@@ -369,17 +369,37 @@ dont une partiellement remboursée ; relevés et totaux égaux au calcul manuel.
 
 ### Tests for User Story 5 ⚠️
 
-- [ ] T091 [P] [US5] Tests du relevé (somme des écritures de la période − reversements, motif `partner`, changement de taux sans effet rétroactif, export CSV `;` UTF-8 avec BOM) dans tests/unit/checkout/statement.test.ts
-- [ ] T092 [P] [US5] E2E desktop admin `finance` : relevé d'un prestataire, enregistrement d'un reversement, export ; rôle `operations` sans accès aux montants à reverser dans tests/e2e/checkout/us5-statement.desktop.spec.ts
+- [x] T091 [P] [US5] Tests du relevé (somme des écritures de la période − reversements, motif `partner`, changement de taux sans effet rétroactif, export CSV `;` UTF-8 avec BOM) dans tests/unit/checkout/statement.test.ts
+- [x] T092 [P] [US5] E2E desktop admin `finance` : relevé d'un prestataire, enregistrement d'un reversement, export ; rôle `operations` sans accès aux montants à reverser dans tests/e2e/checkout/us5-statement.desktop.spec.ts
 
 ### Implementation for User Story 5
 
-- [ ] T093 [US5] Implémenter le calcul de relevé dans src/lib/checkout/statement.ts jusqu'à faire passer T091
-- [ ] T094 [P] [US5] Afficher par ligne le prestataire, le taux, la commission et la part dans la vue d'une réservation (admin) via src/components/admin/BookingLinesFinance.tsx
-- [ ] T095 [US5] Créer la vue admin « Relevés prestataires » (période, totaux, reversements) dans src/components/admin/PartnerStatement.tsx et la route d'export CSV src/app/api/admin/statements/[partnerId]/route.ts (rôle `finance`/`admin`)
-- [ ] T096 [P] [US5] Ajouter l'historique des taux et la règle « taux figé au paiement » visibles dans l'admin de src/globals/CommissionRates.ts (description, aide contextuelle)
+- [x] T093 [US5] Implémenter le calcul de relevé dans src/lib/checkout/statement.ts jusqu'à faire passer T091
+- [x] T094 [P] [US5] Afficher par ligne le prestataire, le taux, la commission et la part dans la vue d'une réservation (admin) via src/components/admin/BookingLinesFinance.tsx
+- [x] T095 [US5] Créer la vue admin « Relevés prestataires » (période, totaux, reversements) dans src/components/admin/PartnerStatement.tsx et la route d'export CSV src/app/api/admin/statements/[partnerId]/route.ts (rôle `finance`/`admin`)
+- [x] T096 [P] [US5] Ajouter l'historique des taux et la règle « taux figé au paiement » visibles dans l'admin de src/globals/CommissionRates.ts (description, aide contextuelle)
 
 **Checkpoint** : T091 et T092 verts ; toutes les stories vertes.
+
+> **Avancement de l’US5** (2026-11-20) :
+> - Relevé pur dans `src/lib/checkout/statement.ts` (T093) : écritures dont la date tombe dans
+>   la période, reversements dont la période couverte y est entièrement incluse (un reversement
+>   mensuel apparaît dans le relevé du mois et dans celui du trimestre, jamais deux fois dans des
+>   relevés mensuels voisins) ; export CSV `;`, UTF-8 avec BOM, CRLF, taux à virgule décimale,
+>   cellules de texte neutralisées contre l’injection de formule.
+> - T094 : champ `ui` « Commissions et parts prestataires » de la réservation, nets des
+>   remboursements (somme des écritures) ; `commissionAmount` et `partnerAmount` des lignes
+>   illisibles du rôle `operations` (accès de champ), qui peut toujours enregistrer la
+>   réservation sans les perdre (vérifié en E2E).
+> - T095 : vue `/admin/releves` (lien de navigation pour `finance` et `admin` seulement),
+>   saisie d’un reversement (action serveur, `recordedBy`), export
+>   `/api/admin/statements/[partnerId]?du=…&au=…`.
+> - T096 : aide du global `commissionRates`, taux en vigueur du jour, et garde
+>   `rateHistoryErrors` : un taux déjà en vigueur ne se modifie ni ne se supprime, un nouveau
+>   taux prend effet aujourd’hui au plus tôt (première saisie libre).
+> - Correction : le hook de confirmation de disponibilité (T062) mettait les notifications en file
+>   hors de la transaction de la requête ; un enregistrement de la réservation restait bloqué sur
+>   le verrou de la ligne. `req` est désormais transmis.
 
 ---
 
