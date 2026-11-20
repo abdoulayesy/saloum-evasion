@@ -45,7 +45,7 @@ test.describe('US1 — composer et payer son séjour @checkout @us1', () => {
       await transfer.getByLabel('Heure de prise en charge (aller)').fill('10:30');
       await transfer.getByLabel('Heure de prise en charge (retour)').fill('15:00');
       await transfer.getByRole('button', { name: 'Ajouter au panier' }).click();
-      await expect(page.locator('main li h2')).toHaveCount(4);
+      await expect(page.locator('main li h2')).toHaveCount(4, { timeout: 30_000 });
 
       // Coordonnées.
       await page.getByRole('link', { name: 'Continuer : mes coordonnées' }).click();

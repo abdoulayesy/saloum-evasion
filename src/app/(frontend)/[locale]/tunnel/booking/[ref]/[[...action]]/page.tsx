@@ -2,8 +2,11 @@ import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { BookingBalanceView } from '@/components/views/BookingBalanceView';
+import { BookingCancelView } from '@/components/views/BookingCancelView';
 import { BookingView } from '@/components/views/BookingView';
 import { canAccessBooking, findBookingByReference } from '@/lib/booking/access';
+import { canRequestCancellation, cancellationQuote } from '@/lib/booking/cancellationQuote';
+import { todayInDakar } from '@/lib/cart/validate';
 import { BOOKING_REFERENCE_PATTERN, checkoutPath } from '@/lib/checkout/paths';
 import { getPayloadClient } from '@/lib/cms/queries';
 import { tunnelLocale } from '../../../locale';
@@ -11,7 +14,7 @@ import { tunnelLocale } from '../../../locale';
 // Confirmation et gestion d'une réservation (002, T058) : `/fr/reservation/{ref}` (jeton `?k=` ou
 // cookie du panier). Lien invalide ou référence inconnue : même page « lien invalide » (200),
 // sans indication sur l'existence de la référence. Solde : `/solde` (US2, T070) ; annulation :
-// US4.
+// `/annulation` (US4, T085), statut des remboursements sur la page de la réservation.
 
 const ACTIONS = ['balance', 'cancel'] as const;
 
@@ -35,7 +38,7 @@ export const generateMetadata = async ({ params }: Props): Promise<Metadata> => 
   const [locale, { action }] = await Promise.all([tunnelLocale(params), parse(params)]);
   const t = await getTranslations({
     locale,
-    namespace: action === 'balance' ? 'balance' : 'booking',
+    namespace: action === 'balance' ? 'balance' : action === 'cancel' ? 'cancel' : 'booking',
   });
   return { title: `${t('title')} | Saloum Évasion` };
 };
@@ -45,7 +48,6 @@ const BookingPage = async ({ params, searchParams }: Props) => {
   const { reference, action } = await parse(params);
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'booking' });
-  const tCheckout = await getTranslations({ locale, namespace: 'checkout' });
   const search = await searchParams;
   const token = typeof search.k === 'string' ? search.k : null;
   const payload = await getPayloadClient();
@@ -79,15 +81,51 @@ const BookingPage = async ({ params, searchParams }: Props) => {
       />
     );
   }
-  if (action) {
+  if (action === 'cancel') {
+    // Annulation possible seulement pour une réservation payée, sans demande en cours.
+    if (!canRequestCancellation(booking)) {
+      redirect(
+        `${checkoutPath(locale, 'booking', booking.reference)}${token ? `?k=${encodeURIComponent(token)}` : ''}`,
+      );
+    }
     return (
-      <>
-        <h1 className="text-mangrove">{t('title')}</h1>
-        <p className="mt-6">{tCheckout('comingSoon')}</p>
-      </>
+      <BookingCancelView
+        locale={locale}
+        booking={booking}
+        quote={cancellationQuote(booking, todayInDakar())}
+        manageToken={token}
+        errorKey={typeof search.erreur === 'string' ? search.erreur : null}
+      />
     );
   }
-  return <BookingView locale={locale} booking={booking} manageToken={token} />;
+  const refunds = await payload.find({
+    collection: 'refunds',
+    where: { booking: { equals: booking.id } },
+    sort: '-createdAt',
+    limit: 10,
+    depth: 0,
+  });
+  return (
+    <BookingView
+      locale={locale}
+      booking={booking}
+      manageToken={token}
+      refunds={refunds.docs}
+      refundableToday={
+        canRequestCancellation(booking)
+          ? cancellationQuote(booking, todayInDakar()).reduce((sum, line) => sum + line.amount, 0)
+          : null
+      }
+      cancellationRequested={search.annulation === 'demandee'}
+      choiceNotice={
+        search.choix === 'enregistre'
+          ? 'saved'
+          : search.choix === 'impossible'
+            ? 'impossible'
+            : null
+      }
+    />
+  );
 };
 
 export default BookingPage;

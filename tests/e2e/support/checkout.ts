@@ -70,7 +70,8 @@ export type FakeOutcome =
 
 /** Sur la page de paiement simulée, choisit l'issue. */
 export const payWithFake = async (page: Page, outcome: FakeOutcome) => {
-  await expect(page).toHaveURL(/\/dev\/fake-gateway\?ref=/);
+  // Action serveur + redirection : jusqu'à 30 s quand les projets tournent en parallèle.
+  await expect(page).toHaveURL(/\/dev\/fake-gateway\?ref=/, { timeout: 30_000 });
   await page.getByRole('button', { name: outcome, exact: true }).click();
 };
 
@@ -139,6 +140,66 @@ export const linkInOutbox = async (needle: string, pattern: RegExp): Promise<str
   for (const message of messages.reverse()) {
     const found = pattern.exec(String(message.content.text ?? ''))?.[0];
     if (found) return found;
+  }
+  return null;
+};
+
+/** Réservation payée en totalité (hébergement à `inDays` jours) ; renvoie sa référence. */
+export const payBookingInFull = async (
+  page: Page,
+  request: APIRequestContext,
+  { firstName, inDays }: { firstName: string; inDays: number },
+): Promise<string> => {
+  await reachPaymentPage(page, request, { firstName, inDays });
+  await page.getByRole('radio', { name: 'Wave' }).check();
+  await page.getByRole('checkbox', { name: /accepte les conditions d’annulation/ }).check();
+  // Avec un acompte possible, le dernier bouton est « Payer le total de… ».
+  await page
+    .getByRole('button', { name: /^Payer/ })
+    .last()
+    .click();
+  await payWithFake(page, 'Réussir');
+  await expect(page).toHaveURL(/\/fr\/reservation\/se-[a-z2-9]{6}/, { timeout: 30_000 });
+  await expect(page.getByText('Payée')).toBeVisible({ timeout: 15_000 });
+  return (await page.getByTestId('booking-reference').textContent())?.trim() ?? '';
+};
+
+const ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL ?? 'admin@saloum-evasion.test';
+const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'demo-admin-password';
+
+/** En-tête d'autorisation de l'API REST de Payload pour le compte administrateur du seed. */
+export const adminAuth = async (request: APIRequestContext): Promise<Record<string, string>> => {
+  const response = await request.post('/api/users/login', {
+    data: { email: ADMIN_EMAIL, password: ADMIN_PASSWORD },
+  });
+  expect(response.status(), 'connexion administrateur').toBe(200);
+  const body: unknown = await response.json();
+  const token = isRecord(body) && typeof body.token === 'string' ? body.token : '';
+  return { authorization: `JWT ${token}` };
+};
+
+/**
+ * Modification par l'API REST en administrateur. Les projets se connectent en parallèle avec le
+ * même compte : Payload stocke les sessions sur l'utilisateur et une écriture concurrente peut
+ * en perdre une (403). On se reconnecte alors une fois.
+ */
+export const adminPatch = async (
+  request: APIRequestContext,
+  path: string,
+  data: Record<string, unknown>,
+): Promise<number> => {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const response = await request.patch(path, { headers: await adminAuth(request), data });
+    if (response.status() !== 401 && response.status() !== 403) return response.status();
+  }
+  return 403;
+};
+
+/** Lecture par l'API REST en administrateur, avec reconnexion (voir `adminPatch`). */
+export const adminGet = async (request: APIRequestContext, path: string): Promise<unknown> => {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const response = await request.get(path, { headers: await adminAuth(request) });
+    if (response.status() !== 401 && response.status() !== 403) return response.json();
   }
   return null;
 };

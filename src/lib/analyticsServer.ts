@@ -10,7 +10,8 @@ export type ServerEvent =
   | 'payment_succeeded'
   | 'payment_failed'
   | 'checkout_completed'
-  | 'payment_recovered';
+  | 'payment_recovered'
+  | 'cancellation_requested';
 
 export const trackServer = async (
   event: ServerEvent,

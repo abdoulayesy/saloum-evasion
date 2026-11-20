@@ -1118,6 +1118,17 @@ export interface Booking {
           | null;
         availabilityStatus: 'pending' | 'confirmed' | 'unavailable' | 'replaced';
         availabilityNote?: string | null;
+        alternatives?:
+          | {
+              title: string;
+              description?: string | null;
+              price: number;
+              id?: string | null;
+            }[]
+          | null;
+        unavailableAt?: string | null;
+        choiceDeadline?: string | null;
+        travellerChoice?: ('alternative_1' | 'alternative_2' | 'refund') | null;
         cancelled?: boolean | null;
         partnerNotifiedAt?: string | null;
         id?: string | null;
@@ -2265,6 +2276,17 @@ export interface BookingsSelect<T extends boolean = true> {
         policySnapshot?: T;
         availabilityStatus?: T;
         availabilityNote?: T;
+        alternatives?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              price?: T;
+              id?: T;
+            };
+        unavailableAt?: T;
+        choiceDeadline?: T;
+        travellerChoice?: T;
         cancelled?: T;
         partnerNotifiedAt?: T;
         id?: T;

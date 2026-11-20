@@ -574,7 +574,26 @@
     "thanks": "Thank you! Your booking is registered.",
     "confirmationSent": "A confirmation email and WhatsApp message are on their way.",
     "deadline": "Our team confirms availability before {date} (Dakar time).",
-    "payBalance": "Pay the balance of {amount}"
+    "payBalance": "Pay the balance of {amount}",
+    "refundsTitle": "Refund",
+    "cancelTitle": "Cancel",
+    "refundableToday": "Refundable amount if you cancel today: {amount}",
+    "requestCancellation": "Request cancellation",
+    "cancellationRequested": "Your cancellation request is recorded. An acknowledgement is on its way by email and WhatsApp; follow the refund here.",
+    "findIntro": "Enter your booking reference (SE-…) and the email you used: we will send your personal link again.",
+    "findReference": "Booking reference",
+    "findEmail": "Email",
+    "findSubmit": "Send me my link",
+    "findSent": "If a booking matches, a link has just been sent to this email address.",
+    "findLimited": "Too many requests from this connection. Please try again in an hour.",
+    "unavailableTitle": "Service unavailable: {title}",
+    "unavailableIntro": "We are sorry: this service is not available. Choose an alternative or a full refund before {date} (Dakar time); without a choice from you, it will be fully refunded.",
+    "noSurcharge": "No extra charge.",
+    "differenceRefunded": "Cheaper: the difference of {amount} is refunded to you.",
+    "chooseAlternative": "Choose this alternative",
+    "chooseRefund": "Get a full refund",
+    "choiceSaved": "Your choice is recorded.",
+    "choiceImpossible": "This choice is no longer possible: the service has already been handled."
   },
   "refund": {
     "status": {
@@ -597,5 +616,23 @@
     "confirm": "Stop these reminders",
     "done": "Done: you will no longer receive reminders for this cart.",
     "invalid": "This link is no longer valid."
+  },
+  "cancel": {
+    "title": "Cancel my booking",
+    "reference": "Booking {reference}",
+    "intro": "Choose the services to cancel. The refundable amount is calculated under the terms accepted at payment, as of today.",
+    "linesLegend": "Services to cancel",
+    "paid": "Paid: {amount}",
+    "refund": "Refundable ({percent}%): {amount}",
+    "total": "Refundable amount for all: {amount}",
+    "delay": "The refund is paid to your original payment method within 14 days of approval by our team.",
+    "confirm": "I confirm my cancellation request.",
+    "submit": "Request cancellation",
+    "back": "Back to my booking",
+    "errors": {
+      "acces": "This booking cannot be accessed from this device.",
+      "confirmation": "Tick the box to confirm your request.",
+      "lignes": "Choose at least one service to cancel."
+    }
   }
 }

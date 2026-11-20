@@ -574,7 +574,26 @@
     "thanks": "Merci ! Votre réservation est enregistrée.",
     "confirmationSent": "Un e-mail et un message WhatsApp de confirmation sont en route.",
     "deadline": "Notre équipe confirme la disponibilité avant le {date} (heure de Dakar).",
-    "payBalance": "Payer le solde de {amount}"
+    "payBalance": "Payer le solde de {amount}",
+    "refundsTitle": "Remboursement",
+    "cancelTitle": "Annuler",
+    "refundableToday": "Montant remboursable si vous annulez aujourd’hui : {amount}",
+    "requestCancellation": "Demander l’annulation",
+    "cancellationRequested": "Votre demande d’annulation est enregistrée. Un accusé vous est envoyé par e-mail et WhatsApp ; vous suivez ici l’avancement du remboursement.",
+    "findIntro": "Saisissez la référence de votre réservation (SE-…) et l’e-mail utilisé : nous vous renvoyons votre lien personnel.",
+    "findReference": "Référence de réservation",
+    "findEmail": "E-mail",
+    "findSubmit": "Recevoir mon lien",
+    "findSent": "Si une réservation correspond, un lien vient d’être envoyé à cette adresse e-mail.",
+    "findLimited": "Trop de demandes depuis cette connexion. Réessayez dans une heure.",
+    "unavailableTitle": "Prestation indisponible : {title}",
+    "unavailableIntro": "Nous sommes désolés : cette prestation n’est pas disponible. Choisissez une alternative ou le remboursement intégral avant le {date} (heure de Dakar) ; sans choix de votre part, elle vous sera remboursée intégralement.",
+    "noSurcharge": "Sans supplément.",
+    "differenceRefunded": "Moins chère : l’écart de {amount} vous est remboursé.",
+    "chooseAlternative": "Choisir cette alternative",
+    "chooseRefund": "Être remboursé intégralement",
+    "choiceSaved": "Votre choix est enregistré.",
+    "choiceImpossible": "Ce choix n’est plus possible : la prestation a déjà été traitée."
   },
   "refund": {
     "status": {
@@ -597,5 +616,23 @@
     "confirm": "Ne plus recevoir de rappels",
     "done": "C’est noté : vous ne recevrez plus de rappels pour ce panier.",
     "invalid": "Ce lien n’est plus valable."
+  },
+  "cancel": {
+    "title": "Annuler ma réservation",
+    "reference": "Réservation {reference}",
+    "intro": "Choisissez les prestations à annuler. Le montant remboursable est calculé selon les conditions acceptées au paiement, à la date d’aujourd’hui.",
+    "linesLegend": "Prestations à annuler",
+    "paid": "Payé : {amount}",
+    "refund": "Remboursable ({percent} %) : {amount}",
+    "total": "Montant remboursable pour l’ensemble : {amount}",
+    "delay": "Le remboursement est versé sur votre moyen de paiement d’origine dans les 14 jours suivant sa validation par notre équipe.",
+    "confirm": "Je confirme ma demande d’annulation.",
+    "submit": "Demander l’annulation",
+    "back": "Retour à ma réservation",
+    "errors": {
+      "acces": "Cette réservation n’est pas accessible depuis cet appareil.",
+      "confirmation": "Cochez la case pour confirmer votre demande.",
+      "lignes": "Choisissez au moins une prestation à annuler."
+    }
   }
 }

@@ -325,20 +325,37 @@ calculés, statuts successifs, notifications, remboursement `fake` ou manuel enr
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T082 [P] [US4] E2E lien de gestion, annulation à J-40 (100 %), J-20 (50 %), J-5 (0 %), annulation partielle d'une ligne, statuts `requested` → `approved` → `paid` visibles (`@checkout @us4`) dans tests/e2e/checkout/us4-cancel.mobile.spec.ts
-- [ ] T083 [P] [US4] E2E « Retrouver ma réservation » : réponse identique que la paire existe ou non ; limitation 5/h/IP ; jeton invalide ⇒ page « lien invalide » sans fuite d'information dans tests/e2e/checkout/us4-find.spec.ts
-- [ ] T084 [P] [US4] Tests du workflow de remboursement (montant ≥ calculé sauf motif, justification obligatoire si autre moyen, échéance 14 j et alerte J+10, ajustements de commission) dans tests/unit/booking/refunds.test.ts
+- [X] T082 [P] [US4] E2E lien de gestion, annulation à J-40 (100 %), J-20 (50 %), J-5 (0 %), annulation partielle d'une ligne, statuts `requested` → `approved` → `paid` visibles (`@checkout @us4`) dans tests/e2e/checkout/us4-cancel.mobile.spec.ts
+- [X] T083 [P] [US4] E2E « Retrouver ma réservation » : réponse identique que la paire existe ou non ; limitation 5/h/IP ; jeton invalide ⇒ page « lien invalide » sans fuite d'information dans tests/e2e/checkout/us4-find.spec.ts
+- [X] T084 [P] [US4] Tests du workflow de remboursement (montant ≥ calculé sauf motif, justification obligatoire si autre moyen, échéance 14 j et alerte J+10, ajustements de commission) dans tests/unit/booking/refunds.test.ts
 
 ### Implementation for User Story 4
 
-- [ ] T085 [US4] Créer la page d'annulation src/components/views/BookingCancelView.tsx (montant remboursable par ligne à la date du jour) et l'action `requestCancellation` dans src/lib/booking/cancellation.ts
-- [ ] T086 [US4] Implémenter le workflow `refunds` (approbation `finance`, appel `gateway.refund` ou enregistrement manuel justifié, `commissionEntries` d'ajustement, statut réservation) dans src/lib/booking/refunds.ts jusqu'à faire passer T084
-- [ ] T087 [P] [US4] Créer la page « Retrouver ma réservation » src/components/views/BookingFindView.tsx et l'action `resendManageLink` (limitation 5/h/IP) dans src/lib/booking/manageToken.ts
-- [ ] T088 [P] [US4] Créer les modèles `cancellation_received`, `refund_status`, `manage_link` dans src/lib/notifications/templates/refund.ts et la tâche d'alerte J+10 dans src/jobs/refundDeadlineAlert.ts
-- [ ] T089 [P] [US4] Gérer une ligne `unavailable` (FR-005, FR-030) dans src/lib/booking/availability.ts : au plus 2 alternatives proposées par l'équipe, jamais de supplément, écart en faveur du voyageur remboursé, choix sous 48 h sinon remboursement intégral automatique ; tests dans tests/unit/booking/availability.test.ts
-- [ ] T090 [P] [US4] Émettre `cancellation_requested` dans src/lib/analytics/server.ts
+- [X] T085 [US4] Créer la page d'annulation src/components/views/BookingCancelView.tsx (montant remboursable par ligne à la date du jour) et l'action `requestCancellation` dans src/lib/booking/cancellation.ts
+- [X] T086 [US4] Implémenter le workflow `refunds` (approbation `finance`, appel `gateway.refund` ou enregistrement manuel justifié, `commissionEntries` d'ajustement, statut réservation) dans src/lib/booking/refunds.ts jusqu'à faire passer T084
+- [X] T087 [P] [US4] Créer la page « Retrouver ma réservation » src/components/views/BookingFindView.tsx et l'action `resendManageLink` (limitation 5/h/IP) dans src/lib/booking/manageToken.ts
+- [X] T088 [P] [US4] Créer les modèles `cancellation_received`, `refund_status`, `manage_link` dans src/lib/notifications/templates/refund.ts et la tâche d'alerte J+10 dans src/jobs/refundDeadlineAlert.ts
+- [X] T089 [P] [US4] Gérer une ligne `unavailable` (FR-005, FR-030) dans src/lib/booking/availability.ts : au plus 2 alternatives proposées par l'équipe, jamais de supplément, écart en faveur du voyageur remboursé, choix sous 48 h sinon remboursement intégral automatique ; tests dans tests/unit/booking/availability.test.ts
+- [X] T090 [P] [US4] Émettre `cancellation_requested` dans src/lib/analytics/server.ts
 
 **Checkpoint** : T082 à T084 verts ; US1 à US3 toujours vertes.
+
+> **Avancement de l’US4** (2026-11-19) :
+> - Règles pures dans `src/lib/booking/refundRules.ts` (T084), partagées par la validation de la
+>   collection `refunds` et le workflow ; workflow porté par les hooks de la collection
+>   (`src/lib/booking/refunds.ts`) : création → `cancellation_requested`, accusé et avis finance ;
+>   validation → passerelle sur le moyen d’origine (versé aussitôt si elle accepte) ou versement
+>   manuel ; versé → lignes annulées, encaissé réduit, ajustements de commission ; refus →
+>   statut précédent. `enqueueNotification` accepte `req` (même transaction).
+> - T085 : montant remboursable par ligne (`cancellationQuote.ts`, encaissé réparti au prorata,
+>   paliers figés) ; annulation partielle par cases à cocher, confirmation explicite.
+> - T087 : `resendManageLink` renvoie le lien en vigueur (jeton dérivé, R13) ; 5 / h / IP.
+> - T089 : nouveaux champs de ligne `alternatives` (2 au plus), `unavailableAt`, `choiceDeadline`,
+>   `travellerChoice` (migration `20261119_213815_unavailable_alternatives`) ; choix du voyageur
+>   sur la page de la réservation, remboursement automatique à 48 h ; une ligne remplacée dont
+>   l’écart est remboursé reste active.
+> - `/api/jobs/run` : contrôles périodiques au plus toutes les 20 s par processus (des appels
+>   rapprochés saturaient la base) ; relances avec `?now=` toujours exécutées.
 
 ---
 
