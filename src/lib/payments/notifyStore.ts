@@ -1,6 +1,7 @@
 import type { Payload } from 'payload';
 import { trackServer } from '@/lib/analyticsServer';
 import { applySuccessfulPayment } from '@/lib/booking/applyPayment';
+import { durationBucket } from '@/lib/checkout/funnel';
 import { sendNotificationEmail } from '@/lib/notifications/email';
 import type { NotifyPayment, NotifyStore } from './notify';
 
@@ -64,10 +65,27 @@ export const payloadNotifyStore = (payload: Payload): NotifyStore => ({
   },
   updatePayment: async (id, data) => {
     const updated = await payload.update({ collection: 'payments', id, data });
+    // Entonnoir par langue et par moyen (FR-040) : échecs et abandons (page de paiement quittée,
+    // délai expiré).
+    if (data.status !== 'failed' && data.status !== 'abandoned' && data.status !== 'expired')
+      return;
+    const booking = await payload.findByID({
+      collection: 'bookings',
+      id: typeof updated.booking === 'number' ? updated.booking : updated.booking.id,
+      depth: 0,
+      select: { locale: true },
+    });
     if (data.status === 'failed') {
       await trackServer('payment_failed', {
         method: updated.method,
         reason: data.failureReason ?? 'technical',
+        locale: booking.locale,
+      });
+    } else {
+      await trackServer('payment_abandoned', {
+        method: updated.method,
+        status: data.status,
+        locale: booking.locale,
       });
     }
   },
@@ -75,7 +93,8 @@ export const payloadNotifyStore = (payload: Payload): NotifyStore => ({
     const { booking } = await applySuccessfulPayment(payload, payment.id, paidAt);
     const method = (await payload.findByID({ collection: 'payments', id: payment.id, depth: 0 }))
       .method;
-    await trackServer('payment_succeeded', { method });
+    const locale = booking.locale;
+    await trackServer('payment_succeeded', { method, locale });
     // Durée du parcours (FR-040) : de la création du panier au paiement confirmé.
     const cartId = typeof booking.cart === 'number' ? booking.cart : booking.cart.id;
     const cart = await payload.findByID({ collection: 'carts', id: cartId, depth: 0 });
@@ -83,7 +102,12 @@ export const payloadNotifyStore = (payload: Payload): NotifyStore => ({
       0,
       Math.round((paidAt.getTime() - new Date(cart.createdAt).getTime()) / 1000),
     );
-    await trackServer('checkout_completed', { method, durationSeconds });
+    await trackServer('checkout_completed', {
+      method,
+      locale,
+      durationSeconds,
+      duration: durationBucket(durationSeconds),
+    });
     // Paiement après une relance dont le lien a été ouvert (US3, T081, SC-005).
     const { docs: opened } = await payload.find({
       collection: 'reminders',
@@ -101,6 +125,8 @@ export const payloadNotifyStore = (payload: Payload): NotifyStore => ({
     const recovered = opened[0];
     if (recovered) {
       await trackServer('payment_recovered', {
+        method,
+        locale,
         channel: recovered.channel,
         rank: recovered.rank,
       });

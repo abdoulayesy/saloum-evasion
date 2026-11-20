@@ -10,7 +10,7 @@ import { uniqueName } from '../support/request';
 // T041 (constitution I et III) : tunnel complet sans JavaScript (projet nojs) — ajout depuis la
 // fiche, panier, coordonnées, paiement factice, statut actualisé à la main, confirmation.
 
-test.describe('tunnel sans JavaScript', () => {
+test.describe('tunnel sans JavaScript @checkout @us1', () => {
   test('ajout, panier, coordonnées, paiement, confirmation', async ({
     page,
     request,

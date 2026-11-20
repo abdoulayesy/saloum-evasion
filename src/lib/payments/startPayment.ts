@@ -150,6 +150,9 @@ const redirectToGateway = async ({
       id: payment.id,
       data: { status: 'abandoned', failureReason: 'technical' },
     });
+    // Échec technique au démarrage (agrégateur indisponible ou moyen refusé) : mesuré comme un
+    // échec, pas comme un abandon du voyageur (FR-040).
+    await trackServer('payment_failed', { method, reason: result.reason, locale });
     return back(result.reason === 'method_unavailable' ? 'moyen_indisponible' : 'passerelle');
   }
   await payload.update({

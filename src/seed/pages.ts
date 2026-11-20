@@ -220,6 +220,100 @@ const blocksByPage = (
               ),
             },
             {
+              purpose: t('Réservations et paiements', 'Bookings and payments'),
+              data: t(
+                'Nom, e-mail, WhatsApp, prestations, dates, nombre de voyageurs, demande particulière, montants, référence et statut des paiements. Aucune donnée de carte : elle est saisie sur la page sécurisée du prestataire de paiement.',
+                'Name, email, WhatsApp, services, dates, number of travellers, special request, amounts, payment reference and status. No card data: it is entered on the payment provider’s secure page.',
+              ),
+              legalBasis: t(
+                'Exécution du contrat ; obligations comptables',
+                'Performance of the contract; accounting obligations',
+              ),
+              retention: t(
+                '10 ans pour les pièces comptables (réservations, paiements, remboursements, à confirmer par le comptable), puis anonymisation',
+                '10 years for accounting records (bookings, payments, refunds, to be confirmed by the accountant), then anonymised',
+              ),
+              recipients: t(
+                'Équipe Saloum Évasion ; prestataire concerné (nom, dates, nombre de voyageurs, demande particulière) ; prestataire de paiement (Wave, Orange Money, carte : agrégateur à désigner) ; hébergeur du site ; Resend (e-mails) ; Meta (WhatsApp)',
+                'Saloum Évasion team; the partner concerned (name, dates, number of travellers, special request); payment provider (Wave, Orange Money, card: aggregator to be appointed); website host; Resend (email); Meta (WhatsApp)',
+              ),
+              transfers: t(
+                'Hébergeur en Europe de l’Ouest ; Resend et Meta (États-Unis) ; prestataire de paiement au Sénégal ou dans l’UEMOA (à confirmer). Garanties contractuelles à confirmer.',
+                'Host in Western Europe; Resend and Meta (United States); payment provider in Senegal or the WAEMU (to be confirmed). Contractual safeguards to be confirmed.',
+              ),
+            },
+            {
+              purpose: t('Relances de paiement', 'Payment reminders'),
+              data: t(
+                'Prénom, e-mail, WhatsApp, contenu du panier, ouverture du lien de relance.',
+                'First name, email, WhatsApp, cart contents, whether the reminder link was opened.',
+              ),
+              legalBasis: t(
+                'Consentement (case à cocher, retirable à tout moment par le lien de désinscription)',
+                'Consent (checkbox, withdrawable at any time through the unsubscribe link)',
+              ),
+              retention: t(
+                'Deux relances au plus ; panier non payé supprimé 30 jours après sa dernière modification ; journal des relances 12 mois',
+                'Two reminders at most; unpaid cart deleted 30 days after its last change; reminder log 12 months',
+              ),
+              recipients: t(
+                'Resend (e-mails) ; Meta (WhatsApp)',
+                'Resend (email); Meta (WhatsApp)',
+              ),
+              transfers: t('États-Unis (Resend, Meta)', 'United States (Resend, Meta)'),
+            },
+            {
+              purpose: t('Messages WhatsApp de suivi', 'WhatsApp follow-up messages'),
+              data: t(
+                'Numéro WhatsApp, prénom, référence de réservation, liens de gestion et statut d’envoi.',
+                'WhatsApp number, first name, booking reference, management links and delivery status.',
+              ),
+              legalBasis: t('Exécution du contrat', 'Performance of the contract'),
+              retention: t('Journal d’envoi : 24 mois', 'Delivery log: 24 months'),
+              recipients: t('Meta (API WhatsApp Cloud)', 'Meta (WhatsApp Cloud API)'),
+              transfers: t(
+                'États-Unis et Union européenne (Meta)',
+                'United States and European Union (Meta)',
+              ),
+            },
+            {
+              purpose: t('Prestataires partenaires', 'Partner providers'),
+              data: t(
+                'Nom du contact, téléphone, WhatsApp, e-mail, moyen et coordonnées de reversement, commissions et reversements.',
+                'Contact name, phone, WhatsApp, email, payout method and details, commissions and payouts.',
+              ),
+              legalBasis: t(
+                'Exécution du contrat de partenariat ; obligations comptables',
+                'Performance of the partnership contract; accounting obligations',
+              ),
+              retention: t(
+                'Pendant le partenariat ; commissions et reversements 10 ans (pièces comptables)',
+                'During the partnership; commissions and payouts 10 years (accounting records)',
+              ),
+              recipients: t(
+                'Équipe Saloum Évasion (coordonnées de reversement : finance seulement) ; hébergeur du site ; Meta (WhatsApp)',
+                'Saloum Évasion team (payout details: finance only); website host; Meta (WhatsApp)',
+              ),
+              transfers: t(
+                'Europe de l’Ouest (hébergeur) ; États-Unis (Meta)',
+                'Western Europe (host); United States (Meta)',
+              ),
+            },
+            {
+              purpose: t('Cookies du panier', 'Cart cookies'),
+              data: t(
+                '« se_cart » : identifiant aléatoire du panier (HttpOnly) ; « se_cart_summary » : nombre d’articles et total affichés. Aucun cookie de mesure ni de publicité.',
+                '“se_cart”: random cart identifier (HttpOnly); “se_cart_summary”: number of items and total shown. No analytics or advertising cookie.',
+              ),
+              legalBasis: t(
+                'Strictement nécessaires au service demandé (panier), sans consentement préalable',
+                'Strictly necessary for the requested service (cart), no prior consent needed',
+              ),
+              retention: t('7 jours', '7 days'),
+              recipients: t('Aucun : lus par le site seulement', 'None: read by the website only'),
+              transfers: t('Aucun', 'None'),
+            },
+            {
               purpose: t('Mesure d’audience', 'Audience measurement'),
               data: t(
                 'Pages vues, site d’origine, type d’appareil, pays, en statistiques agrégées, sans cookie.',

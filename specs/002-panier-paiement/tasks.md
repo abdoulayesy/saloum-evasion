@@ -407,14 +407,35 @@ dont une partiellement remboursée ; relevés et totaux égaux au calcul manuel.
 
 - [ ] T098 Implémenter la passerelle retenue dans src/lib/payments/<agrégateur>.ts (fetch, sans SDK) et la faire passer par tests/unit/payments/gateway.contract.test.ts avec des réponses enregistrées
 - [ ] T099 [P] Soumettre et versionner les modèles WhatsApp FR/EN (`booking_confirmed`, `availability_update`, `balance_due`, `payment_failed_reminder`, `refund_status`) dans docs/whatsapp-templates.md
-- [ ] T100 [P] Créer la tâche quotidienne src/jobs/purgeCarts.ts (paniers non payés > 30 j) et le passage automatique `completed` après la date de départ dans src/jobs/completeBookings.ts
-- [ ] T101 [P] Ajouter au bloc « Registre des traitements » de la page Confidentialité (livré par la 001, phase 7) les traitements paiement, prestataires et WhatsApp et le cookie `se_cart` (finalité, base légale, durée, destinataires, transferts hors du Sénégal), dans src/seed/pages.ts et le CMS
-- [ ] T102 [P] Ajouter à .github/pull_request_template.md les points non automatisables du tunnel (parité des moyens, conditions d'annulation, absence de donnée de carte, modèles WhatsApp approuvés)
+- [x] T100 [P] Créer la tâche quotidienne src/jobs/purgeCarts.ts (paniers non payés > 30 j) et le passage automatique `completed` après la date de départ dans src/jobs/completeBookings.ts
+- [x] T101 [P] Ajouter au bloc « Registre des traitements » de la page Confidentialité (livré par la 001, phase 7) les traitements paiement, prestataires et WhatsApp et le cookie `se_cart` (finalité, base légale, durée, destinataires, transferts hors du Sénégal), dans src/seed/pages.ts et le CMS
+- [x] T102 [P] Ajouter à .github/pull_request_template.md les points non automatisables du tunnel (parité des moyens, conditions d'annulation, absence de donnée de carte, modèles WhatsApp approuvés)
 - [ ] T103 Revue de sécurité bloquante de l'intégration de paiement (principe IX, research R16) : signatures, montants, accès, jetons, journal, secrets ; rapport dans docs/security-review-002.md
 - [ ] T104 [P] Test 3G complet du tunnel avec la passerelle réelle en préproduction et vérification des budgets (`pnpm lhci`, `pnpm bundles`) ; corriger tout dépassement avant fusion
 - [ ] T105 Test utilisateur à 360 px avec 10 testeurs (SC-001 : 9 sur 10 en moins de 3 min) ; résultats dans specs/002-panier-paiement/checklists/usability.md
 - [ ] T106 [P] Configurer les objectifs Plausible de l'entonnoir (FR-040) et documenter les indicateurs dans docs/analytics.md
-- [ ] T107 Exécuter les scénarios du quickstart.md de bout en bout et corriger les écarts
+- [x] T107 Exécuter les scénarios du quickstart.md de bout en bout et corriger les écarts
+
+> **Avancement de la phase 8** (2026-11-20) :
+> - Fait : T100 (`purgeCarts`, `completeBookings`, règles pures `src/lib/booking/lifecycle.ts`,
+>   exécutées chaque jour par `/api/cron/purge` ; une réservation jamais payée expire à 30 jours
+>   et non à 24 h, à cause des liens de reprise valables 7 jours : data-model mis à jour), T101
+>   (5 traitements ajoutés au registre ; `pnpm cms:privacy-register` les ajoute à un CMS déjà
+>   rempli sans toucher aux entrées existantes), T102, T107 (écarts du quickstart corrigés : slug
+>   de l'écolodge, cron en GET, purge quotidienne, URL Lighthouse ; tunnel sans JS étiqueté
+>   `@checkout`).
+> - En partie : T099 (7 modèles rédigés et versionnés dans `docs/whatsapp-templates.md`, dont
+>   `balance_paid` et `cancellation_received` ; soumission à Meta à faire par l'équipe), T103
+>   (`docs/security-review-002.md` : double application d'un succès concurrent corrigée par une
+>   réservation unique dans `paymentEvents`, secrets de la passerelle réelle exigés ; reste
+>   bloquant tant que la passerelle réelle n'est pas revue), T106 (mesure par langue et par moyen,
+>   `payment_abandoned`, tranche de durée ; objectifs à créer dans Plausible selon
+>   `docs/analytics.md`).
+> - Bloqués : T098 (agrégateur non choisi), T104 (passerelle réelle en préproduction), T105
+>   (testeurs).
+> - Lighthouse : élément LCP du hub des expériences (première image d'univers) chargé en différé
+>   depuis la 001 ; priorité déplacée sur cette image (LCP médian 3,07 s → 2,19 s sur
+>   `/en/experiences`).
 
 ---
 

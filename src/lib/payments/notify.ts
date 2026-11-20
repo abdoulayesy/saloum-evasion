@@ -108,7 +108,13 @@ export const processNotification = async (
 };
 
 /** Partie du stockage nécessaire pour appliquer un statut (notification ou réconciliation). */
-export type StatusStore = Pick<NotifyStore, 'updatePayment' | 'onSucceeded' | 'alertAnomaly'>;
+export type StatusStore = Pick<
+  NotifyStore,
+  'recordEvent' | 'updatePayment' | 'onSucceeded' | 'alertAnomaly'
+>;
+
+/** Identifiant d'évènement réservé aux effets du succès d'une tentative (unique en base). */
+export const successClaimId = (paymentId: number): string => `applied:${paymentId}`;
 
 /**
  * Applique le statut annoncé par la passerelle (machine à états, montant revérifié, effets du
@@ -138,6 +144,18 @@ export const applyGatewayStatus = async (
         confirmedAt: result.paidAt.toISOString(),
       });
       if (!moved) return 'ignored';
+      // Deux traitements concurrents (deux notifications d'identifiants différents, ou une
+      // notification et la réconciliation) peuvent lire tous deux `pending` et passer la
+      // transition : l'unicité de l'identifiant d'évènement garantit des effets une seule fois
+      // (revue de sécurité T103).
+      const claim = await store.recordEvent({
+        gatewayEventId: successClaimId(payment.id),
+        type: 'success_applied',
+        payload: { paidAt: result.paidAt.toISOString() },
+        signatureValid: true,
+        paymentId: payment.id,
+      });
+      if (claim === 'duplicate') return 'ignored';
       await store.onSucceeded(payment, result.paidAt);
       return 'succeeded';
     }

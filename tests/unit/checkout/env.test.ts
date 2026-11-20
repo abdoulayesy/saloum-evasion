@@ -32,7 +32,18 @@ describe('variables d’environnement du tunnel', () => {
       }).PAYMENT_GATEWAY,
     ).toBe('fake');
     expect(
-      parseCheckoutEnv({ NODE_ENV: 'production', PAYMENT_GATEWAY: 'paydunya' }).PAYMENT_GATEWAY,
+      parseCheckoutEnv({
+        NODE_ENV: 'production',
+        PAYMENT_GATEWAY: 'paydunya',
+        PAYMENT_GATEWAY_API_KEY: 'k',
+        PAYMENT_GATEWAY_WEBHOOK_SECRET: 'w',
+      }).PAYMENT_GATEWAY,
     ).toBe('paydunya');
+  });
+
+  it('passerelle réelle : clé d’API et secret des notifications obligatoires (T103)', () => {
+    expect(() => parseCheckoutEnv({ PAYMENT_GATEWAY: 'paydunya' })).toThrow(
+      /PAYMENT_GATEWAY_API_KEY.*PAYMENT_GATEWAY_WEBHOOK_SECRET/s,
+    );
   });
 });

@@ -21,8 +21,9 @@ const minutesBefore = (now: Date, minutes: number): string =>
   new Date(now.getTime() - minutes * MINUTE_MS).toISOString();
 
 const payloadReconcileStore = (payload: Payload): ReconcileStore => {
-  const { updatePayment, onSucceeded, alertAnomaly } = payloadNotifyStore(payload);
+  const { recordEvent, updatePayment, onSucceeded, alertAnomaly } = payloadNotifyStore(payload);
   return {
+    recordEvent,
     updatePayment,
     onSucceeded,
     alertAnomaly,

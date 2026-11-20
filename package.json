@@ -27,6 +27,7 @@
     "migrate:create": "payload migrate:create",
     "seed": "payload run src/seed/index.ts && pnpm cache:clear",
     "seed:checkout": "payload run scripts/seed-checkout.ts && pnpm cache:clear",
+    "cms:privacy-register": "payload run scripts/sync-privacy-register.ts && pnpm cache:clear",
     "cache:clear": "node --experimental-strip-types --no-warnings scripts/clear-data-cache.ts",
     "e2e:checkout": "playwright test --grep @checkout",
     "jobs:dev": "node --env-file=.env --experimental-strip-types --no-warnings scripts/jobs-dev.ts"
