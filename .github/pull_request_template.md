@@ -20,6 +20,22 @@
 - [ ] **Survol** : aucune fonction ne dépend du survol. (I)
 - [ ] **Textes** : FR et EN fournis pour tout nouveau texte visible.
 
+## Tunnel de réservation et de paiement (si la PR y touche)
+
+- [ ] **Parité des moyens** : Wave, Orange Money et carte au même rang, même taille et même ordre
+      sur le panier, l'étape paiement, la page de reprise et les messages d'échec. (VI, FR-013)
+- [ ] **Conditions d'annulation** : celles de chaque prestation sont affichées et acceptées
+      explicitement avant le bouton « Payer » ; le montant remboursable est montré avant toute
+      demande d'annulation. (V, FR-014, FR-027)
+- [ ] **Aucune donnée de carte** : aucun champ de carte sur le site, aucun numéro, cryptogramme ou
+      date d'expiration dans les journaux, les notifications ou les paramètres d'URL (la carte se
+      saisit sur la page hébergée de l'agrégateur). (IX, research R16)
+- [ ] **Montants** : calculés côté serveur depuis la réservation figée, en XOF entiers ; jamais lus
+      depuis le formulaire ou l'URL. (IX)
+- [ ] **Modèles WhatsApp** : tout modèle nouveau ou modifié figure dans
+      [docs/whatsapp-templates.md](../docs/whatsapp-templates.md) et y est marqué « approuvé » en
+      FR et en EN avant la mise en production. (FR-023)
+
 ## Carnets du Saloum (si la PR publie ou modifie un guide)
 
 - [ ] **Signature** : guide signé par un membre **actif** de l’équipe, avec photo, rôle, lieu et

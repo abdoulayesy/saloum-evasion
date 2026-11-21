@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { createFakeGateway } from '@/lib/payments/fake';
 import type { CreateCheckoutInput } from '@/lib/payments/gateway';
-import { processNotification, type NotifyPayment, type NotifyStore } from '@/lib/payments/notify';
+import {
+  applyGatewayStatus,
+  processNotification,
+  type NotifyPayment,
+  type NotifyStore,
+} from '@/lib/payments/notify';
 
 // T044 (contrat payment-gateway, « Traitement d'une notification ») : signature invalide 401,
 // doublon 200 sans effet, montant divergent ⇒ anomalie, transition vers un état antérieur
@@ -127,6 +132,20 @@ describe('traitement des notifications de paiement', () => {
       result: 'ignored',
     });
     expect(payment.status).toBe('succeeded');
+    expect(calls.succeeded).toBe(1);
+  });
+
+  it('deux traitements concurrents du même succès : effets métier une seule fois (T103)', async () => {
+    const { store, calls, payment } = await setup(146_300);
+    // Deux lectures de la tentative avant toute écriture : chacune voit encore « pending ».
+    const first = { ...payment };
+    const second = { ...payment };
+    const result = { status: 'succeeded' as const, amountXof: 146_300, paidAt: new Date() };
+    const outcomes = await Promise.all([
+      applyGatewayStatus(store, first, result),
+      applyGatewayStatus(store, second, result),
+    ]);
+    expect(outcomes.sort()).toEqual(['ignored', 'succeeded']);
     expect(calls.succeeded).toBe(1);
   });
 

@@ -40,7 +40,13 @@ const harness = (
       return statuses[reference] ?? { status: 'pending' };
     },
   };
+  const events = new Set<string>();
   const store: ReconcileStore = {
+    recordEvent: async ({ gatewayEventId }) => {
+      if (events.has(gatewayEventId)) return 'duplicate';
+      events.add(gatewayEventId);
+      return 'recorded';
+    },
     listCandidates: async () => payments.filter((payment) => needsReconciliation(payment, NOW)),
     touch: async (id) => {
       calls.touched.push(id);

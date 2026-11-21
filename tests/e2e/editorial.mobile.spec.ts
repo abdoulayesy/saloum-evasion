@@ -67,6 +67,12 @@ test.describe('pages institutionnelles', () => {
     await page.goto('/fr/confidentialite');
     for (const purpose of [
       'Demandes de séjour',
+      // 002 (T101) : tunnel de réservation et de paiement.
+      'Réservations et paiements',
+      'Relances de paiement',
+      'Messages WhatsApp de suivi',
+      'Prestataires partenaires',
+      'Cookies du panier',
       'Mesure d’audience',
       'Lecture des vidéos',
       'Comptes de l’équipe',
@@ -76,6 +82,6 @@ test.describe('pages institutionnelles', () => {
     ]) {
       await expect(page.getByRole('heading', { name: purpose, level: 3 })).toBeVisible();
     }
-    await expect(page.getByText('Transferts hors du Sénégal', { exact: true })).toHaveCount(6);
+    await expect(page.getByText('Transferts hors du Sénégal', { exact: true })).toHaveCount(11);
   });
 });

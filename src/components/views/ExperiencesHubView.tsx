@@ -50,6 +50,7 @@ export const ExperiencesListView = async ({
   const experienceUniverses = universes.filter(
     (universe) => universe.kind === 'experience' && universe.seo?.slug,
   );
+  const showsUniverses = route.type === 'experiencesHub' && experienceUniverses.length > 0;
 
   const crumbs = buildBreadcrumbs({ locale, route, currentName: title });
   const graph = buildGraph([
@@ -69,13 +70,13 @@ export const ExperiencesListView = async ({
         <h1 className="text-mangrove">{title}</h1>
         <p className="mt-3 max-w-2xl text-lg text-ink-muted">{intro}</p>
 
-        {route.type === 'experiencesHub' && experienceUniverses.length > 0 && (
+        {showsUniverses && (
           <section aria-labelledby="hub-univers" className="mt-8">
             <h2 id="hub-univers" className="text-mangrove">
               {t('universes')}
             </h2>
             <ul className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-              {experienceUniverses.map((universe) => {
+              {experienceUniverses.map((universe, index) => {
                 const count = experiences.filter(
                   (item) => relationId(item.universe) === universe.id,
                 ).length;
@@ -85,6 +86,8 @@ export const ExperiencesListView = async ({
                       media={populated<Media>(universe.image)}
                       locale={locale}
                       sizes="(min-width: 640px) 33vw, 100vw"
+                      // Première image de la page, élément LCP du hub (mesure Lighthouse 002).
+                      priority={index === 0}
                       className="aspect-[16/9] w-full object-cover"
                     />
                     <div className="p-4">
@@ -115,7 +118,12 @@ export const ExperiencesListView = async ({
           <ul className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {listed.map((experience, index) => (
               <li key={experience.id}>
-                <ExperienceCard experience={experience} locale={locale} priority={index === 0} />
+                <ExperienceCard
+                  experience={experience}
+                  locale={locale}
+                  // Le hub affiche les univers au-dessus : leur première image est l'élément LCP.
+                  priority={index === 0 && !showsUniverses}
+                />
               </li>
             ))}
           </ul>
