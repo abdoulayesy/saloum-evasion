@@ -45,7 +45,10 @@ export const Team = async ({ block, locale, priority = false }: TeamProps) => {
               <div className="p-4">
                 <h3 className="text-xl">
                   {authorPath ? (
-                    <Link href={authorPath} className="underline underline-offset-4">
+                    <Link
+                      href={authorPath}
+                      className="inline-flex min-h-touch items-center underline underline-offset-4"
+                    >
                       {member.name}
                     </Link>
                   ) : (
