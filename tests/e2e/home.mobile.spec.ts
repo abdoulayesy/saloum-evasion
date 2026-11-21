@@ -85,4 +85,20 @@ test.describe('accueil', () => {
     await expect(page.getByRole('heading', { name: /Partez vendredi/ })).toBeVisible();
     await expect(page.getByText('Séjours signature · tout compris')).toBeVisible();
   });
+
+  test('en-tête transparent sur l’accueil seulement, y compris après navigation sans rechargement', async ({
+    page,
+  }) => {
+    await page.goto('/fr', { waitUntil: 'networkidle' });
+    const header = page.locator('header.site-header');
+    await expect(header).toHaveCSS('position', 'absolute');
+    // Lien du pied de page (next/link) : navigation côté client, <head> conservé.
+    await page.locator('footer').getByRole('link', { name: 'Destinations' }).click();
+    await expect(page).toHaveURL(/\/fr\/destinations$/);
+    await expect(header).toHaveCSS('position', 'static');
+    await expect(header).toHaveCSS('background-color', 'rgb(15, 42, 36)');
+    await page.goBack();
+    await expect(page).toHaveURL(/\/fr$/);
+    await expect(header).toHaveCSS('position', 'absolute');
+  });
 });

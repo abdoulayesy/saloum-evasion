@@ -228,8 +228,8 @@
 
 /*
   Maquette « Accueil » : classes d'affichage et animations décoratives (coupées si l'utilisateur
-  réduit les mouvements). L'en-tête transparent de l'accueil est posé par la page elle-même
-  (HomeView), sans sélecteur :has() global coûteux à chaque modification du DOM.
+  réduit les mouvements). L'en-tête transparent de l'accueil est décidé par HeaderFrame (URL
+  courante), pas par une feuille posée par la page : elle resterait dans <head> après navigation.
 */
 @layer components {
   .eyebrow {

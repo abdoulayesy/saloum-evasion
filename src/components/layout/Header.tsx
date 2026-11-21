@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { DialogOpener } from '@/components/client/DialogOpener';
+import { HeaderFrame } from '@/components/client/HeaderFrame';
+import { WhatsAppIcon } from '@/components/ui/WhatsAppIcon';
 import { LocaleNotices } from '@/components/client/LocaleNotices';
 import { RequestCounter } from '@/components/client/RequestCounter';
 import { buildPath } from '@/i18n/pathnames';
@@ -18,6 +20,9 @@ type HeaderProps = { locale: Locale };
 const controlBase =
   'min-h-touch min-w-touch items-center justify-center rounded-full px-3 font-semibold';
 const controlClass = `inline-flex ${controlBase}`;
+
+/** Accueil FR et EN : en-tête transparent par-dessus le héro. */
+const HOME_PATHS = [buildPath('fr', { type: 'home' }), buildPath('en', { type: 'home' })];
 
 /** Liens affichés en ligne dès 1280 px, libellés courts de la maquette « Accueil ». */
 const desktopLinks = [
@@ -45,7 +50,7 @@ export const Header = async ({ locale }: HeaderProps) => {
   const whatsappHref = await siteWhatsappHref(locale, await getSiteSettings(locale));
 
   return (
-    <header className="site-header bg-mangrove text-sable">
+    <HeaderFrame homePaths={HOME_PATHS}>
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-1 gap-y-1 px-4 py-2 sm:px-8 lg:py-6">
         <Link
           href={buildPath(locale, { type: 'home' })}
@@ -82,9 +87,9 @@ export const Header = async ({ locale }: HeaderProps) => {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={tActions('whatsappLabel')}
-              className={`${controlBase} hidden underline underline-offset-4 sm:inline-flex xl:hidden`}
+              className={`${controlBase} hidden px-0 transition-colors hover:text-gold sm:inline-flex xl:hidden`}
             >
-              {tActions('whatsapp')}
+              <WhatsAppIcon />
             </a>
           )}
           {/* Lien ordinaire (pas de préchargement) : le contrôleur calcule la page équivalente. */}
@@ -122,6 +127,6 @@ export const Header = async ({ locale }: HeaderProps) => {
         closeLabel={t('close')}
         bannerCloseLabel={t('bannerClose')}
       />
-    </header>
+    </HeaderFrame>
   );
 };

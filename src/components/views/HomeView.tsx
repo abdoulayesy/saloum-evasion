@@ -51,10 +51,6 @@ const heroImage = (page: Page | null, featured: readonly Stay[]): Media | null =
  */
 const HOME_HERO_SIZES = '(min-width: 1280px) 1280px, 100vw';
 
-/** En-tête transparent par-dessus le héro, sur l'accueil seulement (feuille hissée dans <head>). */
-const HOME_HEADER_CSS =
-  '.site-header{position:absolute;inset-inline:0;top:0;z-index:30;background:transparent}';
-
 const WRAP = 'mx-auto w-full max-w-7xl px-4 sm:px-8 lg:px-16';
 const SECTION_Y = 'py-[clamp(4.5rem,9vw,7.5rem)]';
 
@@ -242,9 +238,6 @@ export const HomeView = async ({
   return (
     <>
       <JsonLd graph={graph} />
-      <style href="accueil-en-tete" precedence="default">
-        {HOME_HEADER_CSS}
-      </style>
 
       {/* ============ HÉRO ============ */}
       <section
