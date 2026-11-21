@@ -684,7 +684,11 @@ const seed = async (): Promise<void> => {
     privacy: { fr: 'Confidentialité', en: 'Privacy' },
     film: { fr: 'Film d’immersion', en: 'Immersion film' },
     stays_list: { fr: 'Séjours signature', en: 'Signature stays' },
-    experiences_hub: { fr: 'Que faire au Sine-Saloum', en: 'Things to do in Sine-Saloum' },
+    // 004 : « que faire au Sine-Saloum » appartient au guide ; le hub cible les activités.
+    experiences_hub: {
+      fr: 'Activités et excursions dans le Sine-Saloum',
+      en: 'Sine-Saloum activities and excursions',
+    },
     accommodations_list: { fr: 'Hébergements', en: 'Accommodation' },
     destinations_list: { fr: 'Destinations du Sine-Saloum', en: 'Sine-Saloum destinations' },
     not_found: { fr: 'Page introuvable', en: 'Page not found' },

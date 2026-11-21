@@ -1,5 +1,6 @@
 import { BookOnline } from '@/components/checkout/BookOnline';
 import Link from 'next/link';
+import { GuidesTeaser } from '@/components/guides/GuidesTeaser';
 import { RichText } from '@payloadcms/richtext-lexical/react';
 import { getTranslations } from 'next-intl/server';
 import { AccommodationCard } from '@/components/cards/AccommodationCard';
@@ -232,6 +233,14 @@ export const AccommodationView = async ({
           </div>
         </section>
       )}
+
+      {/* 004 (US2) : guides des Carnets du Saloum liés à la fiche. */}
+      <GuidesTeaser
+        collection="accommodations"
+        id={accommodation.id}
+        locale={locale}
+        from="accommodation"
+      />
 
       {inStays.length > 0 && (
         <Container className="mt-10">

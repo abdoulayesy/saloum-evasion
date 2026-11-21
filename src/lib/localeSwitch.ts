@@ -7,33 +7,22 @@ import {
   getAlternates,
   getDestinationBySlug,
   getExperienceBySlug,
+  getGuideBySlug,
   getStayBySlug,
+  getTeamMemberBySlug,
+  guidesForAuthor,
   getUniverseBySlug,
 } from '@/lib/cms/queries';
 import { experienceAlternates, universeAlternates } from '@/lib/experiencePaths';
+import { parentRoute } from '@/lib/parentRoute';
+
+export { parentRoute };
 
 // Bascule de langue sur la même page (T156, US5) : à partir du chemin d'une page, chemin de la
 // page équivalente dans l'autre langue, calculé côté serveur depuis les slugs traduits du CMS.
 // Sans version publiée dans la langue demandée : page parente, signalée par `missing`.
 
 export type LocaleTarget = { path: string; missing: boolean };
-
-/** Parent d'une page de contenu, pour le repli quand la traduction manque. */
-export const parentRoute = (route: Route): Route => {
-  switch (route.type) {
-    case 'stay':
-      return { type: 'staysList' };
-    case 'experience':
-    case 'universe':
-      return { type: 'experiencesHub' };
-    case 'destination':
-      return { type: 'destinationsList' };
-    case 'accommodation':
-      return { type: 'accommodationsList' };
-    default:
-      return { type: 'home' };
-  }
-};
 
 /** Chemins FR/EN d'une page de contenu, ou `null` si le document est introuvable. */
 const contentAlternates = async (
@@ -66,13 +55,35 @@ const contentAlternates = async (
       const accommodation = await getAccommodationBySlug(locale, route.slug);
       return accommodation ? accommodationAlternates(accommodation.id) : null;
     }
+    case 'guide': {
+      const guide = await getGuideBySlug(locale, route.slug);
+      if (!guide) return null;
+      const slugs = await getAlternates('guides', guide.id);
+      return {
+        ...(slugs.fr ? { fr: buildPath('fr', { type: 'guide', slug: slugs.fr }) } : {}),
+        ...(slugs.en ? { en: buildPath('en', { type: 'guide', slug: slugs.en }) } : {}),
+      };
+    }
+    case 'author': {
+      // Slug commun aux deux langues ; une page n'existe que si le membre y a un guide publié.
+      const member = await getTeamMemberBySlug(locale, route.slug);
+      if (!member?.slug) return null;
+      const paths: Partial<Record<Locale, string>> = {};
+      for (const candidate of ['fr', 'en'] as const) {
+        if ((await guidesForAuthor(member.id, candidate)).length > 0)
+          paths[candidate] = buildPath(candidate, { type: 'author', slug: member.slug });
+      }
+      return paths;
+    }
     default:
       return null;
   }
 };
 
 const isContentRoute = (route: Route): boolean =>
-  ['stay', 'experience', 'universe', 'destination', 'accommodation'].includes(route.type);
+  ['stay', 'experience', 'universe', 'destination', 'accommodation', 'guide', 'author'].includes(
+    route.type,
+  );
 
 /** Page équivalente de `fromPath` dans la langue `to`. */
 export const localeTarget = async (fromPath: string, to: Locale): Promise<LocaleTarget> => {

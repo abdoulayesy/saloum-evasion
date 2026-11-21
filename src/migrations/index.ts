@@ -5,6 +5,7 @@ import * as migration_20261116_065551_checkout_model from './20261116_065551_che
 import * as migration_20261116_183311_jobs_queue from './20261116_183311_jobs_queue';
 import * as migration_20261116_183458_cart_token from './20261116_183458_cart_token';
 import * as migration_20261119_213815_unavailable_alternatives from './20261119_213815_unavailable_alternatives';
+import * as migration_20261120_202818_guides from './20261120_202818_guides';
 
 export const migrations = [
   {
@@ -40,6 +41,11 @@ export const migrations = [
   {
     up: migration_20261119_213815_unavailable_alternatives.up,
     down: migration_20261119_213815_unavailable_alternatives.down,
-    name: '20261119_213815_unavailable_alternatives'
+    name: '20261119_213815_unavailable_alternatives',
+  },
+  {
+    up: migration_20261120_202818_guides.up,
+    down: migration_20261120_202818_guides.down,
+    name: '20261120_202818_guides'
   },
 ];

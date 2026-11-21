@@ -6,7 +6,7 @@
 // principale indexable par mot-clé et par langue), pages indexables absentes du sitemap,
 // chaînes de redirection des pages renommées.
 import { LinkChecker } from 'linkinator';
-import { normalizeText, TARGET_KEYWORDS } from '../src/lib/seo/keywords.ts';
+import { duplicateKeywords, normalizeText, TARGET_KEYWORDS } from '../src/lib/seo/keywords.ts';
 
 const BASE_URL = process.env.BASE_URL ?? 'http://localhost:3000';
 
@@ -101,12 +101,23 @@ const main = async (): Promise<void> => {
     if (hops > 1) errors.push(`${path} : ${hops} redirections enchaînées (max 1)`);
   }
 
+  // Une requête cible, une page (004, FR-020b) : jamais deux chemins pour la même requête.
+  for (const duplicate of duplicateKeywords(TARGET_KEYWORDS))
+    errors.push(
+      `Mot-clé « ${duplicate.keyword} » visé par plusieurs pages : ${duplicate.paths.join(', ')}`,
+    );
+
   // Mots-clés cibles : page principale indexable, présente dans le sitemap, termes présents.
   const sitemapPaths = new Set(urls.map((url) => new URL(url).pathname));
   for (const target of TARGET_KEYWORDS.flatMap((entry) => [entry.fr, entry.en])) {
     const response = await fetch(`${BASE_URL}${target.path}`);
     const html = await response.text();
     const label = `Mot-clé « ${target.keyword} » (${target.path})`;
+    if (response.status === 404 && target.pendingPublication) {
+      // Guide encore en brouillon (004) : seule l'unicité de la requête est vérifiée.
+      console.warn(`${label} : page pas encore publiée (avertissement)`);
+      continue;
+    }
     if (response.status !== 200) {
       errors.push(`${label} : page en ${response.status}`);
       continue;

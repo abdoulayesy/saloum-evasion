@@ -21,7 +21,9 @@ const NOINDEX_TYPES: ReadonlySet<RouteType> = new Set<RouteType>([
 
 type FixedRoute = Exclude<
   Route,
-  { type: 'stay' | 'universe' | 'experience' | 'accommodation' | 'destination' }
+  {
+    type: 'stay' | 'universe' | 'experience' | 'accommodation' | 'destination' | 'guide' | 'author';
+  }
 >;
 
 const FIXED_ROUTES: readonly FixedRoute[] = [
@@ -30,6 +32,7 @@ const FIXED_ROUTES: readonly FixedRoute[] = [
   { type: 'experiencesHub' },
   { type: 'accommodationsList' },
   { type: 'destinationsList' },
+  { type: 'guidesHub' },
   { type: 'film' },
   { type: 'commitment' },
   { type: 'about' },
@@ -86,3 +89,34 @@ export const fixedEntries = (): SitemapEntry[] =>
       route.type === 'home' ? { priority: 1 } : {},
     ),
   );
+
+/**
+ * Guide des Carnets du Saloum (004, US4) : une entrée par langue publiée (slugs fournis par
+ * `getAlternates`), date de dernière mise à jour de fond, images (principale et corps).
+ */
+export const guideEntries = ({
+  slugs,
+  updatedOn,
+  images,
+}: {
+  slugs: Partial<Record<Locale, string>>;
+  updatedOn: string | null;
+  images: string[];
+}): SitemapEntry[] => {
+  const paths: Partial<Record<Locale, string>> = {};
+  for (const locale of routing.locales) {
+    const slug = slugs[locale];
+    if (slug) paths[locale] = buildPath(locale, { type: 'guide', slug });
+  }
+  return entriesForRoute(paths, {
+    ...(updatedOn ? { lastModified: new Date(`${updatedOn}T00:00:00.000Z`) } : {}),
+    images,
+  });
+};
+
+/** Page d'auteur (004) : seulement dans les langues où le membre signe ou relit un guide publié. */
+export const authorEntries = (slug: string, locales: readonly Locale[]): SitemapEntry[] => {
+  const paths: Partial<Record<Locale, string>> = {};
+  for (const locale of locales) paths[locale] = buildPath(locale, { type: 'author', slug });
+  return entriesForRoute(paths);
+};

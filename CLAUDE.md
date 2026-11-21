@@ -1,6 +1,6 @@
 ﻿# saloum-evasion Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-11-16
+Auto-generated from all feature plans. Last updated: 2026-11-20
 
 ## Active Technologies
 
@@ -17,6 +17,9 @@ Auto-generated from all feature plans. Last updated: 2026-11-16
 - Aucune dépendance ajoutée : stock daté `inventory` + rétentions atomiques en SQL, iCal maison
   (`src/lib/ical`), espace prestataires `/espace` (FR, noindex, connexion par code WhatsApp),
   mises en avant mesurées dans Postgres (003-espace-prestataires)
+- Aucune dépendance ajoutée : collections `guides` et `guideThemes`, pages d'auteur sur
+  `teamMembers`, brouillons Markdown `content/carnets/` importés par `convertMarkdownToLexical`
+  (004-guides-editoriaux-seo)
 
 ## Project Structure
 
@@ -30,6 +33,8 @@ src/lib/{cart,payments,notifications,voucher,booking}/   # 002
 src/jobs/                      # 002 : tâches planifiées Payload ; 003 : iCal, récapitulatif
 src/app/(partner)/espace/      # 003 : espace prestataires (FR, dynamique, noindex)
 src/lib/{availability,inventory,ical,partnerAuth,sponsored}/   # 003
+src/lib/guides/                # 004 : table des matières, temps de lecture, dates (pur, testé)
+content/carnets/{fr,en}/       # 004 : brouillons Markdown des guides (importés comme brouillons)
 src/components/                # ui, cards, client (îlots "use client"), blocks
 tests/unit/ tests/e2e/
 ```
@@ -47,6 +52,9 @@ pnpm dev; pnpm typecheck; pnpm lint; pnpm test; pnpm e2e; pnpm e2e:nojs; pnpm lh
 
 ## Recent Changes
 
+- 004-guides-editoriaux-seo: rubrique « Carnets du Saloum », guides signés et pages d'auteur,
+  maillage guides ↔ offres, JSON-LD Article et ProfilePage (voir
+  specs/004-guides-editoriaux-seo/plan.md)
 - 003-espace-prestataires: disponibilités tenues par les prestataires, réservation instantanée,
   synchronisation iCal, mises en avant « Partenaire mis en avant » (voir
   specs/003-espace-prestataires/plan.md)

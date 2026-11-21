@@ -30,7 +30,7 @@ type ListViewProps = {
 const relationId = (value: number | { id: number } | null | undefined): number | null =>
   typeof value === 'number' ? value : (value?.id ?? null);
 
-// Hub « Que faire au Sine-Saloum » et pages d'univers (T103) : rendus côté serveur, ItemList
+// Hub « Activités et excursions dans le Sine-Saloum » et pages d'univers (T103) : rendus côté serveur, ItemList
 // des fiches, fil d'Ariane ; sur le hub, accès aux trois univers d'expériences.
 export const ExperiencesListView = async ({
   locale,

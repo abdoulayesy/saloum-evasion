@@ -1,5 +1,6 @@
 import { RichText } from '@payloadcms/richtext-lexical/react';
 import { getTranslations } from 'next-intl/server';
+import { GuidesTeaser } from '@/components/guides/GuidesTeaser';
 import { AccommodationCard } from '@/components/cards/AccommodationCard';
 import { ExperienceCard } from '@/components/cards/ExperienceCard';
 import { StayCard } from '@/components/cards/StayCard';
@@ -231,6 +232,14 @@ export const DestinationView = async ({
           </section>
         </Container>
       )}
+
+      {/* 004 (US2) : guides des Carnets du Saloum liés à la fiche. */}
+      <GuidesTeaser
+        collection="destinations"
+        id={destination.id}
+        locale={locale}
+        from="destination"
+      />
 
       <StickyActionBar primary={primary} whatsapp={whatsapp} label={tActions('barLabel')} />
       <ActionBarSpacer />

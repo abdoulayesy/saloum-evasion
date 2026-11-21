@@ -37,6 +37,32 @@ describe('chemins des documents', () => {
     expect(parentPath('experiences', 'fr')).toBe('/fr/experiences');
     expect(parentPath('universes', 'en')).toBe('/en/experiences');
   });
+
+  // 004 (T010, FR-017, constitution III) : guides et pages d'auteur redirigés eux aussi.
+  it('guide et page d’auteur, avec leur page parente', () => {
+    expect(documentPath({ collection: 'guides', locale: 'fr', slug: 'mar-lodj' })).toBe(
+      '/fr/carnets-du-saloum/mar-lodj',
+    );
+    expect(documentPath({ collection: 'teamMembers', locale: 'en', slug: 'awa-sarr' })).toBe(
+      '/en/team/awa-sarr',
+    );
+    expect(parentPath('guides', 'en')).toBe('/en/saloum-travel-guides');
+    expect(parentPath('teamMembers', 'fr')).toBe('/fr/a-propos');
+  });
+
+  it('changement de slug d’un auteur : ancienne page → nouvelle, dans chaque langue', () => {
+    const added = (['fr', 'en'] as const).map((locale) => ({
+      from: documentPath({ collection: 'teamMembers', locale, slug: 'awa-sar' }) ?? '',
+      to: documentPath({ collection: 'teamMembers', locale, slug: 'awa-sarr' }) ?? '',
+    }));
+    const plan = planRedirects([], added, []);
+    expect(table([], plan)).toEqual(
+      new Map([
+        ['/fr/equipe/awa-sar', '/fr/equipe/awa-sarr'],
+        ['/en/team/awa-sar', '/en/team/awa-sarr'],
+      ]),
+    );
+  });
 });
 
 describe('planRedirects', () => {

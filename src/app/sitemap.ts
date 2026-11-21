@@ -5,6 +5,7 @@ import {
   listAccommodations,
   listDestinations,
   listExperiences,
+  listGuides,
   listStays,
   listUniverses,
   listVideos,
@@ -14,13 +15,15 @@ import { populated, populatedList } from '@/lib/cms/populated';
 import { experienceAlternates, universeAlternates } from '@/lib/experiencePaths';
 import { mp4Url, thumbnailUrl } from '@/lib/mux';
 import {
+  authorEntries,
   entriesForRoute,
   fixedEntries,
+  guideEntries,
   isListable,
   type SitemapVideo,
 } from '@/lib/seo/sitemapEntries';
 import { absoluteUrl } from '@/lib/site';
-import type { Media } from '@/payload-types';
+import type { Guide, Media, TeamMember } from '@/payload-types';
 
 // /sitemap.xml (contrat routes.md) : pages fixes livrées + fiches publiées, une entrée par
 // langue publiée avec hreflang, `lastModified` réel et images (principale + galerie).
@@ -147,6 +150,54 @@ const filmEntries = async (): Promise<MetadataRoute.Sitemap> => {
   return perLocale.flat();
 };
 
+/** Images insérées dans un corps Lexical (nœuds upload peuplés). */
+const bodyImages = (node: unknown): string[] => {
+  if (typeof node !== 'object' || node === null) return [];
+  const value: unknown = Reflect.get(node, 'value');
+  const url: unknown =
+    typeof value === 'object' && value !== null ? Reflect.get(value, 'url') : null;
+  const own = Reflect.get(node, 'type') === 'upload' && typeof url === 'string' ? url : null;
+  const children: unknown = Reflect.get(node, 'children');
+  const root: unknown = Reflect.get(node, 'root');
+  return [
+    ...(own ? [own.startsWith('http') ? own : absoluteUrl(own)] : []),
+    ...(root ? bodyImages(root) : []),
+    ...(Array.isArray(children) ? children.flatMap(bodyImages) : []),
+  ];
+};
+
+/** Guides publiés (004) : langues publiées, date de mise à jour de fond, images. */
+const guideSitemapEntries = async (): Promise<MetadataRoute.Sitemap> => {
+  if (!isListable('guide')) return [];
+  const guides = (await listGuides('fr')).filter((guide) => !guide.seo?.noindex);
+  const entries = await Promise.all(
+    guides.map(async (guide) =>
+      guideEntries({
+        slugs: await getAlternates('guides', guide.id),
+        updatedOn: guide.updatedOn ?? null,
+        images: [...imagesOf(guide), ...bodyImages(guide.body)],
+      }),
+    ),
+  );
+  return entries.flat();
+};
+
+/** Pages d'auteur (004) : membres signant ou relisant un guide publié, par langue. */
+const authorSitemapEntries = async (): Promise<MetadataRoute.Sitemap> => {
+  if (!isListable('author')) return [];
+  const locales = new Map<string, Set<'fr' | 'en'>>();
+  for (const locale of ['fr', 'en'] as const) {
+    const guides: Guide[] = await listGuides(locale);
+    for (const guide of guides) {
+      for (const value of [guide.author, guide.reviewer]) {
+        const slug = populated<TeamMember>(value)?.slug;
+        if (slug) locales.set(slug, (locales.get(slug) ?? new Set()).add(locale));
+      }
+    }
+  }
+  return [...locales].flatMap(([slug, set]) => authorEntries(slug, [...set]));
+};
+
 const sitemap = async (): Promise<MetadataRoute.Sitemap> => [
   ...fixedEntries(),
   ...(await filmEntries()),
@@ -155,6 +206,8 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => [
   ...(await experienceEntries()),
   ...(await destinationEntries()),
   ...(await accommodationEntries()),
+  ...(await guideSitemapEntries()),
+  ...(await authorSitemapEntries()),
 ];
 
 export default sitemap;
