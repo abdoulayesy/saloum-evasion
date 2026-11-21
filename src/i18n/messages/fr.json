@@ -42,7 +42,8 @@
     "legal": "Mentions légales",
     "privacy": "Confidentialité",
     "request": "Demande de séjour",
-    "requestThanks": "Merci"
+    "requestThanks": "Merci",
+    "guidesHub": "Carnets du Saloum"
   },
   "errors": {
     "notFoundTitle": "Page introuvable",
@@ -181,7 +182,7 @@
     "seasonRange": "{from} à {to}"
   },
   "hub": {
-    "intro": "Mangrove, villages, table : choisissez votre façon de vivre le Saloum, avec des guides d’ici.",
+    "intro": "Activités et excursions dans le Sine-Saloum : mangrove, villages, table. Choisissez votre façon de vivre le Saloum, avec des guides d’ici.",
     "universes": "Les univers",
     "all": "Toutes les expériences",
     "count": "{count, plural, one {# expérience} other {# expériences}}"
@@ -634,5 +635,29 @@
       "confirmation": "Cochez la case pour confirmer votre demande.",
       "lignes": "Choisissez au moins une prestation à annuler."
     }
+  },
+  "guides": {
+    "hubIntroFallback": "Des guides pratiques écrits et relus par notre équipe de Ndangane.",
+    "by": "Par",
+    "reviewedBy": "Relu par",
+    "updatedOn": "Mis à jour le {date}",
+    "readingTime": "{minutes} min de lecture",
+    "toc": "Sommaire",
+    "relatedTitle": "Pour aller plus loin",
+    "fromPrice": "à partir de",
+    "aboutAuthor": "L’auteur",
+    "authorPageLink": "Tous les guides de {name}",
+    "moreGuides": "D’autres carnets",
+    "whatsapp": "Une question ? Écrivez-nous sur WhatsApp",
+    "teaserTitle": "À lire dans les Carnets du Saloum",
+    "authorGuides": "Ses guides",
+    "teamLink": "Toute l’équipe",
+    "basedIn": "Basé à {place}",
+    "faq": "Questions fréquentes",
+    "credit": "Photo :",
+    "boxInfo": "Bon à savoir",
+    "boxWarning": "Attention",
+    "hubMetaTitle": "Carnets du Saloum : guides du Sine-Saloum | Saloum Évasion",
+    "hubMetaDescription": "Que faire, quand partir, comment venir, culture et nature : les guides pratiques du Sine-Saloum écrits et relus par notre équipe de Ndangane."
   }
 }

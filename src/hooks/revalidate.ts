@@ -40,6 +40,40 @@ const relatedDestinationTags = (doc: unknown): string[] => {
   });
 };
 
+const GUIDE_RELATIONS: readonly [string, string][] = [
+  ['author', 'teamMembers'],
+  ['reviewer', 'teamMembers'],
+  ['relatedStays', 'stays'],
+  ['relatedExperiences', 'experiences'],
+  ['relatedAccommodations', 'accommodations'],
+  ['relatedDestinations', 'destinations'],
+];
+
+const idOf = (value: unknown): number | string | null => {
+  if (typeof value === 'number' || typeof value === 'string') return value;
+  if (typeof value === 'object' && value !== null && 'id' in value) {
+    const id = value.id;
+    return typeof id === 'number' || typeof id === 'string' ? id : null;
+  }
+  return null;
+};
+
+/**
+ * Guide (004, R8) : pages d'auteur et de relecteur, fiches liées (encart « À lire dans les
+ * Carnets »), avant comme après la modification.
+ */
+const relatedGuideTags = (doc: unknown): string[] => {
+  if (typeof doc !== 'object' || doc === null) return [];
+  return GUIDE_RELATIONS.flatMap(([field, collection]) => {
+    const value: unknown = Reflect.get(doc, field);
+    const values: unknown[] = Array.isArray(value) ? value : [value];
+    return values.flatMap((item) => {
+      const id = idOf(item);
+      return id === null ? [] : [docTag(collection, id)];
+    });
+  });
+};
+
 export const revalidateCollectionAfterChange: CollectionAfterChangeHook = ({
   doc,
   previousDoc,
@@ -53,6 +87,9 @@ export const revalidateCollectionAfterChange: CollectionAfterChangeHook = ({
     'nav',
     ...relatedDestinationTags(doc),
     ...relatedDestinationTags(previousDoc),
+    ...(collection.slug === 'guides'
+      ? [...relatedGuideTags(doc), ...relatedGuideTags(previousDoc)]
+      : []),
   ]);
   return doc;
 };

@@ -19,11 +19,22 @@ const toId = (value: unknown): number | null => {
   return null;
 };
 
-/** Identifiants des médias référencés par un document (image principale, galerie, partage…). */
+/** Images insérées dans un corps Lexical (nœuds `upload` vers `media`, à toute profondeur). */
+const lexicalUploads = (node: unknown): unknown[] => {
+  if (!isRecord(node)) return [];
+  const own = node.type === 'upload' && node.relationTo === 'media' ? [node.value] : [];
+  const root = isRecord(node.root) ? [node.root] : [];
+  const children = Array.isArray(node.children) ? node.children : [];
+  return [...own, ...[...root, ...children].flatMap(lexicalUploads)];
+};
+
+/** Identifiants des médias référencés par un document (image principale, galerie, partage, corps…). */
 export const referencedMediaIds = (data: Obj): number[] => {
   const ids: unknown[] = [data.heroImage, data.image, data.poster, data.photo];
   if (Array.isArray(data.gallery)) ids.push(...data.gallery);
   if (isRecord(data.seo)) ids.push(data.seo.shareImage);
+  // Guides (004, T050) : images du corps.
+  ids.push(...lexicalUploads(data.body));
   return [...new Set(ids.map(toId).filter((id): id is number => id !== null))];
 };
 
@@ -45,7 +56,8 @@ export const missingMediaFields = (media: Obj): string[] => {
 const describeMedia = (media: Obj): string =>
   typeof media.filename === 'string' ? media.filename : `photo n° ${String(media.id)}`;
 
-const checkMedia = async (req: PayloadRequest, ids: number[]): Promise<string[]> => {
+/** Problèmes des médias `ids` (texte alternatif, provenance), un message par photo. */
+export const checkMedia = async (req: PayloadRequest, ids: number[]): Promise<string[]> => {
   if (ids.length === 0) return [];
   const result = await req.payload.find({
     collection: 'media',

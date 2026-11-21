@@ -77,9 +77,11 @@ test.describe('pages institutionnelles', () => {
       'Lecture des vidéos',
       'Comptes de l’équipe',
       'Protection du formulaire contre les abus',
+      // 004 (T074) : pages d'auteur des Carnets du Saloum.
+      'Pages d’auteur de l’équipe',
     ]) {
       await expect(page.getByRole('heading', { name: purpose, level: 3 })).toBeVisible();
     }
-    await expect(page.getByText('Transferts hors du Sénégal', { exact: true })).toHaveCount(10);
+    await expect(page.getByText('Transferts hors du Sénégal', { exact: true })).toHaveCount(11);
   });
 });

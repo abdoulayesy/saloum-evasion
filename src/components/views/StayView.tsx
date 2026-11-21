@@ -1,5 +1,6 @@
 import { BookOnline } from '@/components/checkout/BookOnline';
 import { RichText } from '@payloadcms/richtext-lexical/react';
+import { GuidesTeaser } from '@/components/guides/GuidesTeaser';
 import { getTranslations } from 'next-intl/server';
 import { StayCard } from '@/components/cards/StayCard';
 import { Gallery } from '@/components/client/Gallery';
@@ -382,6 +383,9 @@ export const StayView = async ({
           </section>
         </Container>
       )}
+
+      {/* 004 (US2) : guides des Carnets du Saloum liés à la fiche. */}
+      <GuidesTeaser collection="stays" id={stay.id} locale={locale} from="stay" />
 
       {similar.length > 0 && (
         <Container className="mt-10">

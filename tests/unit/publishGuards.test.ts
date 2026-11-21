@@ -24,6 +24,22 @@ describe('garde-fous de publication', () => {
     ).toEqual(['texte alternatif anglais', 'lieu', 'date de prise de vue']);
   });
 
+  // 004 (T047) : images insérées dans le corps Lexical d'un guide.
+  it('collecte aussi les images du corps Lexical, à toute profondeur', () => {
+    const body = {
+      root: {
+        type: 'root',
+        children: [
+          { type: 'paragraph', children: [{ type: 'text', text: 'x' }] },
+          { type: 'upload', relationTo: 'media', value: 7 },
+          { type: 'list', children: [{ type: 'upload', relationTo: 'media', value: { id: 8 } }] },
+          { type: 'upload', relationTo: 'documents', value: 99 },
+        ],
+      },
+    };
+    expect(referencedMediaIds({ heroImage: 1, body })).toEqual([1, 7, 8]);
+  });
+
   it('photo complète : rien ne manque', () => {
     expect(
       missingMediaFields({

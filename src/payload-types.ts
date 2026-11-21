@@ -79,6 +79,8 @@ export interface Config {
     faqItems: FaqItem;
     cancellationPolicies: CancellationPolicy;
     teamMembers: TeamMember;
+    guides: Guide;
+    guideThemes: GuideTheme;
     requests: Request;
     partners: Partner;
     carts: Cart;
@@ -113,6 +115,8 @@ export interface Config {
     faqItems: FaqItemsSelect<false> | FaqItemsSelect<true>;
     cancellationPolicies: CancellationPoliciesSelect<false> | CancellationPoliciesSelect<true>;
     teamMembers: TeamMembersSelect<false> | TeamMembersSelect<true>;
+    guides: GuidesSelect<false> | GuidesSelect<true>;
+    guideThemes: GuideThemesSelect<false> | GuideThemesSelect<true>;
     requests: RequestsSelect<false> | RequestsSelect<true>;
     partners: PartnersSelect<false> | PartnersSelect<true>;
     carts: CartsSelect<false> | CartsSelect<true>;
@@ -937,9 +941,135 @@ export interface Page {
 export interface TeamMember {
   id: number;
   name: string;
+  /**
+   * Prénom-nom en minuscules avec tirets (ex. « aissatou-diop ») : /fr/equipe/… et /en/team/…. Obligatoire pour signer un guide.
+   */
+  slug?: string | null;
   role?: string | null;
+  place?: string | null;
   photo: number | Media;
+  /**
+   * 80 à 200 mots pour signer un guide dans cette langue.
+   */
   bio?: string | null;
+  sameAs?:
+    | {
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Un membre inactif garde ses signatures existantes.
+   */
+  active?: boolean | null;
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "guides".
+ */
+export interface Guide {
+  id: number;
+  title?: string | null;
+  /**
+   * De 140 à 300 caractères conseillés.
+   */
+  standfirst?: string | null;
+  heroImage: number | Media;
+  theme: number | GuideTheme;
+  /**
+   * Plus petit = affiché d’abord sur les fiches liées.
+   */
+  priority?: number | null;
+  author: number | TeamMember;
+  reviewer?: (number | null) | TeamMember;
+  /**
+   * Sujet culturel sensible (ex. culture sérère) : un relecteur issu de la communauté ou consulté est obligatoire.
+   */
+  requiresCommunityReview?: boolean | null;
+  /**
+   * Intertitres H2 (entrées de la table des matières) et H3. Au moins 600 mots conseillés.
+   */
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  faq?: (number | FaqItem)[] | null;
+  /**
+   * Dans l’ordre d’affichage.
+   */
+  relatedStays?: (number | Stay)[] | null;
+  /**
+   * Dans l’ordre d’affichage.
+   */
+  relatedExperiences?: (number | Experience)[] | null;
+  /**
+   * Dans l’ordre d’affichage.
+   */
+  relatedAccommodations?: (number | Accommodation)[] | null;
+  /**
+   * Dans l’ordre d’affichage.
+   */
+  relatedDestinations?: (number | Destination)[] | null;
+  /**
+   * À cocher pour une mise à jour de fond : la date « Mis à jour le » devient celle du jour. Une correction mineure ne change pas la date.
+   */
+  substantiveUpdate?: boolean | null;
+  publishedOn?: string | null;
+  updatedOn?: string | null;
+  reviewDue?: boolean | null;
+  readingMinutes?: number | null;
+  /**
+   * Title ≤ 60 caractères et description ≤ 155, uniques sur tout le site.
+   */
+  seo?: {
+    /**
+     * Généré depuis le titre si vide. Ex. week-end-bolong.
+     */
+    slug?: string | null;
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    /**
+     * Facultative : l’image principale est utilisée par défaut.
+     */
+    shareImage?: (number | null) | Media;
+    targetKeyword?: string | null;
+    noindex?: boolean | null;
+  };
+  localeStatus?: {
+    /**
+     * Calculé à l’enregistrement en anglais : titre, slug, title, description (et texte de 300 mots pour les fiches).
+     */
+    enPublished?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "guideThemes".
+ */
+export interface GuideTheme {
+  id: number;
+  name?: string | null;
+  /**
+   * Identifiant utilisé par les brouillons Markdown (ex. « que-faire »).
+   */
+  key: string;
   order?: number | null;
   updatedAt: string;
   createdAt: string;
@@ -1536,6 +1666,14 @@ export interface PayloadLockedDocument {
         value: number | TeamMember;
       } | null)
     | ({
+        relationTo: 'guides';
+        value: number | Guide;
+      } | null)
+    | ({
+        relationTo: 'guideThemes';
+        value: number | GuideTheme;
+      } | null)
+    | ({
         relationTo: 'requests';
         value: number | Request;
       } | null)
@@ -2130,9 +2268,72 @@ export interface CancellationPoliciesSelect<T extends boolean = true> {
  */
 export interface TeamMembersSelect<T extends boolean = true> {
   name?: T;
+  slug?: T;
   role?: T;
+  place?: T;
   photo?: T;
   bio?: T;
+  sameAs?:
+    | T
+    | {
+        url?: T;
+        id?: T;
+      };
+  active?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "guides_select".
+ */
+export interface GuidesSelect<T extends boolean = true> {
+  title?: T;
+  standfirst?: T;
+  heroImage?: T;
+  theme?: T;
+  priority?: T;
+  author?: T;
+  reviewer?: T;
+  requiresCommunityReview?: T;
+  body?: T;
+  faq?: T;
+  relatedStays?: T;
+  relatedExperiences?: T;
+  relatedAccommodations?: T;
+  relatedDestinations?: T;
+  substantiveUpdate?: T;
+  publishedOn?: T;
+  updatedOn?: T;
+  reviewDue?: T;
+  readingMinutes?: T;
+  seo?:
+    | T
+    | {
+        slug?: T;
+        metaTitle?: T;
+        metaDescription?: T;
+        shareImage?: T;
+        targetKeyword?: T;
+        noindex?: T;
+      };
+  localeStatus?:
+    | T
+    | {
+        enPublished?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "guideThemes_select".
+ */
+export interface GuideThemesSelect<T extends boolean = true> {
+  name?: T;
+  key?: T;
   order?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2685,13 +2886,15 @@ export interface Navigation {
   createdAt?: string | null;
 }
 /**
+ * Le taux appliqué à une réservation est celui en vigueur au moment de son premier paiement réussi ; il est figé ensuite. Changer un taux ne modifie donc jamais les réservations déjà payées.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "commissionRates".
  */
 export interface CommissionRate {
   id: number;
   /**
-   * Taux en points de base, entre 1000 (10 %) et 2500 (25 %). Le taux appliqué est le plus récent dont la date d’effet est passée.
+   * Pour changer un taux, ajoutez une ligne avec sa date d’effet (aujourd’hui ou plus tard) : les lignes déjà en vigueur restent dans l’historique et ne se modifient pas. Taux en points de base, entre 1000 (10 %) et 2500 (25 %) : 1500 = 15 %. Le taux appliqué est le plus récent dont la date d’effet est passée.
    */
   rates?:
     | {

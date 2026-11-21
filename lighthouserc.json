@@ -30,6 +30,10 @@
         "http://localhost:3000/en/our-commitment",
         "http://localhost:3000/fr/a-propos",
         "http://localhost:3000/en/about",
+        "http://localhost:3000/fr/carnets-du-saloum",
+        "http://localhost:3000/en/saloum-travel-guides",
+        "http://localhost:3000/fr/carnets-du-saloum/guide-de-demonstration",
+        "http://localhost:3000/fr/equipe/membre-demo-1",
         "http://localhost:3000/fr/demande",
         "http://localhost:3000/en/request",
         "http://localhost:3000/fr/panier",
@@ -46,7 +50,7 @@
     "assert": {
       "assertMatrix": [
         {
-          "matchingUrlPattern": "/(fr|en)$|/(fr/sejours|en/stays|fr/experiences|en/experiences|fr/destinations|en/destinations|fr/hebergements|en/accommodation|fr/film-immersion|en/immersion-film|fr/notre-engagement|en/our-commitment|fr/a-propos|en/about)(/|$)",
+          "matchingUrlPattern": "/(fr|en)$|/(fr/sejours|en/stays|fr/experiences|en/experiences|fr/destinations|en/destinations|fr/hebergements|en/accommodation|fr/film-immersion|en/immersion-film|fr/notre-engagement|en/our-commitment|fr/a-propos|en/about|fr/carnets-du-saloum|en/saloum-travel-guides)(/|$)",
           "aggregationMethod": "median",
           "assertions": {
             "categories:performance": [
@@ -100,7 +104,7 @@
           }
         },
         {
-          "matchingUrlPattern": "^(?!.*(/(fr/demande|en/request|fr/panier|en/cart|fr/commande/coordonnees)$|/(fr|en)$|/(fr/sejours|en/stays|fr/experiences|en/experiences|fr/destinations|en/destinations|fr/hebergements|en/accommodation|fr/film-immersion|en/immersion-film|fr/notre-engagement|en/our-commitment|fr/a-propos|en/about)(/|$))).*",
+          "matchingUrlPattern": "^(?!.*(/(fr/demande|en/request|fr/panier|en/cart|fr/commande/coordonnees)$|/(fr|en)$|/(fr/sejours|en/stays|fr/experiences|en/experiences|fr/destinations|en/destinations|fr/hebergements|en/accommodation|fr/film-immersion|en/immersion-film|fr/notre-engagement|en/our-commitment|fr/a-propos|en/about|fr/carnets-du-saloum|en/saloum-travel-guides)(/|$))).*",
           "aggregationMethod": "median",
           "assertions": {
             "categories:performance": [

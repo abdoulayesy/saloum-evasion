@@ -6,7 +6,9 @@ import { expectNoHorizontalScroll, expectTouchTargets } from './support/mobile';
 test.describe('hub des expériences et univers', () => {
   test('hub : H1, trois univers, toutes les expériences', async ({ page }) => {
     await page.goto('/fr/experiences');
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Que faire au Sine-Saloum');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      'Activités et excursions dans le Sine-Saloum',
+    );
     await expect(page.locator('#hub-univers + ul > li')).toHaveCount(3);
     // Présence des expériences du seed (un test de publication peut en ajouter temporairement).
     for (const title of [

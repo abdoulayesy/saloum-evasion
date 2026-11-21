@@ -22,7 +22,9 @@ const messages = { fr, en };
 
 type ListRoute = Extract<
   Route,
-  { type: 'staysList' | 'experiencesHub' | 'accommodationsList' | 'destinationsList' }
+  {
+    type: 'staysList' | 'experiencesHub' | 'accommodationsList' | 'destinationsList' | 'guidesHub';
+  }
 >;
 
 export const buildBreadcrumbs = ({
@@ -55,7 +57,17 @@ export const buildBreadcrumbs = ({
     case 'contact':
     case 'legal':
     case 'privacy':
+    case 'guidesHub':
       return [home, { name: labels.routes[route.type] }];
+    case 'guide':
+      return [home, list({ type: 'guidesHub' }), current(route.slug)];
+    case 'author':
+      // Contrat jsonld 004 : Accueil › À propos › auteur.
+      return [
+        home,
+        { name: labels.routes.about, path: buildPath(locale, { type: 'about' }) },
+        current(route.slug),
+      ];
     case 'stay':
       return [home, list({ type: 'staysList' }), current(route.slug)];
     case 'universe':

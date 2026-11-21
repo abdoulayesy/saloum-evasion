@@ -31,7 +31,10 @@ export type AnalyticsEvent =
   | 'cart_item_added'
   | 'cart_view'
   | 'checkout_details_view'
-  | 'checkout_payment_view';
+  | 'checkout_payment_view'
+  // Carnets du Saloum (004, contracts/analytics-events.md).
+  | 'guide_offer_click'
+  | 'guide_card_click';
 
 /** File d'attente Plausible (remplacée par le script une fois chargé). */
 const queue = (): PlausibleQueue => {
@@ -61,6 +64,11 @@ const SECTION_TYPES: Record<string, string> = {
   destinations: 'destination',
   demande: 'request',
   request: 'request',
+  // 004 : Carnets du Saloum et pages d'auteur.
+  'carnets-du-saloum': 'guide',
+  'saloum-travel-guides': 'guide',
+  equipe: 'author',
+  team: 'author',
 };
 
 /** Modèle de route sans identifiant : `/fr/sejours/x` → `/[locale]/sejours/[slug]`. */
@@ -85,9 +93,34 @@ export const pageType = (pathname: string): string => {
   if (!type) return section;
   if (type === 'request') return second ? 'request_thanks' : 'request';
   if (type === 'experience') return third ? 'experience' : second ? 'universe' : 'experiences_hub';
+  if (type === 'guide') return second ? 'guide' : 'guides_hub';
   return second ? type : `${type}s_list`;
 };
 
 /** Tranche de durée d'une demande (`<60s`, `60-120s`, `>120s`). */
 export const durationBucket = (milliseconds: number): string =>
   milliseconds < 60_000 ? '<60s' : milliseconds <= 120_000 ? '60-120s' : '>120s';
+
+const GUIDE_TARGETS: ReadonlySet<string> = new Set([
+  'stay',
+  'experience',
+  'accommodation',
+  'destination',
+]);
+
+export type GuideClick = { kind: 'offer' | 'card'; guide: string; value: string };
+
+/**
+ * Évènement d'un clic depuis les Carnets (004) : `offer` = lien d'offre dans un guide
+ * (`data-guide-link`), `card` = carte de l'encart d'une fiche (`data-guide-card`). Pur ; `null`
+ * si la valeur n'est pas un type d'offre connu ou si le guide manque.
+ */
+export const guideClickEvent = (
+  click: GuideClick,
+  locale: string,
+): { event: AnalyticsEvent; props: Record<string, string> } | null => {
+  if (!click.guide || !GUIDE_TARGETS.has(click.value)) return null;
+  return click.kind === 'offer'
+    ? { event: 'guide_offer_click', props: { guide: click.guide, target: click.value, locale } }
+    : { event: 'guide_card_click', props: { guide: click.guide, from: click.value, locale } };
+};

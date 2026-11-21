@@ -5,10 +5,27 @@ import type { Locale } from '@/i18n/routing';
 // Pur : les slugs nécessaires sont fournis par l'appelant.
 
 export type RoutedCollection =
-  'stays' | 'experiences' | 'accommodations' | 'destinations' | 'universes';
+  | 'stays'
+  | 'experiences'
+  | 'accommodations'
+  | 'destinations'
+  | 'universes'
+  // 004 : guides et pages d'auteur (membres de l'équipe).
+  | 'guides'
+  | 'teamMembers';
+
+const ROUTED_COLLECTIONS: readonly RoutedCollection[] = [
+  'stays',
+  'experiences',
+  'accommodations',
+  'destinations',
+  'universes',
+  'guides',
+  'teamMembers',
+];
 
 export const isRoutedCollection = (slug: string): slug is RoutedCollection =>
-  ['stays', 'experiences', 'accommodations', 'destinations', 'universes'].includes(slug);
+  ROUTED_COLLECTIONS.some((collection) => collection === slug);
 
 export type PathInput = {
   collection: RoutedCollection;
@@ -31,6 +48,10 @@ const routeFor = ({ collection, slug, universeSlug }: PathInput): Route | null =
       return { type: 'universe', universe: slug };
     case 'experiences':
       return universeSlug ? { type: 'experience', universe: universeSlug, slug } : null;
+    case 'guides':
+      return { type: 'guide', slug };
+    case 'teamMembers':
+      return { type: 'author', slug };
     default: {
       const unreachable: never = collection;
       return unreachable;
@@ -66,6 +87,10 @@ export const parentPath = (
       return universeSlug
         ? buildPath(locale, { type: 'universe', universe: universeSlug })
         : buildPath(locale, { type: 'experiencesHub' });
+    case 'guides':
+      return buildPath(locale, { type: 'guidesHub' });
+    case 'teamMembers':
+      return buildPath(locale, { type: 'about' });
     default: {
       const unreachable: never = collection;
       return unreachable;
