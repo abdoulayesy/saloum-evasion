@@ -56,7 +56,14 @@ const relationId = (value: unknown): number | null => {
 const readMain = async (req: PayloadRequest, collection: RoutedCollection, id: number) =>
   req.payload.db.findOne<Row>({ collection, where: { id: { equals: id } }, locale: 'all', req });
 
+/**
+ * Slugs par langue. Membre de l'équipe (page d'auteur, 004) : un seul slug, non localisé, commun
+ * aux deux langues ; les autres contenus : `seo.slug` localisé.
+ */
 const slugsOf = (row: Row | null): Partial<Record<Locale, string>> => {
+  if (row && typeof row.slug === 'string' && row.slug !== '' && !isRecord(row.seo)) {
+    return { fr: row.slug, en: row.slug };
+  }
   const seo = row && isRecord(row.seo) ? row.seo : null;
   const result: Partial<Record<Locale, string>> = {};
   for (const locale of routing.locales) {
@@ -66,7 +73,8 @@ const slugsOf = (row: Row | null): Partial<Record<Locale, string>> => {
   return result;
 };
 
-const publishedLocales = (row: Row): Locale[] => {
+const publishedLocales = (collection: RoutedCollection, row: Row): Locale[] => {
+  if (collection === 'teamMembers') return ['fr', 'en'];
   const status = isRecord(row.localeStatus) ? row.localeStatus : {};
   return status.enPublished === true ? ['fr', 'en'] : ['fr'];
 };
@@ -84,7 +92,7 @@ const pathsOf = (
 ): Paths => {
   const slugs = slugsOf(row);
   const paths: Paths = {};
-  for (const locale of publishedLocales(row)) {
+  for (const locale of publishedLocales(collection, row)) {
     const path = documentPath({
       collection,
       locale,
@@ -123,9 +131,14 @@ const readState = async (
   const row = await readMain(req, collection, id);
   if (!row) return null;
   const universeSlugs = collection === 'experiences' ? await universeSlugsOf(req, row) : {};
+  // Membre de l'équipe : sans brouillon, « public » dès qu'il a un slug (page d'auteur).
+  const published =
+    collection === 'teamMembers'
+      ? typeof row.slug === 'string' && row.slug !== ''
+      : row._status === 'published';
   return {
-    published: row._status === 'published',
-    paths: row._status === 'published' ? pathsOf(collection, row, universeSlugs) : {},
+    published,
+    paths: published ? pathsOf(collection, row, universeSlugs) : {},
     universeSlugs,
     replacementTarget: relationId(row.replacementTarget),
     nested: collection === 'universes' ? await nestedExperiences(req, id) : new Map(),

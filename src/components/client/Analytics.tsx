@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { pageType, track } from '@/lib/analytics';
+import { guideClickEvent, pageType, track } from '@/lib/analytics';
 
 // Plausible (T161) : script chargé en `requestIdleCallback` (repli : `load` + 2 s), seulement si
 // un domaine est configuré ; aucun script tiers dans le HTML initial. Un seul écouteur délégué
@@ -15,6 +15,7 @@ const placementOf = (element: Element): string => {
   if (element.closest('header')) return 'header';
   if (element.closest('footer')) return 'footer';
   if (element.closest('[data-request-confirmation]')) return 'confirmation';
+  if (element.closest('[data-guide-contact]')) return 'guide';
   return 'page';
 };
 
@@ -56,6 +57,30 @@ export const Analytics = ({ domain, scriptSrc }: AnalyticsProps) => {
       if (link.hostname === 'wa.me') {
         track('whatsapp_click', { placement: placementOf(link), pageType: page });
       }
+      // Carnets du Saloum (004) : lien d'offre dans un guide, carte de l'encart d'une fiche.
+      const offer = link.closest<HTMLElement>('[data-guide-link]');
+      const card = link.closest<HTMLElement>('[data-guide-card]');
+      const locale = window.location.pathname.split('/')[1] ?? '';
+      const click = offer
+        ? guideClickEvent(
+            {
+              kind: 'offer',
+              guide: offer.dataset.guide ?? '',
+              value: offer.dataset.guideLink ?? '',
+            },
+            locale,
+          )
+        : card
+          ? guideClickEvent(
+              {
+                kind: 'card',
+                guide: card.dataset.guide ?? '',
+                value: card.dataset.guideCard ?? '',
+              },
+              locale,
+            )
+          : null;
+      if (click) track(click.event, click.props);
     };
     document.addEventListener('click', onClick, { capture: true });
     return () => document.removeEventListener('click', onClick, { capture: true });

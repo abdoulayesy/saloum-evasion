@@ -25,6 +25,8 @@ export type MetadataInput = {
   image?: OgImage;
   noindex?: boolean;
   type?: 'website' | 'article';
+  /** Open Graph `article` (guides 004) : dates civiles et URL des pages d'auteur. */
+  article?: { publishedTime: string; modifiedTime: string; authors: readonly string[] };
 };
 
 const otherLocales = (locale: Locale, paths: MetadataInput['paths']): Locale[] => {
@@ -40,6 +42,7 @@ export const buildMetadata = ({
   image = DEFAULT_OG_IMAGE,
   noindex = false,
   type = 'website',
+  article,
 }: MetadataInput): Metadata => {
   const ownPath = paths[locale];
   if (ownPath === undefined) throw new Error(`Chemin manquant pour la langue ${locale}`);
@@ -66,7 +69,14 @@ export const buildMetadata = ({
     description,
     alternates: noindex ? undefined : { canonical, languages },
     openGraph: {
-      type,
+      type: article ? 'article' : type,
+      ...(article
+        ? {
+            publishedTime: article.publishedTime,
+            modifiedTime: article.modifiedTime,
+            authors: [...article.authors],
+          }
+        : {}),
       locale: ogLocale[locale],
       alternateLocale: otherLocales(locale, paths).map((other) => ogLocale[other]),
       url: canonical,

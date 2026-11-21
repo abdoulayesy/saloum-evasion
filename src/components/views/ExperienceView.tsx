@@ -1,5 +1,6 @@
 import { BookOnline } from '@/components/checkout/BookOnline';
 import { RichText } from '@payloadcms/richtext-lexical/react';
+import { GuidesTeaser } from '@/components/guides/GuidesTeaser';
 import { getTranslations } from 'next-intl/server';
 import { ExperienceCard } from '@/components/cards/ExperienceCard';
 import { StayCard } from '@/components/cards/StayCard';
@@ -300,6 +301,9 @@ export const ExperienceView = async ({
           </section>
         </Container>
       )}
+
+      {/* 004 (US2) : guides des Carnets du Saloum liés à la fiche. */}
+      <GuidesTeaser collection="experiences" id={experience.id} locale={locale} from="experience" />
 
       {inStays.length > 0 && (
         <Container className="mt-10">

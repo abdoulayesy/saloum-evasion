@@ -14,6 +14,8 @@ import { Carts } from './collections/Carts';
 import { CommissionEntries } from './collections/CommissionEntries';
 import { Destinations } from './collections/Destinations';
 import { Experiences } from './collections/Experiences';
+import { GuideThemes } from './collections/GuideThemes';
+import { Guides } from './collections/Guides';
 import { FaqItems } from './collections/FaqItems';
 import { Media } from './collections/Media';
 import { Notifications } from './collections/Notifications';
@@ -93,6 +95,9 @@ export default buildConfig({
     FaqItems,
     CancellationPolicies,
     TeamMembers,
+    // 004 : Carnets du Saloum.
+    Guides,
+    GuideThemes,
     Requests,
     Partners,
     Carts,

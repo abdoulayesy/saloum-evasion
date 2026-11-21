@@ -248,6 +248,23 @@ const blocksByPage = (
               transfers: t('États-Unis (Mux)', 'United States (Mux)'),
             },
             {
+              purpose: t('Pages d’auteur de l’équipe', 'Team author pages'),
+              data: t(
+                'Nom, rôle, lieu, photo, présentation et liens publics des membres qui signent ou relisent un guide des Carnets du Saloum.',
+                'Name, role, place, photo, bio and public links of the team members who write or review a Saloum Travel Guide.',
+              ),
+              legalBasis: t(
+                'Consentement du membre, retirable à tout moment',
+                'Consent of the team member, which can be withdrawn at any time',
+              ),
+              retention: t(
+                'Tant que le membre signe ou relit un guide publié ; page retirée ensuite',
+                'As long as the member writes or reviews a published guide; page removed afterwards',
+              ),
+              recipients: t('Public (pages du site)', 'Public (website pages)'),
+              transfers: t('Europe de l’Ouest (hébergeur)', 'Western Europe (host)'),
+            },
+            {
               purpose: t('Comptes de l’équipe', 'Team accounts'),
               data: t('Nom, e-mail, rôle, dates de connexion.', 'Name, email, role, login dates.'),
               legalBasis: t(

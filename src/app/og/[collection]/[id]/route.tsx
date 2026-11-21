@@ -11,7 +11,15 @@ import type { Media } from '@/payload-types';
 // document, recadrée, avec le titre et la marque. Collections couvertes à mesure que leurs
 // pages sont livrées.
 
-const SUPPORTED = ['stays', 'experiences', 'universes', 'destinations', 'accommodations'] as const;
+const SUPPORTED = [
+  'stays',
+  'experiences',
+  'universes',
+  'destinations',
+  'accommodations',
+  // 004 : guides des Carnets du Saloum (titre et image principale).
+  'guides',
+] as const;
 type Supported = (typeof SUPPORTED)[number];
 
 const isSupported = (value: string): value is Supported => SUPPORTED.some((slug) => slug === value);

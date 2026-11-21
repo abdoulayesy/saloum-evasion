@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { durationBucket, pageType, routeTemplate } from '@/lib/analytics';
+import { durationBucket, guideClickEvent, pageType, routeTemplate } from '@/lib/analytics';
 
 // T161 : propriétés des évènements sans identifiant (modèle de route, type de page, tranche).
 describe('mesure d’audience', () => {
@@ -34,5 +34,41 @@ describe('mesure d’audience', () => {
     expect(durationBucket(45_000)).toBe('<60s');
     expect(durationBucket(90_000)).toBe('60-120s');
     expect(durationBucket(150_000)).toBe('>120s');
+  });
+});
+
+// T064 (004, US5, contracts/analytics-events.md) : clics mesurés depuis les guides et l'encart.
+describe('mesure des Carnets du Saloum', () => {
+  it('type de page des guides, de la rubrique et des auteurs', () => {
+    expect(pageType('/fr/carnets-du-saloum')).toBe('guides_hub');
+    expect(pageType('/en/saloum-travel-guides/dakar-to-ndangane')).toBe('guide');
+    expect(pageType('/fr/equipe/awa-sarr')).toBe('author');
+    expect(routeTemplate('/fr/carnets-du-saloum/mar-lodj')).toBe(
+      '/[locale]/carnets-du-saloum/[slug]',
+    );
+  });
+
+  it('clic vers une offre depuis un guide : guide, cible, langue', () => {
+    expect(
+      guideClickEvent(
+        { kind: 'offer', guide: 'mar-lodj-ile-sans-voitures', value: 'destination' },
+        'fr',
+      ),
+    ).toEqual({
+      event: 'guide_offer_click',
+      props: { guide: 'mar-lodj-ile-sans-voitures', target: 'destination', locale: 'fr' },
+    });
+  });
+
+  it('clic sur une carte de l’encart : guide, type de fiche, langue', () => {
+    expect(guideClickEvent({ kind: 'card', guide: 'serer-culture', value: 'stay' }, 'en')).toEqual({
+      event: 'guide_card_click',
+      props: { guide: 'serer-culture', from: 'stay', locale: 'en' },
+    });
+  });
+
+  it('valeur inconnue ou guide absent : aucun évènement', () => {
+    expect(guideClickEvent({ kind: 'offer', guide: 'x', value: 'transfer' }, 'fr')).toBeNull();
+    expect(guideClickEvent({ kind: 'card', guide: '', value: 'stay' }, 'fr')).toBeNull();
   });
 });

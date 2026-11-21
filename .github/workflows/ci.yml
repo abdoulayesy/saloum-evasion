@@ -62,7 +62,8 @@ jobs:
         run: pnpm migrate
 
       - name: Données de démonstration (seed)
-        run: pnpm seed && pnpm seed:checkout
+        # Guides de démonstration publiés (004, research R12) : tests seulement, refusés en production.
+        run: pnpm seed && pnpm seed:checkout && SEED_GUIDES_DEMO_PUBLISH=1 pnpm seed:guides
 
       - name: Build
         run: pnpm build

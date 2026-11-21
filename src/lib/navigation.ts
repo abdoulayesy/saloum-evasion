@@ -25,6 +25,10 @@ const liveRouteTypes: ReadonlySet<RouteType> = new Set<RouteType>([
   // résolveur des pages publiques ; noindex et hors sitemap.
   'request',
   'requestThanks',
+  // 004 : Carnets du Saloum (rubrique, guides) et pages d'auteur.
+  'guidesHub',
+  'guide',
+  'author',
 ]);
 
 export const isLive = (type: RouteType): boolean => liveRouteTypes.has(type);
@@ -37,6 +41,7 @@ type NavRoute = Extract<
       | 'experiencesHub'
       | 'accommodationsList'
       | 'destinationsList'
+      | 'guidesHub'
       | 'film'
       | 'commitment'
       | 'about'
@@ -50,6 +55,7 @@ const mainNavigation: readonly NavRoute[] = [
   { type: 'experiencesHub' },
   { type: 'accommodationsList' },
   { type: 'destinationsList' },
+  { type: 'guidesHub' },
   { type: 'film' },
   { type: 'commitment' },
   { type: 'about' },

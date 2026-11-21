@@ -3,6 +3,7 @@ import { unstable_cache } from 'next/cache';
 import { getPayload, type DataFromCollectionSlug, type Where } from 'payload';
 import type { PageKey } from '@/collections/Pages';
 import { docTag } from '@/hooks/revalidate';
+import { pickTeaserGuides } from '@/lib/guides/teaser';
 import type { Locale } from '@/i18n/routing';
 import type { FaqItem, SiteSetting, Video } from '@/payload-types';
 
@@ -14,7 +15,7 @@ import type { FaqItem, SiteSetting, Video } from '@/payload-types';
 export const getPayloadClient = () => getPayload({ config });
 
 type PublicCollection =
-  'stays' | 'experiences' | 'accommodations' | 'destinations' | 'universes' | 'pages';
+  'stays' | 'experiences' | 'accommodations' | 'destinations' | 'universes' | 'pages' | 'guides';
 
 const publishedWhere = (locale: Locale, extra: Where[] = []): Where => ({
   and: [
@@ -255,3 +256,97 @@ export const getAlternates = cached(
 
 /** Tag d'un document, réexporté pour les pages qui l'utilisent dans `generateStaticParams`. */
 export { docTag };
+
+// --- Carnets du Saloum (004) ------------------------------------------------------------
+
+/** Collections d'offres et de destinations liées à un guide. */
+export type GuideOfferCollection = 'stays' | 'experiences' | 'accommodations' | 'destinations';
+
+const GUIDE_RELATION: Record<GuideOfferCollection, string> = {
+  stays: 'relatedStays',
+  experiences: 'relatedExperiences',
+  accommodations: 'relatedAccommodations',
+  destinations: 'relatedDestinations',
+};
+
+/**
+ * Tags d'une page qui affiche un guide : le guide, mais aussi les offres, destinations et
+ * auteurs qu'elle montre, revalidés à chaque publication ou dépublication (FR-012, research R8).
+ */
+const GUIDE_PAGE_TAGS = [
+  'guides',
+  'guideThemes',
+  'stays',
+  'experiences',
+  'accommodations',
+  'destinations',
+  'teamMembers',
+  'faqItems',
+];
+
+export const getGuideBySlug = cached(
+  'guide-by-slug',
+  () => GUIDE_PAGE_TAGS,
+  (locale: Locale, slug: string) => findOne('guides', locale, bySlug(slug)),
+);
+
+/** Guides publiés dans la langue (rubrique, guides voisins, sitemap). */
+export const listGuides = cached(
+  'list-guides',
+  () => ['guides', 'guideThemes', 'teamMembers'],
+  (locale: Locale) => findMany('guides', locale, [], 'title'),
+);
+
+/** Guides publiés liés à une fiche, par priorité puis mise à jour la plus récente (FR-011). */
+export const guidesForOffer = cached(
+  'guides-for-offer',
+  () => ['guides'],
+  async (collection: GuideOfferCollection, id: number, locale: Locale, limit: number) => {
+    const payload = await getPayloadClient();
+    const result = await payload.find({
+      collection: 'guides',
+      locale,
+      fallbackLocale: false,
+      where: publishedWhere(locale, [{ [GUIDE_RELATION[collection]]: { in: [id] } }]),
+      sort: ['priority', '-updatedOn'],
+      depth: 1,
+      // Marge pour le tri pur (priorité absente = 100), qui garde le dernier mot.
+      limit: limit * 4,
+      draft: false,
+      overrideAccess: false,
+    });
+    return pickTeaserGuides(result.docs, locale, limit);
+  },
+);
+
+/** Guides publiés signés ou relus par un membre de l'équipe (page d'auteur). */
+export const guidesForAuthor = cached(
+  'guides-for-author',
+  (...[memberId]: [number, Locale]) => ['guides', docTag('teamMembers', memberId)],
+  (memberId: number, locale: Locale) =>
+    findMany(
+      'guides',
+      locale,
+      [{ or: [{ author: { equals: memberId } }, { reviewer: { equals: memberId } }] }],
+      '-updatedOn',
+    ),
+);
+
+/** Membre de l'équipe par le slug de sa page d'auteur. */
+export const getTeamMemberBySlug = cached(
+  'team-member-by-slug',
+  () => ['teamMembers'],
+  async (locale: Locale, slug: string) => {
+    const payload = await getPayloadClient();
+    const result = await payload.find({
+      collection: 'teamMembers',
+      locale,
+      fallbackLocale: false,
+      where: { slug: { equals: slug } },
+      depth: 1,
+      limit: 1,
+      overrideAccess: false,
+    });
+    return result.docs[0] ?? null;
+  },
+);

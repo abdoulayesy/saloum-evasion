@@ -21,6 +21,8 @@ import { StrikethroughFeatureClient as StrikethroughFeatureClient_e70f5e05f09f93
 import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { GuideWarnings as GuideWarnings_d24a35301eb1f3f80db1511291f69fdc } from '../../../components/admin/GuideWarnings'
+import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BookingLinesFinance as BookingLinesFinance_514e3a899dc9b2907dbc48383fa5a23b } from '../../../components/admin/BookingLinesFinance'
 import { CommissionRatesInForce as CommissionRatesInForce_2c6b48a3d6829c5ce355360ac331082a } from '../../../components/admin/CommissionRatesInForce'
 import { AbandonedCartsNavLink as AbandonedCartsNavLink_c36d2c66690714ddfd092eaf3ad18fc1 } from '../../../components/admin/AbandonedCartsNavLink'
@@ -55,6 +57,8 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "/components/admin/GuideWarnings#GuideWarnings": GuideWarnings_d24a35301eb1f3f80db1511291f69fdc,
+  "@payloadcms/richtext-lexical/client#BlocksFeatureClient": BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "/components/admin/BookingLinesFinance#BookingLinesFinance": BookingLinesFinance_514e3a899dc9b2907dbc48383fa5a23b,
   "/components/admin/CommissionRatesInForce#CommissionRatesInForce": CommissionRatesInForce_2c6b48a3d6829c5ce355360ac331082a,
   "/components/admin/AbandonedCartsNavLink#AbandonedCartsNavLink": AbandonedCartsNavLink_c36d2c66690714ddfd092eaf3ad18fc1,

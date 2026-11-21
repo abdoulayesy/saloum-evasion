@@ -20,6 +20,17 @@
 - [ ] **Survol** : aucune fonction ne dépend du survol. (I)
 - [ ] **Textes** : FR et EN fournis pour tout nouveau texte visible.
 
+## Carnets du Saloum (si la PR publie ou modifie un guide)
+
+- [ ] **Signature** : guide signé par un membre **actif** de l’équipe, avec photo, rôle, lieu et
+      présentation dans chaque langue publiée ; relecture communautaire pour un sujet culturel.
+- [ ] **Photos réelles** : aucune photo de démonstration ; texte alternatif FR et EN, provenance
+      (auteur, lieu, date) et accord de publication pour chaque image. (V)
+- [ ] **Informations datées** : chaque tarif, horaire, durée ou période (marées, oiseaux) est daté
+      dans le texte (« constaté en … ») et vérifié par l’équipe ; plus aucun « à vérifier ».
+- [ ] **Encadré de démonstration supprimé** et requête cible du guide identique au registre
+      `src/lib/seo/keywords.ts` (`pendingPublication` retiré à la publication).
+
 ## Contrôles automatiques
 
 Typecheck, lint, tests unitaires, budgets JavaScript, Playwright mobile + axe, SEO sans JS,

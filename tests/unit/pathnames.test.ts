@@ -23,6 +23,10 @@ const routes: Route[] = [
   { type: 'privacy' },
   { type: 'request' },
   { type: 'requestThanks' },
+  // 004 : Carnets du Saloum.
+  { type: 'guidesHub' },
+  { type: 'guide', slug: 'que-faire-au-sine-saloum' },
+  { type: 'author', slug: 'aissatou-diop' },
 ];
 
 const locales: Locale[] = ['fr', 'en'];
@@ -49,6 +53,16 @@ describe('buildPath / resolvePath', () => {
     expect(buildPath('fr', { type: 'requestThanks' })).toBe('/fr/demande/merci');
     expect(buildPath('en', { type: 'requestThanks' })).toBe('/en/request/thank-you');
     expect(buildPath('en', { type: 'legal' })).toBe('/en/legal-notice');
+    expect(buildPath('fr', { type: 'guidesHub' })).toBe('/fr/carnets-du-saloum');
+    expect(buildPath('en', { type: 'guide', slug: 'things-to-do' })).toBe(
+      '/en/saloum-travel-guides/things-to-do',
+    );
+    expect(buildPath('fr', { type: 'author', slug: 'aissatou-diop' })).toBe(
+      '/fr/equipe/aissatou-diop',
+    );
+    expect(buildPath('en', { type: 'author', slug: 'aissatou-diop' })).toBe(
+      '/en/team/aissatou-diop',
+    );
   });
 
   it('segments inconnus ou mal formés → null', () => {
@@ -60,6 +74,11 @@ describe('buildPath / resolvePath', () => {
     expect(resolvePath('fr', ['experiences', 'a', 'b', 'c'])).toBeNull();
     expect(resolvePath('fr', ['demande', 'thank-you'])).toBeNull();
     expect(resolvePath('fr', ['faq', 'x'])).toBeNull();
+    expect(resolvePath('en', ['carnets-du-saloum'])).toBeNull();
+    expect(resolvePath('fr', ['carnets-du-saloum', 'a', 'b'])).toBeNull();
+    expect(resolvePath('fr', ['equipe'])).toBeNull();
+    expect(resolvePath('fr', ['equipe', 'Aissatou'])).toBeNull();
+    expect(resolvePath('en', ['team', 'a', 'b'])).toBeNull();
   });
 });
 

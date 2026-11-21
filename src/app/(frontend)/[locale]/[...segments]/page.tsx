@@ -8,6 +8,9 @@ import { EditorialView, type EditorialRoute } from '@/components/views/Editorial
 import { ExperiencesListView } from '@/components/views/ExperiencesHubView';
 import { ExperienceView } from '@/components/views/ExperienceView';
 import { FilmView } from '@/components/views/FilmView';
+import { AuthorView } from '@/components/views/AuthorView';
+import { GuideView } from '@/components/views/GuideView';
+import { GuidesHubView } from '@/components/views/GuidesHubView';
 import { StaysListView } from '@/components/views/StaysListView';
 import { StayView } from '@/components/views/StayView';
 import { buildPath, resolvePath, type Route } from '@/i18n/pathnames';
@@ -17,6 +20,10 @@ import {
   getAlternates,
   getDestinationBySlug,
   getExperienceBySlug,
+  getGuideBySlug,
+  getTeamMemberBySlug,
+  guidesForAuthor,
+  listGuides,
   getPage,
   getStayBySlug,
   getSiteSettingsGlobal,
@@ -36,7 +43,8 @@ import { getSiteSettings } from '@/lib/cms/siteSettings';
 import { isLive } from '@/lib/navigation';
 import { buildMetadata, type OgImage } from '@/lib/seo/metadata';
 import type { PageKey } from '@/collections/Pages';
-import type { Media } from '@/payload-types';
+import { excerpt } from '@/lib/seo/excerpt';
+import type { Guide, Media, TeamMember } from '@/payload-types';
 
 // Résolveur des routes traduites (plan, « Structure Decision ») : associe les segments au
 // type de page. Chaque type est branché ici à mesure que sa phase le livre ; un type non
@@ -81,6 +89,17 @@ export const generateStaticParams = async (): Promise<Params[]> => {
       if (slug && universe)
         params.push({ locale, segments: segmentsOf({ type: 'experience', universe, slug }) });
     }
+    // 004 : guides publiés dans la langue et pages de leurs auteurs et relecteurs.
+    params.push({ locale, segments: segmentsOf({ type: 'guidesHub' }) });
+    const guides = await listGuides(locale);
+    for (const guide of guides) {
+      const slug = guide.seo?.slug;
+      if (slug) params.push({ locale, segments: segmentsOf({ type: 'guide', slug }) });
+    }
+    for (const member of authorsOf(guides)) {
+      if (member.slug)
+        params.push({ locale, segments: segmentsOf({ type: 'author', slug: member.slug }) });
+    }
   }
   return params;
 };
@@ -91,6 +110,52 @@ const resolve = async (params: Promise<Params>): Promise<{ locale: Locale; route
   const route = resolvePath(locale, segments);
   if (!route || !isLive(route.type)) notFound();
   return { locale, route };
+};
+
+/** Auteurs et relecteurs (peuplés, avec slug) d'une liste de guides, sans doublon. */
+const authorsOf = (guides: readonly Guide[]): TeamMember[] => {
+  const members = new Map<number, TeamMember>();
+  for (const guide of guides) {
+    for (const value of [guide.author, guide.reviewer]) {
+      const member = populated<TeamMember>(value);
+      if (member?.slug) members.set(member.id, member);
+    }
+  }
+  return [...members.values()];
+};
+
+const loadGuide = async (locale: Locale, slug: string) => {
+  const guide = await getGuideBySlug(locale, slug);
+  if (!guide) notFound();
+  return guide;
+};
+
+/** Chemins FR/EN d'un guide, la version anglaise seulement si elle est publiée. */
+const guidePaths = async (id: number): Promise<Partial<Record<Locale, string>>> => {
+  const slugs = await getAlternates('guides', id);
+  const paths: Partial<Record<Locale, string>> = {};
+  if (slugs.fr) paths.fr = buildPath('fr', { type: 'guide', slug: slugs.fr });
+  if (slugs.en) paths.en = buildPath('en', { type: 'guide', slug: slugs.en });
+  return paths;
+};
+
+/** Page d'auteur : membre avec slug signant ou relisant au moins un guide publié dans la langue. */
+const loadAuthor = async (locale: Locale, slug: string) => {
+  const member = await getTeamMemberBySlug(locale, slug);
+  if (!member) notFound();
+  const guides = await guidesForAuthor(member.id, locale);
+  if (guides.length === 0) notFound();
+  return { member, guides };
+};
+
+const authorPaths = async (member: TeamMember): Promise<Partial<Record<Locale, string>>> => {
+  const paths: Partial<Record<Locale, string>> = {};
+  if (!member.slug) return paths;
+  for (const locale of routing.locales) {
+    if ((await guidesForAuthor(member.id, locale)).length > 0)
+      paths[locale] = buildPath(locale, { type: 'author', slug: member.slug });
+  }
+  return paths;
 };
 
 /** Chemins FR/EN d'un séjour, la version anglaise seulement si elle est publiée. */
@@ -168,6 +233,49 @@ const relationId = (value: number | { id: number } | null | undefined): number |
 
 export const generateMetadata = async ({ params }: PageProps): Promise<Metadata> => {
   const { locale, route } = await resolve(params);
+  if (route.type === 'guidesHub') {
+    const t = await getTranslations({ locale, namespace: 'guides' });
+    return buildMetadata({
+      locale,
+      paths: {
+        fr: buildPath('fr', { type: 'guidesHub' }),
+        en: buildPath('en', { type: 'guidesHub' }),
+      },
+      title: t('hubMetaTitle'),
+      description: t('hubMetaDescription'),
+    });
+  }
+  if (route.type === 'guide') {
+    const guide = await loadGuide(locale, route.slug);
+    const author = populated<TeamMember>(guide.author);
+    const authorUrl = author?.slug
+      ? buildPath(locale, { type: 'author', slug: author.slug })
+      : null;
+    const updatedOn = guide.updatedOn ?? guide.publishedOn ?? '';
+    return buildMetadata({
+      locale,
+      paths: await guidePaths(guide.id),
+      title: guide.seo?.metaTitle ?? guide.title ?? '',
+      description: guide.seo?.metaDescription ?? guide.standfirst ?? '',
+      image: { url: `/og/guides/${guide.id}`, width: 1200, height: 630, alt: guide.title ?? '' },
+      noindex: Boolean(guide.seo?.noindex),
+      article: {
+        publishedTime: guide.publishedOn ?? updatedOn,
+        modifiedTime: updatedOn,
+        authors: authorUrl ? [authorUrl] : [],
+      },
+    });
+  }
+  if (route.type === 'author') {
+    const { member } = await loadAuthor(locale, route.slug);
+    return buildMetadata({
+      locale,
+      paths: await authorPaths(member),
+      title: excerpt(`${member.name}${member.role ? `, ${member.role}` : ''} | Saloum Évasion`, 60),
+      description: excerpt(member.bio ?? member.name, 155),
+      type: 'article',
+    });
+  }
   if (route.type === 'stay') {
     const stay = await getStayBySlug(locale, route.slug);
     if (!stay) notFound();
@@ -283,7 +391,7 @@ export const generateMetadata = async ({ params }: PageProps): Promise<Metadata>
         fr: buildPath('fr', { type: 'experiencesHub' }),
         en: buildPath('en', { type: 'experiencesHub' }),
       },
-      title: page?.seo?.metaTitle ?? 'Que faire au Sine-Saloum | Saloum Évasion',
+      title: page?.seo?.metaTitle ?? 'Activités et excursions dans le Sine-Saloum | Saloum Évasion',
       description: page?.seo?.metaDescription ?? '',
     });
   }
@@ -307,6 +415,26 @@ const ResolvedPage = async ({ params }: PageProps) => {
   setRequestLocale(locale);
   const settings = await getSiteSettings(locale);
 
+  if (route.type === 'guidesHub') {
+    return <GuidesHubView locale={locale} guides={await listGuides(locale)} settings={settings} />;
+  }
+  if (route.type === 'guide') {
+    const guide = await loadGuide(locale, route.slug);
+    const all = await listGuides(locale);
+    return (
+      <GuideView
+        guide={guide}
+        locale={locale}
+        settings={settings}
+        guideKey={route.slug}
+        others={all.filter((other) => other.id !== guide.id)}
+      />
+    );
+  }
+  if (route.type === 'author') {
+    const { member, guides } = await loadAuthor(locale, route.slug);
+    return <AuthorView member={member} guides={guides} locale={locale} settings={settings} />;
+  }
   if (route.type === 'stay') {
     const stay = await getStayBySlug(locale, route.slug);
     if (!stay) notFound();

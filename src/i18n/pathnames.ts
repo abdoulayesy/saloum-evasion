@@ -22,11 +22,16 @@ export type Route =
   | { type: 'legal' }
   | { type: 'privacy' }
   | { type: 'request' }
-  | { type: 'requestThanks' };
+  | { type: 'requestThanks' }
+  // 004 : Carnets du Saloum (rubrique, guide) et pages d'auteur.
+  | { type: 'guidesHub' }
+  | { type: 'guide'; slug: string }
+  | { type: 'author'; slug: string };
 
 export type RouteType = Route['type'];
 
-type SectionKey = 'stays' | 'experiences' | 'accommodations' | 'destinations' | 'request';
+type SectionKey =
+  'stays' | 'experiences' | 'accommodations' | 'destinations' | 'request' | 'guides' | 'team';
 
 type StaticPageType = Extract<
   RouteType,
@@ -40,6 +45,8 @@ const sections: Record<Locale, Record<SectionKey, string>> = {
     accommodations: 'hebergements',
     destinations: 'destinations',
     request: 'demande',
+    guides: 'carnets-du-saloum',
+    team: 'equipe',
   },
   en: {
     stays: 'stays',
@@ -47,6 +54,8 @@ const sections: Record<Locale, Record<SectionKey, string>> = {
     accommodations: 'accommodation',
     destinations: 'destinations',
     request: 'request',
+    guides: 'saloum-travel-guides',
+    team: 'team',
   },
 };
 
@@ -107,6 +116,12 @@ export const buildPath = (locale: Locale, route: Route): string => {
       return join(locale, section.request);
     case 'requestThanks':
       return join(locale, section.request, thanksSegment[locale]);
+    case 'guidesHub':
+      return join(locale, section.guides);
+    case 'guide':
+      return join(locale, section.guides, route.slug);
+    case 'author':
+      return join(locale, section.team, route.slug);
     case 'film':
     case 'commitment':
     case 'about':
@@ -171,6 +186,14 @@ export const resolvePath = (locale: Locale, segments: readonly string[]): Route 
     if (third !== undefined) return null;
     if (second === undefined) return { type: 'request' };
     return second === thanksSegment[locale] ? { type: 'requestThanks' } : null;
+  }
+  if (first === section.guides) {
+    if (third !== undefined) return null;
+    return second === undefined ? { type: 'guidesHub' } : { type: 'guide', slug: second };
+  }
+  if (first === section.team) {
+    if (second === undefined || third !== undefined) return null;
+    return { type: 'author', slug: second };
   }
   if (second !== undefined) return null;
   return resolveStaticPage(locale, first);

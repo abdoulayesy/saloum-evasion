@@ -42,7 +42,8 @@
     "legal": "Legal notice",
     "privacy": "Privacy",
     "request": "Stay request",
-    "requestThanks": "Thank you"
+    "requestThanks": "Thank you",
+    "guidesHub": "Saloum Travel Guides"
   },
   "errors": {
     "notFoundTitle": "Page not found",
@@ -181,7 +182,7 @@
     "seasonRange": "{from} to {to}"
   },
   "hub": {
-    "intro": "Mangrove, villages, food: choose your way to live the Saloum, with local guides.",
+    "intro": "Sine-Saloum activities and excursions: mangrove, villages, food. Choose your way to live the Saloum, with local guides.",
     "universes": "Universes",
     "all": "All experiences",
     "count": "{count, plural, one {# experience} other {# experiences}}"
@@ -634,5 +635,29 @@
       "confirmation": "Tick the box to confirm your request.",
       "lignes": "Choose at least one service to cancel."
     }
+  },
+  "guides": {
+    "hubIntroFallback": "Practical guides written and reviewed by our team in Ndangane.",
+    "by": "By",
+    "reviewedBy": "Reviewed by",
+    "updatedOn": "Updated {date}",
+    "readingTime": "{minutes} min read",
+    "toc": "Contents",
+    "relatedTitle": "Go further",
+    "fromPrice": "from",
+    "aboutAuthor": "About the author",
+    "authorPageLink": "All guides by {name}",
+    "moreGuides": "More travel guides",
+    "whatsapp": "Any question? Message us on WhatsApp",
+    "teaserTitle": "From our Saloum Travel Guides",
+    "authorGuides": "Guides",
+    "teamLink": "The whole team",
+    "basedIn": "Based in {place}",
+    "faq": "Frequently asked questions",
+    "credit": "Photo:",
+    "boxInfo": "Good to know",
+    "boxWarning": "Warning",
+    "hubMetaTitle": "Saloum Travel Guides: Sine-Saloum tips | Saloum Évasion",
+    "hubMetaDescription": "Things to do, when to go, getting there, culture and nature: practical Sine-Saloum guides written and reviewed by our team in Ndangane."
   }
 }
