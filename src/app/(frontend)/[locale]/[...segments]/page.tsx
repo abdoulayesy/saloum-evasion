@@ -272,7 +272,16 @@ export const generateMetadata = async ({ params }: PageProps): Promise<Metadata>
       locale,
       paths: await authorPaths(member),
       title: excerpt(`${member.name}${member.role ? `, ${member.role}` : ''} | Saloum Évasion`, 60),
-      description: excerpt(member.bio ?? member.name, 155),
+      // Nom, rôle et lieu en tête : description unique même si deux présentations se ressemblent
+      // (contrôle SEO « unicité »).
+      description: excerpt(
+        [
+          [member.name, member.role].filter(Boolean).join(', '),
+          member.place ? ` (${member.place})` : '',
+          member.bio ? ` : ${member.bio}` : '',
+        ].join(''),
+        155,
+      ),
       type: 'article',
     });
   }
