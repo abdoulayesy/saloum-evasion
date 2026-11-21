@@ -58,9 +58,12 @@ test.describe('accueil', () => {
     isMobile,
   }) => {
     await page.goto('/fr');
-    const button = page.getByRole('link', { name: 'Trouver mon séjour' });
-    if (isMobile) await expectInThumbZone(button);
-    await button.click();
+    // Raccourci du héro sur téléphone ; dès 640 px la barre de recherche est déjà visible.
+    if (isMobile) {
+      const button = page.getByRole('link', { name: 'Trouver mon séjour' });
+      await expectInThumbZone(button);
+      await button.click();
+    }
     await expect(
       page.getByRole('heading', { name: 'Trouver mon séjour', level: 2 }),
     ).toBeInViewport();
@@ -79,6 +82,7 @@ test.describe('accueil', () => {
     await page.route(/mux\.com|\.m3u8/, (route) => route.abort());
     await page.goto('/fr');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Séjours signature' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Partez vendredi/ })).toBeVisible();
+    await expect(page.getByText('Séjours signature · tout compris')).toBeVisible();
   });
 });

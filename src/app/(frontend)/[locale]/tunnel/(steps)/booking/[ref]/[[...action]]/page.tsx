@@ -9,7 +9,7 @@ import { canRequestCancellation, cancellationQuote } from '@/lib/booking/cancell
 import { todayInDakar } from '@/lib/cart/validate';
 import { BOOKING_REFERENCE_PATTERN, checkoutPath } from '@/lib/checkout/paths';
 import { getPayloadClient } from '@/lib/cms/queries';
-import { tunnelLocale } from '../../../locale';
+import { tunnelLocale } from '@/app/(frontend)/[locale]/tunnel/locale';
 
 // Confirmation et gestion d'une réservation (002, T058) : `/fr/reservation/{ref}` (jeton `?k=` ou
 // cookie du panier). Lien invalide ou référence inconnue : même page « lien invalide » (200),

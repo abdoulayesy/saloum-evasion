@@ -8,7 +8,7 @@ import { loadCartState } from '@/lib/cart/load';
 import { addDays } from '@/lib/checkout/deposit';
 import { getPayloadClient } from '@/lib/cms/queries';
 import type { ReviewedLine } from '@/lib/cart/validate';
-import { tunnelLocale } from '../locale';
+import { tunnelLocale } from '@/app/(frontend)/[locale]/tunnel/locale';
 
 // Panier (002, T050) : `/fr/panier`, `/en/cart`. Page dynamique : lit le cookie `se_cart`.
 

@@ -46,7 +46,7 @@ export const RequestCounter = ({
             '{count}',
             String(count),
           )}
-          className="relative inline-flex min-h-touch min-w-touch items-center justify-center rounded-control text-mangrove"
+          className="relative inline-flex min-h-touch min-w-touch items-center justify-center rounded-control text-current"
         >
           <svg
             aria-hidden="true"

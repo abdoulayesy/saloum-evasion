@@ -10,7 +10,7 @@ import { reviewCart, todayInDakar } from '@/lib/cart/validate';
 import { checkoutPath } from '@/lib/checkout/paths';
 import { getPayloadClient } from '@/lib/cms/queries';
 import type { Cart } from '@/payload-types';
-import { tunnelLocale } from '../../locale';
+import { tunnelLocale } from '@/app/(frontend)/[locale]/tunnel/locale';
 
 // Reprise après relance (002, US3, T079 ; contrat routes-tunnel) : `/fr/panier/reprendre?t=…`.
 // Jeton signé valable 7 jours → le panier est rattaché à cet appareil (nouveau cookie : seule

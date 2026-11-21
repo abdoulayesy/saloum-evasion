@@ -34,6 +34,10 @@ type VideoPlayerProps = {
   format: 'landscape' | 'portrait';
   chapters?: readonly VideoChapterLink[];
   chaptersLabel?: string;
+  /** « immersive » (accueil) : fond nuit, bouton doré, chapitres à côté du film dès 1024 px. */
+  variant?: 'default' | 'immersive';
+  /** Badge en surimpression (ex. « Démonstration »). */
+  badge?: string;
 };
 
 type HlsInstance = { destroy: () => void };
@@ -59,11 +63,14 @@ export const VideoPlayer = ({
   format,
   chapters = [],
   chaptersLabel,
+  variant = 'default',
+  badge,
 }: VideoPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [startAt, setStartAt] = useState(0);
   const [started, setStarted] = useState(false);
   const aspect = format === 'portrait' ? 'aspect-[9/16]' : 'aspect-video';
+  const immersive = variant === 'immersive';
 
   // Source attachée seulement après le clic (le <video> n'existe pas avant).
   useEffect(() => {
@@ -142,8 +149,14 @@ export const VideoPlayer = ({
   };
 
   return (
-    <div>
-      <div className={`relative overflow-hidden rounded-card bg-mangrove ${aspect}`}>
+    <div className={immersive ? 'flex flex-col gap-6 lg:flex-row lg:items-stretch' : undefined}>
+      <div
+        className={
+          immersive
+            ? `relative min-w-0 overflow-hidden rounded-[26px] bg-night shadow-[0_40px_80px_-40px_rgb(0_0_0/0.8)] lg:flex-[2] ${aspect}`
+            : `relative overflow-hidden rounded-card bg-mangrove ${aspect}`
+        }
+      >
         {started ? (
           // eslint-disable-next-line jsx-a11y/media-has-caption -- pistes <track> générées depuis `captions` (FR et EN obligatoires dans le CMS pour le film et les verticales)
           <video
@@ -169,22 +182,70 @@ export const VideoPlayer = ({
         ) : (
           <>
             {poster}
-            <button
-              type="button"
-              onClick={() => start(startFromQuery())}
-              aria-label={playLabel}
-              className="absolute inset-0 flex items-center justify-center bg-mangrove/30 text-mangrove"
-            >
-              <span className="inline-flex min-h-touch items-center gap-2 rounded-full bg-sable px-5 py-3 text-lg font-semibold shadow-lg">
-                <PlayIcon />
-                {playText}
+            {badge && (
+              <span className="absolute top-4 left-4 z-10 rounded-full bg-night/75 px-3 py-2 text-xs font-semibold tracking-wide text-sable">
+                {badge}
               </span>
-            </button>
+            )}
+            {immersive ? (
+              <button
+                type="button"
+                onClick={() => start(startFromQuery())}
+                className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-night/30 text-sable"
+              >
+                <span className="pulse flex h-20 w-20 items-center justify-center rounded-full bg-gold text-mangrove transition-transform hover:scale-105 sm:h-24 sm:w-24">
+                  <PlayIcon />
+                </span>
+                {/* Nom accessible = texte visible + titre du film (WCAG 2.5.3). */}
+                <span className="text-base font-semibold [text-shadow:0_2px_12px_rgb(0_0_0/0.6)]">
+                  {playText}
+                  <span className="sr-only"> — {playLabel}</span>
+                </span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => start(startFromQuery())}
+                aria-label={playLabel}
+                className="absolute inset-0 flex items-center justify-center bg-mangrove/30 text-mangrove"
+              >
+                <span className="inline-flex min-h-touch items-center gap-2 rounded-full bg-sable px-5 py-3 text-lg font-semibold shadow-lg">
+                  <PlayIcon />
+                  {playText}
+                </span>
+              </button>
+            )}
           </>
         )}
       </div>
 
-      {chapters.length > 0 && (
+      {immersive && chapters.length > 0 && (
+        <nav
+          aria-label={chaptersLabel}
+          className="flex min-w-0 flex-col gap-1 rounded-[26px] bg-night-soft p-5 lg:flex-1"
+        >
+          <p className="eyebrow mx-2 mb-2 text-gold-deep">{chaptersLabel}</p>
+          <ol className="flex flex-col gap-1">
+            {chapters.map((chapter, index) => (
+              <li key={chapter.startSeconds}>
+                <a
+                  href={chapter.href}
+                  onClick={(event) => onChapter(event, chapter)}
+                  className="flex min-h-[3.75rem] items-center gap-4 rounded-2xl px-3 py-3 text-sable transition-colors hover:bg-sable/10"
+                >
+                  <span className="w-7 font-serif text-[1.375rem] text-gold">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <span className="min-w-0 flex-1 font-semibold">{chapter.title}</span>
+                  <span className="text-sm text-mist tabular-nums">{chapter.time}</span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )}
+
+      {!immersive && chapters.length > 0 && (
         <nav aria-label={chaptersLabel} className="mt-4">
           <ol className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {chapters.map((chapter) => (

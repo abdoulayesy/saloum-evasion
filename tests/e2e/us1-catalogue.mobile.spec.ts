@@ -14,7 +14,9 @@ test('@chromium-only parcours catalogue en 3G : accueil → recherche → liste 
   const start = Date.now();
 
   await page.goto('/fr');
-  await page.getByRole('link', { name: 'Trouver mon séjour' }).click();
+  // Raccourci du héro sur téléphone ; sur grand écran la barre de recherche est déjà visible.
+  const shortcut = page.getByRole('link', { name: 'Trouver mon séjour' });
+  if (await shortcut.isVisible()) await shortcut.click();
   await page.getByLabel('Durée').selectOption('weekend');
   await page.getByRole('button', { name: 'Voir les séjours' }).click();
 

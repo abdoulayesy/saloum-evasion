@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { primaryButtonClass } from '@/components/checkout/fieldStyles';
 import { unsubscribeReminders } from '@/lib/cart/actions';
 import { verifyReminderLinkToken } from '@/lib/cart/reminderLink';
-import { tunnelLocale } from '../../locale';
+import { tunnelLocale } from '@/app/(frontend)/[locale]/tunnel/locale';
 
 // Désinscription des relances de paiement (002, US3, T079, FR-031) : `/fr/panier/desinscription
 // ?t=…`. Un seul bouton (formulaire serveur, sans JavaScript) ; confirmation après envoi.

@@ -4,14 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import { HomeView } from '@/components/views/HomeView';
 import { buildPath } from '@/i18n/pathnames';
 import { isLocale, routing, type Locale } from '@/i18n/routing';
-import {
-  getPage,
-  getSiteSettingsGlobal,
-  listDestinations,
-  listStays,
-  listUniverses,
-  listVideos,
-} from '@/lib/cms/queries';
+import { getPage, listDestinations, listStays, listUniverses, listVideos } from '@/lib/cms/queries';
 import { mp4Url } from '@/lib/mux';
 import { getSiteSettings } from '@/lib/cms/siteSettings';
 import { buildMetadata } from '@/lib/seo/metadata';
@@ -39,28 +32,34 @@ export const generateMetadata = async ({ params }: PageProps): Promise<Metadata>
 const HomePage = async ({ params }: PageProps) => {
   const locale = resolveLocale((await params).locale);
   setRequestLocale(locale);
-  const [page, settings, settingsGlobal, stays, universes, destinations, loops] = await Promise.all(
-    [
+  const [page, settings, stays, universes, destinations, loops, films, verticals] =
+    await Promise.all([
       getPage(locale, 'home'),
       getSiteSettings(locale),
-      getSiteSettingsGlobal(locale),
       listStays(locale),
       listUniverses(locale),
       listDestinations(locale),
       listVideos(locale, 'loop'),
-    ],
-  );
+      listVideos(locale, 'film'),
+      listVideos(locale, 'vertical15'),
+    ]);
   const [loop] = loops;
-  const featured = stays.filter((stay) => stay.featured).slice(0, 3);
+  const [film] = films;
+  // Du plus court au plus long (maquette : le week-end en premier).
+  const featured = stays
+    .filter((stay) => stay.featured)
+    .sort((a, b) => a.durationNights - b.durationNights)
+    .slice(0, 3);
   return (
     <HomeView
       locale={locale}
       page={page}
       settings={settings}
-      settingsGlobal={settingsGlobal}
       featured={featured.length > 0 ? featured : stays.slice(0, 3)}
       universes={universes}
       destinations={destinations}
+      film={film ?? null}
+      verticals={verticals}
       ambientLoopSrc={loop ? (loop.staticMp4Url ?? mp4Url(loop.muxPlaybackId, 'low')) : null}
     />
   );
