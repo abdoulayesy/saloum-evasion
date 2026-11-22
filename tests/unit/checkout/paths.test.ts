@@ -8,6 +8,7 @@ import {
 
 // T003 : URL traduites du tunnel, aller-retour avec l'analyse du chemin.
 const STEPS: readonly [CheckoutStep, string | undefined, string, string][] = [
+  ['compose', undefined, '/fr/composer', '/en/compose'],
   ['cart', undefined, '/fr/panier', '/en/cart'],
   ['resume', undefined, '/fr/panier/reprendre', '/en/cart/resume'],
   ['unsubscribe', undefined, '/fr/panier/desinscription', '/en/cart/unsubscribe'],

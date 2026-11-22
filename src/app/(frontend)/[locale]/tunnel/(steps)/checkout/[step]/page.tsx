@@ -14,7 +14,7 @@ import { isCartPayable } from '@/lib/cart/validate';
 import { checkoutPath } from '@/lib/checkout/paths';
 import { isPaymentApplied } from '@/lib/checkout/stateMachines';
 import { getPayloadClient } from '@/lib/cms/queries';
-import { tunnelLocale } from '../../locale';
+import { tunnelLocale } from '@/app/(frontend)/[locale]/tunnel/locale';
 
 // Étapes coordonnées, paiement et statut (002, T052 à T057) : `/fr/commande/{coordonnees|paiement|
 // statut}`. Une étape demandée sans ses prérequis renvoie (303) vers la première étape incomplète.

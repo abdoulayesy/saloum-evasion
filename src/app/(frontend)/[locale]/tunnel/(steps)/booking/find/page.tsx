@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { BookingFindView } from '@/components/views/BookingFindView';
-import { tunnelLocale } from '../../locale';
+import { tunnelLocale } from '@/app/(frontend)/[locale]/tunnel/locale';
 
 // Retrouver ma réservation (002, US4, T087) : `/fr/reservation/retrouver`, `/en/booking/find`.
 // Référence + e-mail → lien de gestion envoyé par e-mail (réponse identique dans tous les cas).

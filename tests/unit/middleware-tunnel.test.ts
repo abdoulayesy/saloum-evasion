@@ -6,6 +6,8 @@ import { TUNNEL_HEADERS, tunnelRewrite } from '@/middleware';
 describe('réécriture du tunnel de commande', () => {
   it('réécrit les étapes FR et EN', () => {
     expect(tunnelRewrite('/fr/panier')).toBe('/fr/tunnel/cart');
+    expect(tunnelRewrite('/fr/composer')).toBe('/fr/tunnel/compose');
+    expect(tunnelRewrite('/en/compose')).toBe('/en/tunnel/compose');
     expect(tunnelRewrite('/en/checkout/payment')).toBe('/en/tunnel/checkout/payment');
     expect(tunnelRewrite('/fr/reservation/se-ab23cd/solde')).toBe(
       '/fr/tunnel/booking/SE-AB23CD/balance',

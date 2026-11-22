@@ -21,6 +21,8 @@ import {
 } from './schema';
 import { verifyReminderLinkToken } from './reminderLink';
 import { INTRINSIC_ISSUES, lineEndDate, toCartLine, todayInDakar } from './validate';
+import { buildPath } from '@/i18n/pathnames';
+import { COMPOSE_LIMITS, planComposition, type PlannedLine } from '@/lib/checkout/compose';
 
 // Server Actions du panier (002, T045 ; contrat checkout-actions). Formulaires classiques :
 // fonctionnent sans JavaScript (redirection 303). Après un ajout, le visiteur arrive sur le
@@ -359,4 +361,170 @@ export const unsubscribeReminders = async (formData: FormData): Promise<void> =>
     });
   }
   redirect(`${page}?fait=1`);
+};
+
+// --- Composer mon séjour (maquette) ------------------------------------------------------
+// Un formulaire, un panier : hébergement, expériences et transfert ajoutés d'un coup, prix
+// recalculés côté serveur. Une offre « sur demande » mène au formulaire de demande prérempli.
+
+const composeSchema = z.object({
+  arrivee: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  nuits: z.coerce.number().int().min(COMPOSE_LIMITS.minNights).max(COMPOSE_LIMITS.maxNights),
+  voyageurs: z.coerce.number().int().min(COMPOSE_LIMITS.minGuests).max(COMPOSE_LIMITS.maxGuests),
+  hebergement: z.coerce.number().int().positive(),
+  experience: z.array(z.coerce.number().int().positive()).max(12),
+  transfert: z.coerce.number().int().positive().optional(),
+});
+
+const composeUrl = (locale: Locale, params: Record<string, string> = {}): string => {
+  const query = new URLSearchParams(params).toString();
+  return `${checkoutPath(locale, 'compose')}${query ? `?${query}` : ''}`;
+};
+
+/** Offre d'expérience vendable, quel que soit son type (activité ou table). */
+const loadExperienceOffer = async (payload: Payload, id: number, locale: Locale) =>
+  (await loadSellableOffer(payload, 'experience', id, locale)) ??
+  (await loadSellableOffer(payload, 'table', id, locale));
+
+/** Formulaire de demande prérempli (offres « sur demande »). */
+const requestUrlFor = async (
+  payload: Payload,
+  locale: Locale,
+  input: z.infer<typeof composeSchema>,
+): Promise<string> => {
+  const slugOf = async (collection: 'accommodations' | 'experiences', id: number) => {
+    const doc = await payload
+      .findByID({ collection, id, locale, depth: 0, disableErrors: true })
+      .catch(() => null);
+    return doc?.seo?.slug ?? null;
+  };
+  const params = new URLSearchParams();
+  const lodging = await slugOf('accommodations', input.hebergement);
+  if (lodging) params.append('accommodation', lodging);
+  for (const id of input.experience) {
+    const slug = await slugOf('experiences', id);
+    if (slug) params.append('experience', slug);
+  }
+  params.set('arrivee', input.arrivee);
+  params.set('depart', addDays(input.arrivee, input.nuits));
+  params.set('adultes', String(input.voyageurs));
+  return `${buildPath(locale, { type: 'request' })}?${params.toString()}`;
+};
+
+export const composeStay = async (formData: FormData): Promise<void> => {
+  const locale = localeOf(formData);
+  const parsed = composeSchema.safeParse({
+    ...formEntries(formData),
+    experience: formData.getAll('experience').filter((value) => typeof value === 'string'),
+  });
+  if (!parsed.success) redirect(composeUrl(locale, { erreur: 'saisie' }));
+  const input = parsed.data;
+
+  const payload = await getPayloadClient();
+  const lodging = await loadSellableOffer(payload, 'accommodation', input.hebergement, locale);
+  const experiences = await Promise.all(
+    input.experience.map((id) => loadExperienceOffer(payload, id, locale)),
+  );
+  const transfer = input.transfert
+    ? await loadSellableOffer(payload, 'transfer', input.transfert, locale)
+    : null;
+  // Une offre non réservable en ligne : le séjour passe par une demande (aucun paiement).
+  if (!lodging || lodging.offerType !== 'accommodation' || experiences.some((offer) => !offer)) {
+    redirect(await requestUrlFor(payload, locale, input));
+  }
+  if (input.transfert && (!transfer || transfer.offerType !== 'transfer')) {
+    redirect(composeUrl(locale, { erreur: 'indisponible' }));
+  }
+
+  const plan = planComposition({
+    startDate: input.arrivee,
+    nights: input.nuits,
+    guests: input.voyageurs,
+    lodging: {
+      id: lodging.doc.id,
+      lowSeasonPerNight: lodging.doc.pricing.lowSeasonPerNight,
+      highSeasonPerNight: lodging.doc.pricing.highSeasonPerNight,
+    },
+    experiences: experiences.flatMap((offer) =>
+      offer && (offer.offerType === 'experience' || offer.offerType === 'table')
+        ? [
+            {
+              id: offer.doc.id,
+              offerType: offer.offerType,
+              pricePerPerson: offer.doc.pricePerPerson,
+              childPercent: offer.doc.childPricePercent,
+              slots: (offer.doc.slots ?? []).map((slot) => slot.startTime),
+            },
+          ]
+        : [],
+    ),
+    transfer:
+      transfer && transfer.offerType === 'transfer'
+        ? { id: transfer.doc.id, tiers: transfer.doc.priceTiers ?? [] }
+        : null,
+  });
+
+  const seasons = await loadSeasons(payload);
+  const travellers: Travellers = { adults: input.voyageurs, children: 0, infants: 0 };
+  const offerById = (offerType: CartItem['offerType'], id: number): SellableOffer | null => {
+    if (offerType === 'accommodation') return lodging;
+    if (offerType === 'transfer') return transfer;
+    return experiences.find((offer) => offer?.doc.id === id) ?? null;
+  };
+  const offerFor = (line: PlannedLine): SellableOffer | null =>
+    offerById(line.offerType, line.offerId);
+  const items = plan.flatMap((line): CartItem[] => {
+    const offer = offerFor(line);
+    if (!offer) return [];
+    switch (line.offerType) {
+      case 'accommodation':
+        return [
+          buildItem(
+            offer,
+            { startDate: line.startDate, endDate: line.endDate },
+            travellers,
+            seasons,
+          ),
+        ];
+      case 'experience':
+      case 'table':
+        return [buildItem(offer, { startDate: line.date, slot: line.slot }, travellers, seasons)];
+      case 'transfer':
+        return [
+          buildItem(
+            offer,
+            { startDate: line.outboundDate, direction: 'outbound', time: line.outboundTime },
+            travellers,
+            seasons,
+          ),
+          buildItem(
+            offer,
+            { startDate: line.returnDate, direction: 'return', time: line.returnTime },
+            travellers,
+            seasons,
+          ),
+        ];
+      default: {
+        const unreachable: never = line;
+        return unreachable;
+      }
+    }
+  });
+
+  const today = todayInDakar();
+  const intrinsic = validateCart(
+    items.flatMap((item) => {
+      const id = typeof item.offer.value === 'number' ? item.offer.value : item.offer.value.id;
+      const offer = offerById(item.offerType, id);
+      return offer ? [toCartLine(item, offer)] : [];
+    }),
+    { today },
+  ).find((issue) => INTRINSIC_ISSUES.has(issue.code));
+  if (intrinsic) redirect(composeUrl(locale, { erreur: intrinsic.code }));
+
+  // Le séjour composé remplace le contenu du panier (annoncé sur la page quand il n'est pas vide).
+  const { cart, token } = await openOrCreateCart(payload, locale);
+  const saved = await saveCartItems(payload, cart, items, locale);
+  await writeCartCookies(token, cartSummary(saved));
+  redirect(cartUrl(locale, { compose: '1' }));
 };

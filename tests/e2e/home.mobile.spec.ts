@@ -58,9 +58,12 @@ test.describe('accueil', () => {
     isMobile,
   }) => {
     await page.goto('/fr');
-    const button = page.getByRole('link', { name: 'Trouver mon séjour' });
-    if (isMobile) await expectInThumbZone(button);
-    await button.click();
+    // Raccourci du héro sur téléphone ; dès 640 px la barre de recherche est déjà visible.
+    if (isMobile) {
+      const button = page.getByRole('link', { name: 'Trouver mon séjour' });
+      await expectInThumbZone(button);
+      await button.click();
+    }
     await expect(
       page.getByRole('heading', { name: 'Trouver mon séjour', level: 2 }),
     ).toBeInViewport();
@@ -79,6 +82,23 @@ test.describe('accueil', () => {
     await page.route(/mux\.com|\.m3u8/, (route) => route.abort());
     await page.goto('/fr');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Séjours signature' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Partez vendredi/ })).toBeVisible();
+    await expect(page.getByText('Séjours signature · tout compris')).toBeVisible();
+  });
+
+  test('en-tête transparent sur l’accueil seulement, y compris après navigation sans rechargement', async ({
+    page,
+  }) => {
+    await page.goto('/fr', { waitUntil: 'networkidle' });
+    const header = page.locator('header.site-header');
+    await expect(header).toHaveCSS('position', 'absolute');
+    // Lien du pied de page (next/link) : navigation côté client, <head> conservé.
+    await page.locator('footer').getByRole('link', { name: 'Destinations' }).click();
+    await expect(page).toHaveURL(/\/fr\/destinations$/);
+    await expect(header).toHaveCSS('position', 'static');
+    await expect(header).toHaveCSS('background-color', 'rgb(15, 42, 36)');
+    await page.goBack();
+    await expect(page).toHaveURL(/\/fr$/);
+    await expect(header).toHaveCSS('position', 'absolute');
   });
 });

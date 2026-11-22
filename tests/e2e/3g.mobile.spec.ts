@@ -18,11 +18,13 @@ test.describe('pages publiques en 3G', () => {
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 5000 });
       await expect(page.locator('main p').first()).toBeVisible({ timeout: 5000 });
       expect(Date.now() - started, `${name} : lisible`).toBeLessThanOrEqual(5000);
-      // Action principale : barre collante, bouton d'envoi ou lien WhatsApp.
+      // Action principale : barre collante, bouton d'envoi ou lien WhatsApp (le lien WhatsApp de
+      // l'en-tête n'apparaît qu'à partir de 640 px : on prend la première action visible).
       const action = page
         .locator(
           '[data-sticky-action-bar] a, form button[type="submit"], a[href^="https://wa.me/"]',
         )
+        .filter({ visible: true })
         .first();
       await expect(action).toBeVisible({ timeout: 10_000 });
     });

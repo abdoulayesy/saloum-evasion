@@ -27,6 +27,8 @@ export default defineConfig({
     baseURL,
     locale: 'fr-SN',
     trace: 'retain-on-failure',
+    // Navigateur installé, à la demande (ex. PW_CHANNEL=msedge pour voir les tests dans Edge).
+    ...(process.env.PW_CHANNEL ? { channel: process.env.PW_CHANNEL } : {}),
   },
   projects: [
     // Les profils réseau (CDP) ne fonctionnent que sous Chromium : tests 3G / 4G lente

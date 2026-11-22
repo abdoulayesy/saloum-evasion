@@ -1,19 +1,37 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { DialogOpener } from '@/components/client/DialogOpener';
+import { HeaderFrame } from '@/components/client/HeaderFrame';
+import { WhatsAppIcon } from '@/components/ui/WhatsAppIcon';
 import { LocaleNotices } from '@/components/client/LocaleNotices';
 import { RequestCounter } from '@/components/client/RequestCounter';
 import { buildPath } from '@/i18n/pathnames';
 import { htmlLang, type Locale } from '@/i18n/routing';
 import { getSiteSettings } from '@/lib/cms/siteSettings';
+import { checkoutPath } from '@/lib/checkout/paths';
 import { siteWhatsappHref } from '@/lib/pageActions';
+import { BrandMark } from './BrandMark';
 import { FOOTER_NAV_ID } from './Footer';
 import { MENU_DIALOG_ID, MobileMenu } from './MobileMenu';
 
 type HeaderProps = { locale: Locale };
 
-const controlClass =
-  'inline-flex min-h-touch min-w-touch items-center justify-center rounded-control px-3 font-semibold';
+// Sans `display` : les variantes (hidden, sm:inline-flex) ne doivent pas se contredire.
+const controlBase =
+  'min-h-touch min-w-touch items-center justify-center rounded-full px-3 font-semibold';
+const controlClass = `inline-flex ${controlBase}`;
+
+/** Accueil FR et EN : en-tête transparent par-dessus le héro. */
+const HOME_PATHS = [buildPath('fr', { type: 'home' }), buildPath('en', { type: 'home' })];
+
+/** Liens affichés en ligne dès 1280 px, libellés courts de la maquette « Accueil ». */
+const desktopLinks = [
+  { route: { type: 'film' }, label: 'navFilm' },
+  { route: { type: 'staysList' }, label: 'navStays' },
+  { route: { type: 'experiencesHub' }, label: 'navExperiences' },
+  { route: { type: 'destinationsList' }, label: 'navDestinations' },
+  { route: { type: 'commitment' }, label: 'navCommitment' },
+] as const;
 
 /** Contrôleur de bascule de langue (page équivalente calculée côté serveur, US5). */
 export const LOCALE_SWITCH_PATH = '/api/locale-switch';
@@ -32,27 +50,31 @@ export const Header = async ({ locale }: HeaderProps) => {
   const whatsappHref = await siteWhatsappHref(locale, await getSiteSettings(locale));
 
   return (
-    <header className="border-b border-sable-deep bg-sable">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-8">
+    <HeaderFrame homePaths={HOME_PATHS}>
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-1 gap-y-1 px-4 py-2 sm:px-8 lg:py-6">
         <Link
           href={buildPath(locale, { type: 'home' })}
           aria-label={t('homeLink')}
-          className="inline-flex min-h-touch items-center gap-2 font-serif text-xl font-semibold text-mangrove"
+          className="inline-flex min-h-touch items-center gap-2 font-serif text-lg font-semibold text-sable sm:gap-3 sm:text-2xl sm:tracking-wide"
         >
-          <svg aria-hidden="true" viewBox="0 0 64 64" width="32" height="32">
-            <rect width="64" height="64" rx="14" fill="#0f2a24" />
-            <path
-              d="M12 40c8-6 14-6 20 0s12 6 20 0"
-              fill="none"
-              stroke="#f4eee3"
-              strokeWidth="4"
-              strokeLinecap="round"
-            />
-            <circle cx="40" cy="22" r="7" fill="#9e4521" />
-          </svg>
+          <BrandMark />
           <span>Saloum Évasion</span>
         </Link>
-        <div className="flex flex-wrap items-center justify-end gap-1">
+        <nav aria-label={t('mainNav')} className="hidden xl:block">
+          <ul className="flex items-center gap-1 text-[0.9375rem] font-medium">
+            {desktopLinks.map(({ route, label }) => (
+              <li key={route.type}>
+                <Link
+                  href={buildPath(locale, route)}
+                  className="inline-flex min-h-touch items-center rounded-full px-3 hover:text-[#f6c68a]"
+                >
+                  {t(label)}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div className="flex flex-wrap items-center justify-end gap-1 sm:gap-2">
           <RequestCounter
             href={buildPath(locale, { type: 'request' })}
             label={tRequest('counter')}
@@ -65,9 +87,9 @@ export const Header = async ({ locale }: HeaderProps) => {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={tActions('whatsappLabel')}
-              className={`${controlClass} hidden text-ocre-deep underline underline-offset-4 sm:inline-flex`}
+              className={`${controlBase} hidden px-0 transition-colors hover:text-gold sm:inline-flex xl:hidden`}
             >
-              {tActions('whatsapp')}
+              <WhatsAppIcon />
             </a>
           )}
           {/* Lien ordinaire (pas de préchargement) : le contrôleur calcule la page équivalente. */}
@@ -76,14 +98,20 @@ export const Header = async ({ locale }: HeaderProps) => {
             hrefLang={htmlLang[otherLocale]}
             lang={htmlLang[otherLocale]}
             aria-label={t('switchLanguageLabel')}
-            className={`${controlClass} text-mangrove underline underline-offset-4`}
+            className={`${controlClass} border border-sable/50 text-sm`}
           >
             {t('switchLanguage')}
           </a>
+          <Link
+            href={checkoutPath(locale, 'compose')}
+            className={`${controlBase} hidden bg-ocre px-5 text-cream transition-colors hover:bg-ocre-deep md:inline-flex`}
+          >
+            {t('compose')}
+          </Link>
           <DialogOpener
             dialogId={MENU_DIALOG_ID}
             fallbackHref={`#${FOOTER_NAV_ID}`}
-            className={`${controlClass} bg-mangrove text-sable`}
+            className={`${controlBase} inline-flex bg-sable text-mangrove lg:border lg:border-sable/50 lg:bg-transparent lg:text-sable`}
           >
             {t('menu')}
           </DialogOpener>
@@ -99,6 +127,6 @@ export const Header = async ({ locale }: HeaderProps) => {
         closeLabel={t('close')}
         bannerCloseLabel={t('bannerClose')}
       />
-    </header>
+    </HeaderFrame>
   );
 };

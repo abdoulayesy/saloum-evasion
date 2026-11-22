@@ -8,6 +8,7 @@ import { isLocale, type Locale } from '@/i18n/routing';
 export const INTERNAL_TUNNEL_SEGMENT = 'tunnel';
 
 export type CheckoutStep =
+  | 'compose'
   | 'cart'
   | 'resume'
   | 'unsubscribe'
@@ -23,6 +24,7 @@ export type CheckoutRoute = { step: CheckoutStep; ref?: string };
 
 const SEGMENTS: Record<Locale, Record<string, string>> = {
   fr: {
+    compose: 'composer',
     cart: 'panier',
     resume: 'reprendre',
     unsubscribe: 'desinscription',
@@ -36,6 +38,7 @@ const SEGMENTS: Record<Locale, Record<string, string>> = {
     cancel: 'annulation',
   },
   en: {
+    compose: 'compose',
     cart: 'cart',
     resume: 'resume',
     unsubscribe: 'unsubscribe',
@@ -63,6 +66,8 @@ const refFromUrl = (value: string): string | null => {
 
 const parts = (step: CheckoutStep, ref?: string): string[] => {
   switch (step) {
+    case 'compose':
+      return ['compose'];
     case 'cart':
       return ['cart'];
     case 'resume':
@@ -88,7 +93,7 @@ const parts = (step: CheckoutStep, ref?: string): string[] => {
 };
 
 const isKey = (value: string): boolean =>
-  value === 'cart' || value === 'checkout' || value === 'booking';
+  value === 'compose' || value === 'cart' || value === 'checkout' || value === 'booking';
 
 /** URL publique d'une étape dans une langue (sans paramètre de requête). */
 export const checkoutPath = (locale: Locale, step: CheckoutStep, ref?: string): string =>
@@ -120,6 +125,10 @@ export const parseCheckoutPath = (
   const [, locale = '', first = '', second, third, ...rest] = pathname.split('/');
   if (!isLocale(locale) || rest.length > 0) return null;
   const segment = SEGMENTS[locale];
+  // Composer mon séjour (maquette) : `/fr/composer`, `/en/compose`.
+  if (first === segment.compose) {
+    return second === undefined ? { locale, route: { step: 'compose' } } : null;
+  }
   if (first === segment.cart) {
     if (second === undefined && third === undefined) return { locale, route: { step: 'cart' } };
     if (second === segment.resume && third === undefined)
