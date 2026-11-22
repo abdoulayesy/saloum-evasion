@@ -11,7 +11,10 @@ type Props = { homePaths: readonly string[]; children: ReactNode };
 
 export const HeaderFrame = ({ homePaths, children }: Props) => {
   const pathname = usePathname();
-  const overHero = homePaths.includes(pathname);
+  // `/fr/` (barre oblique ajoutée par certains hébergeurs) vaut `/fr`.
+  const overHero = homePaths.includes(
+    pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname,
+  );
   return (
     <header
       className={

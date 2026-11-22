@@ -497,7 +497,10 @@ export const HomeView = async ({
                 );
                 return (
                   <li key={stay.id}>
-                    <article className="lift relative flex h-full flex-col overflow-hidden rounded-3xl bg-sable text-ink">
+                    <article
+                      data-stay-card
+                      className="lift relative flex h-full flex-col overflow-hidden rounded-3xl bg-sable text-ink"
+                    >
                       <CmsImage
                         media={populated<Media>(stay.heroImage)}
                         locale={locale}
