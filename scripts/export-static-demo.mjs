@@ -296,7 +296,6 @@ const run = async () => {
     [
       '/*',
       '  X-Robots-Tag: noindex, nofollow',
-      '  Cache-Control: public, max-age=0, must-revalidate',
       '/_next/static/*',
       '  Cache-Control: public, max-age=31536000, immutable',
       '/_img/*',
