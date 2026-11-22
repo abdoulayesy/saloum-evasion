@@ -3,23 +3,34 @@
 // Pages, Netlify, Vercel). Les fonctions qui exigent un serveur (panier, paiement, demande,
 // administration) y sont désactivées avec un message. Jamais pour la production.
 //
-//   node scripts/export-static-demo.mjs   (BASE, OUT, ORIGIN en variables d'environnement)
+//   BASE=http://localhost:3000 OUT=/chemin ORIGIN=https://… node scripts/export-static-demo.mjs
 //
 // Jamais copié : `public/activites illustration/` (photos d'origine, droits à confirmer).
 // Seules les images déjà optimisées et affichées par les pages sont enregistrées.
+//
+// Flux de données React : chaque page embarque, dans des balises `self.__next_f.push`, le flux
+// qui sert à l'hydratation. Ses longs textes (JSON-LD…) sont précédés de leur longueur EN OCTETS :
+// toute réécriture (liens d'images, adresse du site) doit donc recalculer ces longueurs, sinon
+// l'hydratation échoue (« Connection closed »). `mapFlight` analyse le flux ligne par ligne.
 
 import { createHash } from 'node:crypto';
-import { cp, mkdir, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { cp, mkdir, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
 const BASE = (process.env.BASE ?? 'http://localhost:3000').replace(/\/+$/, '');
-const OUT = process.env.OUT;
 const ORIGIN = (process.env.ORIGIN ?? 'https://saloum-evasion-site.pages.dev').replace(/\/+$/, '');
+const OUT = process.env.OUT;
 if (!OUT) throw new Error('OUT (dossier de sortie) est requis.');
 
-const EXCLUDED = /^\/(api|admin|_next|og|dev|espace)(\/|$)|\/(panier|cart|commande|checkout|reservation|booking|reprendre|resume|desinscription|unsubscribe)(\/|$)|\/(merci|thanks)$/;
-const FILE_EXT = /\.(svg|png|ico|jpg|jpeg|webp|avif|gif|mp4|vtt|xml|txt|json|webmanifest|woff2?|css|js)$/i;
+const EXCLUDED =
+  /^\/(api|admin|_next|og|dev|espace)(\/|$)|\/(panier|cart|commande|checkout|reservation|booking|reprendre|resume|desinscription|unsubscribe)(\/|$)|\/(merci|thanks)$/;
+const FILE_EXT =
+  /\.(svg|png|ico|jpg|jpeg|webp|avif|gif|mp4|vtt|xml|txt|json|webmanifest|woff2?|css|js)$/i;
+const IMAGE =
+  /\/_next\/image\?url=([^&"'\\\s,]+)(?:&amp;|\\u0026|&)w=(\d+)(?:&amp;|\\u0026|&)q=(\d+)/g;
+const FLIGHT = /<script>self\.__next_f\.push\((\[[\s\S]*?\])\)<\/script>/g;
+const LENGTH_TAGS = new Set('TAOoUSsLlGgMmV');
 
 const DEMO_SCRIPT = `<script>
 (function () {
@@ -56,9 +67,9 @@ const DEMO_SCRIPT = `<script>
 })();
 </script>`;
 
-const files = new Map(); // chemin public → présent
-const images = new Map(); // clé (url, w, q) → chemin public
-const pages = new Map(); // chemin de page → chemin du fichier
+const files = new Set();
+const images = new Map(); // « url|w|q » → chemin public
+const pages = new Map();
 const queue = [];
 const seen = new Set();
 const problems = [];
@@ -67,27 +78,31 @@ const write = async (publicPath, data) => {
   const target = join(OUT, publicPath);
   await mkdir(dirname(target), { recursive: true });
   await writeFile(target, data);
-  files.set(publicPath, true);
+  files.add(publicPath);
 };
 
 const extFor = (type) =>
-  type.includes('avif') ? 'avif' : type.includes('webp') ? 'webp' : type.includes('png') ? 'png' : 'jpg';
+  type.includes('avif')
+    ? 'avif'
+    : type.includes('webp')
+      ? 'webp'
+      : type.includes('png')
+        ? 'png'
+        : 'jpg';
 
 const fetchImage = async (url, w, q) => {
   const key = `${url}|${w}|${q}`;
-  const known = images.get(key);
-  if (known) return known;
+  if (images.has(key)) return;
   const target = `${BASE}/_next/image?url=${encodeURIComponent(url)}&w=${w}&q=${q}`;
   const res = await fetch(target, { headers: { Accept: 'image/avif,image/webp,image/*' } });
   if (!res.ok) {
     problems.push(`image ${res.status} : ${url} (${w})`);
-    return null;
+    return;
   }
   const ext = extFor(res.headers.get('content-type') ?? '');
   const name = `/_img/${createHash('sha1').update(key).digest('hex').slice(0, 12)}.${ext}`;
   await write(name, Buffer.from(await res.arrayBuffer()));
   images.set(key, name);
-  return name;
 };
 
 const fetchRaw = async (publicPath) => {
@@ -100,51 +115,122 @@ const fetchRaw = async (publicPath) => {
   await write(publicPath, Buffer.from(await res.arrayBuffer()));
 };
 
-const pageFile = (path) => {
-  if (path === '/') return 'index.html';
-  return `${path.replace(/^\/+|\/+$/g, '')}.html`;
+const pageFile = (path) => (path === '/' ? 'index.html' : `${path.replace(/^\/+|\/+$/g, '')}.html`);
+
+/**
+ * Parcourt le flux de données React (texte décodé) ligne par ligne et applique `rewrite` au texte
+ * de chaque ligne ; l'en-tête des lignes de texte (`id:T<longueur en octets hexadécimale>,`) est
+ * recalculé. Les lignes binaires sont recopiées telles quelles.
+ */
+const mapFlight = (stream, rewrite) => {
+  const bytes = Buffer.from(stream, 'utf8');
+  const out = [];
+  let i = 0;
+  while (i < bytes.length) {
+    const colon = bytes.indexOf(0x3a, i);
+    if (colon < 0 || colon + 1 >= bytes.length) {
+      out.push(Buffer.from(rewrite(bytes.subarray(i).toString('utf8'))));
+      break;
+    }
+    const head = bytes.subarray(i, colon + 1).toString('latin1');
+    const tag = String.fromCharCode(bytes[colon + 1]);
+    if (LENGTH_TAGS.has(tag)) {
+      const comma = bytes.indexOf(0x2c, colon + 2);
+      const hex = comma < 0 ? '' : bytes.subarray(colon + 2, comma).toString('latin1');
+      if (/^[0-9a-f]+$/.test(hex)) {
+        const end = comma + 1 + parseInt(hex, 16);
+        if (tag === 'T') {
+          const text = Buffer.from(rewrite(bytes.subarray(comma + 1, end).toString('utf8')));
+          out.push(Buffer.from(`${head}T${text.length.toString(16)},`), text);
+        } else {
+          out.push(bytes.subarray(i, end));
+        }
+        i = end;
+        continue;
+      }
+    }
+    const newline = bytes.indexOf(0x0a, colon + 1);
+    const end = newline < 0 ? bytes.length : newline + 1;
+    out.push(
+      Buffer.from(head),
+      Buffer.from(rewrite(bytes.subarray(colon + 1, end).toString('utf8'))),
+    );
+    i = end;
+  }
+  return Buffer.concat(out).toString('utf8');
 };
 
-const process_ = async (path, html) => {
-  // 1. Images optimisées : attributs HTML (`&amp;`) et données de la page (`&`).
-  const imagePattern = /\/_next\/image\?url=([^&"'\\\s,]+)(?:&amp;|\\u0026|&)w=(\d+)(?:&amp;|\\u0026|&)q=(\d+)/g;
-  const wanted = new Set();
-  for (const match of html.matchAll(imagePattern)) wanted.add(match[0]);
-  const replacements = new Map();
-  for (const full of wanted) {
-    const [, rawUrl, w, q] = full.match(/url=([^&\\]+?)(?:&amp;|\\u0026|&)w=(\d+)(?:&amp;|\\u0026|&)q=(\d+)/) ?? [];
-    if (!rawUrl) continue;
-    const name = await fetchImage(decodeURIComponent(rawUrl), w, q);
-    if (name) replacements.set(full, name);
-  }
-  html = html.replace(imagePattern, (full) => replacements.get(full) ?? full);
+/** Texte d'un script de flux : JSON sûr dans une balise <script> (comme Next.js). */
+const scriptJson = (value) =>
+  JSON.stringify(value)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
 
-  // 2. Fichiers servis tels quels (médias bruts, icônes, vignettes) cités par la page.
+const processPage = async (path, original) => {
+  // Flux de données : tous les morceaux de type 1, dans l'ordre.
+  const scripts = [...original.matchAll(FLIGHT)].map((match) => ({
+    text: match[0],
+    value: JSON.parse(match[1]),
+  }));
+  const dataScripts = scripts.filter((script) => script.value[0] === 1);
+  const stream = dataScripts.map((script) => script.value[1]).join('');
+  if (mapFlight(stream, (text) => text) !== stream) {
+    throw new Error(`Flux de données illisible (analyse non réversible) : ${path}`);
+  }
+
+  // Images optimisées citées par la page (attributs HTML et flux), téléchargées avant réécriture.
+  for (const match of `${original}\n${stream}`.matchAll(IMAGE)) {
+    await fetchImage(decodeURIComponent(match[1]), match[2], match[3]);
+  }
+  // Fichiers servis tels quels (médias bruts, icônes, vignettes).
   const rawRefs = new Set(
-    [...html.matchAll(/["'(](\/(?:api\/media\/file\/[^"'\\\s)?&#]+|[^"'\\\s)?&#]+\.(?:svg|png|ico|jpg|jpeg|webp|avif|webmanifest)))/g)]
+    [
+      ...`${original}\n${stream}`.matchAll(
+        /["'(](\/(?:api\/media\/file\/[^"'\\\s)?&#]+|[^"'\\\s)?&#]+\.(?:svg|png|ico|jpg|jpeg|webp|avif|webmanifest)))/g,
+      ),
+    ]
       .map((m) => m[1])
-      .filter((ref) => !ref.startsWith('/_next/') && !ref.startsWith('/_img/') && !ref.startsWith('/fonts/')),
+      .filter((ref) => !/^\/(_next|_img|fonts)\//.test(ref)),
   );
   for (const ref of rawRefs) await fetchRaw(decodeURI(ref));
 
-  // 3. Bascule de langue : page équivalente donnée par les liens `alternate` de la page.
-  for (const lang of ['fr', 'en']) {
-    const alt = html.match(new RegExp(`rel="alternate" hrefLang="${lang}" href="([^"]+)"`));
-    if (alt) {
-      const target = new URL(alt[1], BASE).pathname;
-      html = html.split(`/api/locale-switch?to=${lang}`).join(target);
-    }
-  }
+  // Page équivalente dans l'autre langue (liens `alternate`), pour la bascule de langue.
+  const switches = ['fr', 'en'].flatMap((lang) => {
+    const alt = original.match(new RegExp(`rel="alternate" hrefLang="${lang}" href="([^"]+)"`));
+    return alt ? [[`/api/locale-switch?to=${lang}`, new URL(alt[1], BASE).pathname]] : [];
+  });
 
-  // 4. Adresse du site, balise robots (démonstration non indexée), message des formulaires.
-  html = html.split(BASE).join(ORIGIN);
+  const rewrite = (text) => {
+    let result = text.replace(IMAGE, (whole, rawUrl, w, q) => {
+      return images.get(`${decodeURIComponent(rawUrl)}|${w}|${q}`) ?? whole;
+    });
+    result = result
+      .split(encodeURIComponent(BASE))
+      .join(encodeURIComponent(ORIGIN))
+      .split(BASE)
+      .join(ORIGIN);
+    for (const [from, to] of switches) result = result.split(from).join(to);
+    return result;
+  };
+
+  // Réécriture : flux (longueurs recalculées) fusionné en un seul morceau, puis le reste du HTML.
+  const merged = `<script>self.__next_f.push(${scriptJson([1, mapFlight(stream, rewrite)])})</script>`;
+  let html = original;
+  let placed = false;
+  for (const script of dataScripts) {
+    html = html.replace(script.text, placed ? '' : '<!--FLUX-->');
+    placed = true;
+  }
+  html = rewrite(html).replace('<!--FLUX-->', () => merged);
   if (!/<meta name="robots"/.test(html)) {
     html = html.replace('</head>', '<meta name="robots" content="noindex, nofollow"/></head>');
   }
-  html = html.replace('</body>', `${DEMO_SCRIPT}</body>`);
+  html = html.replace('</body>', () => `${DEMO_SCRIPT}</body>`);
 
-  // 5. Liens internes à suivre.
-  const links = [...html.matchAll(/href="(\/[^"#]*)"/g)]
+  const links = [...original.matchAll(/href="(\/[^"#]*)"/g)]
     .map((m) => m[1].split('?')[0].replace(/\/+$/, '') || '/')
     .filter((link) => !EXCLUDED.test(link) && !FILE_EXT.test(link));
   return { html, links };
@@ -160,7 +246,7 @@ const crawl = async (path) => {
     problems.push(`page ${res.status} : ${path}`);
     return;
   }
-  const { html, links } = await process_(path, await res.text());
+  const { html, links } = await processPage(path, await res.text());
   const file = pageFile(path);
   await write(file, html);
   pages.set(path, file);
@@ -201,8 +287,7 @@ const run = async () => {
 
   // Page 404 (statut 404, rendue par le site).
   const missing = await fetch(`${BASE}/fr/page-introuvable-demo`);
-  const missingPage = await process_('/404', await missing.text());
-  await write('404.html', missingPage.html);
+  await write('404.html', (await processPage('/404', await missing.text())).html);
 
   await write('robots.txt', 'User-agent: *\nDisallow: /\n');
   await write('_redirects', '/  /fr  302\n');
@@ -236,8 +321,11 @@ const run = async () => {
     }
   };
   await walk(OUT);
-  console.log(`${pages.size} pages, ${images.size} images optimisées, ${(bytes / 1048576).toFixed(1)} Mo`);
-  if (problems.length > 0) console.log(`À vérifier (${problems.length}) :\n- ${problems.join('\n- ')}`);
+  console.log(
+    `${pages.size} pages, ${images.size} images optimisées, ${(bytes / 1048576).toFixed(1)} Mo`,
+  );
+  if (problems.length > 0)
+    console.log(`À vérifier (${problems.length}) :\n- ${problems.join('\n- ')}`);
 };
 
 await run();
