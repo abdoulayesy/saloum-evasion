@@ -15,7 +15,7 @@ const tile =
   'flex min-w-0 flex-[1_1_9.5rem] flex-col gap-1 rounded-2xl bg-paper px-4 pt-2.5 pb-1 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus';
 const tileLabel = 'text-xs font-bold tracking-[0.08em] text-ink-muted uppercase';
 const control =
-  'min-h-touch w-full border-0 bg-transparent p-0 text-base text-ink focus:outline-none';
+  'min-h-touch w-full max-w-full min-w-0 border-0 bg-transparent p-0 text-base text-ink focus:outline-none';
 
 export const HomeSearch = async ({ locale }: { locale: Locale }) => {
   const t = await getTranslations({ locale, namespace: 'home' });

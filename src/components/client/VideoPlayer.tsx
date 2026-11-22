@@ -231,7 +231,7 @@ export const VideoPlayer = ({
                 <a
                   href={chapter.href}
                   onClick={(event) => onChapter(event, chapter)}
-                  className="flex min-h-[3.75rem] items-center gap-4 rounded-2xl px-3 py-3 text-sable transition-colors hover:bg-sable/10"
+                  className="flex min-h-[3.75rem] flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl px-3 py-3 text-sable transition-colors hover:bg-sable/10"
                 >
                   <span className="w-7 font-serif text-[1.375rem] text-gold">
                     {String(index + 1).padStart(2, '0')}

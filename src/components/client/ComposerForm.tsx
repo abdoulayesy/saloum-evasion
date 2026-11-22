@@ -117,7 +117,7 @@ const StepTitle = ({
     >
       {index}
     </span>
-    <h2 id={id} className="font-sans text-[1.375rem] font-bold">
+    <h2 id={id} className="min-w-0 font-sans text-[1.375rem] font-bold [overflow-wrap:anywhere]">
       {title}
     </h2>
     {hint && <span className="text-sm text-ink-muted">{hint}</span>}
@@ -391,7 +391,7 @@ export const ComposerForm = ({
               return (
                 <label
                   key={item.id}
-                  className={`${optionClass(selected)} flex min-h-[4.75rem] cursor-pointer items-center gap-3.5 px-4.5 py-4`}
+                  className={`${optionClass(selected)} flex min-h-[4.75rem] cursor-pointer flex-wrap items-center gap-x-3.5 gap-y-1 px-4.5 py-4`}
                 >
                   <input
                     type="checkbox"

@@ -61,7 +61,9 @@ test.describe('film', () => {
     await page.goto(FILM);
     const chapters = page.getByRole('navigation', { name: 'Chapitres du film' });
     await expect(chapters.getByRole('link')).toHaveCount(4);
-    await chapters.getByRole('link', { name: /Troisième partie/ }).click();
+    // Troisième chapitre (125 s) : sélectionné par son rang, les titres des chapitres changent
+    // avec le contenu de la base (démonstration, puis film réel).
+    await chapters.getByRole('link').nth(2).click();
     await expect(page).toHaveURL(/\?t=125$/);
     await expect(page.locator('video')).toHaveAttribute('data-start-at', '125');
   });

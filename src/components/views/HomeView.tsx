@@ -244,13 +244,23 @@ export const HomeView = async ({
         aria-labelledby="accueil-titre"
         className="relative isolate overflow-hidden bg-[#16193a] text-sable"
       >
-        <CmsImage
-          media={hero}
-          locale={locale}
-          sizes={HOME_HERO_SIZES}
-          priority
-          className="absolute inset-x-0 top-0 -z-10 h-[34rem] w-full object-cover sm:inset-y-0 sm:h-full"
-        />
+        {/* Photo jamais plus haute que l'écran (34 rem sur téléphone, 85 % de la hauteur au-delà) :
+            Chrome écarte du LCP une image qui couvre toute la fenêtre (ex. téléphone en paysage).
+            Fondu du bas vers la nuit par un dégradé peint une fois (un mask-image coûte cher au
+            premier rendu en densité ×3). */}
+        <div className="absolute inset-x-0 top-0 -z-10 h-[34rem] sm:h-[min(100%,85vh)]">
+          <CmsImage
+            media={hero}
+            locale={locale}
+            sizes={HOME_HERO_SIZES}
+            priority
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-0 bottom-0 h-48 bg-[linear-gradient(to_bottom,transparent,#16193a)]"
+          />
+        </div>
         {ambientLoopSrc && (
           <AmbientLoop
             src={ambientLoopSrc}
@@ -258,12 +268,6 @@ export const HomeView = async ({
             playLabel={tAmbient('play')}
           />
         )}
-        {/* Téléphone : fondu du bas de la photo vers la nuit (dégradé peint une fois, pas de masque :
-            un mask-image sur la photo coûte cher au premier rendu en densité ×3). */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-x-0 top-[22rem] -z-10 h-48 bg-[linear-gradient(to_bottom,transparent,#16193a)] sm:hidden"
-        />
         {/* Voile crépusculaire (nuit → prune → nuit) : texte sable ≥ 5,5:1 sur toute photo. */}
         <div
           aria-hidden="true"
@@ -296,25 +300,30 @@ export const HomeView = async ({
             <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
               <a
                 href="#immersion"
-                className="inline-flex min-h-13 items-center gap-3.5 font-semibold text-sable"
+                className="inline-flex min-h-13 max-w-full items-center gap-[14px] font-semibold text-sable"
               >
-                <span className="pulse flex h-13 w-13 items-center justify-center rounded-full border-[1.5px] border-sable/60 bg-sable/15">
+                <span className="pulse flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border-[1.5px] border-sable/60 bg-sable/15">
                   <PlayGlyph size={18} />
                 </span>
                 {t('watchFilm')}
-              </a>
-              {/* Téléphone : raccourci vers la recherche, dans la zone du pouce. */}
-              <a
-                href={`#${HOME_SEARCH_ID}`}
-                className="inline-flex min-h-touch w-full items-center justify-center rounded-full bg-ocre px-6 font-semibold text-cream sm:hidden"
-              >
-                {t('findStay')}
               </a>
             </div>
           </div>
           <HomeSearch locale={locale} />
         </div>
       </section>
+
+      {/* Téléphone et tablette : raccourci vers la recherche, barre collante du site (zone du pouce
+          en portrait ; dans le flux en paysage bas et dès 768 px). Hors du héro : une barre fixe
+          prise dans son contexte d'empilement passerait sous les cartes de la page. */}
+      <div className="sticky-action-bar bg-[#16193a] px-4 py-2.5 lg:hidden">
+        <a
+          href={`#${HOME_SEARCH_ID}`}
+          className="mx-auto flex min-h-touch w-full max-w-md items-center justify-center rounded-full bg-ocre px-6 font-semibold text-cream"
+        >
+          {t('findStay')}
+        </a>
+      </div>
 
       {/* ============ GARANTIES ============ */}
       <section aria-label={t('trustLabel')} className="bg-mangrove text-[#e9e1d2]">
@@ -510,7 +519,7 @@ export const HomeView = async ({
                           </ul>
                         )}
                         <div className="mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-warm-line pt-4">
-                          <p className="text-sm text-ink-muted">
+                          <p className="min-w-0 text-sm [overflow-wrap:anywhere] text-ink-muted">
                             {t('from')}{' '}
                             <strong className="text-xl text-ink">{formatXof(price)}</strong>{' '}
                             {t('perPerson')}
@@ -710,7 +719,7 @@ export const HomeView = async ({
 
       {/* ============ APPEL ============ */}
       <section aria-labelledby="contact-titre" className={`${WRAP} ${SECTION_Y}`}>
-        <div className="flex flex-col gap-8 rounded-[32px] bg-ocre p-[clamp(2.5rem,6vw,4.5rem)] text-cream lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-8 rounded-[32px] bg-ocre p-[24px] text-cream sm:p-[clamp(40px,6vw,72px)] lg:flex-row lg:items-center lg:justify-between">
           <div className="flex max-w-2xl flex-col gap-3.5">
             <h2
               id="contact-titre"
@@ -756,6 +765,7 @@ export const HomeView = async ({
           </div>
         </div>
       </section>
+      <div aria-hidden="true" className="action-bar-spacer lg:hidden" />
     </>
   );
 };
